@@ -14,6 +14,7 @@ if (!$user) {
     header('Location: login.php');
     exit;
 }
+
 // Profil güncelleme işlemi
 if (isset($_POST['update_profile'])) {
     $name = trim($_POST['name'] ?? '');
@@ -28,6 +29,7 @@ if (isset($_POST['update_profile'])) {
     $linkedin = trim($_POST['linkedin'] ?? '');
     $achievements = trim($_POST['achievements'] ?? '');
     $avatarFile = $user['avatar'];
+
     if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = __DIR__ . '/uploads/avatar/';
         if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
@@ -38,12 +40,13 @@ if (isset($_POST['update_profile'])) {
             $avatarFile = $filename;
         }
     }
+
     $stmt = $pdo->prepare('UPDATE users SET name=?, phone=?, university=?, department=?, class=?, birthdate=?, address=?, bio=?, instagram=?, linkedin=?, achievements=?, avatar=? WHERE id=?');
     $stmt->execute([$name, $phone, $university, $department, $class, $birthdate, $address, $bio, $instagram, $linkedin, $achievements, $avatarFile, $user['id']]);
-    // Sayfa yenile (güncel bilgileri görmek için)
     header('Location: profilim.php');
     exit;
 }
+
 $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
 $stmt->execute([$email]);
 $user = $stmt->fetch();
@@ -78,6 +81,7 @@ if (!$user) {
                 <button class="cta-button" id="profil-guncelle-btn" style="margin-top:0.3rem;"><?php echo __t('profile.edit'); ?></button>
             </div>
         </div>
+
         <!-- Profil Düzenle Modalı -->
         <div id="profil-modal" class="profil-modal" style="display:none;">
             <div class="profil-modal-content">
@@ -148,6 +152,7 @@ if (!$user) {
                 </form>
             </div>
         </div>
+
         <div class="profil-info-list">
             <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.phone'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['phone']); ?></span></div>
             <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.university'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['university']); ?></span></div>
@@ -160,37 +165,29 @@ if (!$user) {
             <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.linkedin'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['linkedin'] ?? __t('profile.value.not_set')); ?></span></div>
             <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.achievements'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['achievements'] ?? __t('profile.value.not_set')); ?></span></div>
         </div>
+
         <?php
-        // Kullanıcının CV durumunu kontrol et
-        $cvProfileStmt = $pdo->prepare('SELECT cv_filename FROM user_cv_profiles WHERE user_id = ?');
-        $cvProfileStmt->execute([$user['id']]);
-        $cvProfileRow = $cvProfileStmt->fetch();
-        $hasCv = ($cvProfileRow && !empty($cvProfileRow['cv_filename']));
-        if (!$hasCv) {
-            // Dosya sistemi üzerinden kullanıcıya ait olası CV dosyalarını ara (geri dönüş planı)
-            $patternAbs = __DIR__ . '/uploads/cv/' . 'cv_' . $user['id'] . '_*.pdf';
-            $matches = function_exists('glob') ? glob($patternAbs) : [];
-            if (empty($matches) && function_exists('glob')) {
-                $patternRel = 'uploads/cv/' . 'cv_' . $user['id'] . '_*.pdf';
-                $matches = glob($patternRel);
-            }
-            if (!empty($matches)) {
-                $hasCv = true;
-            } else {
-                // glob devre dışıysa scandir ile kontrol et
-                $dir = __DIR__ . '/uploads/cv';
-                if (is_dir($dir)) {
-                    $files = scandir($dir);
-                    if ($files) {
-                        $prefix = 'cv_' . $user['id'] . '_';
-                        foreach ($files as $f) {
-                            if (strpos($f, $prefix) === 0 && substr($f, -4) === '.pdf') { $hasCv = true; break; }
-                        }
-                    }
-                }
-            }
-        }
-        ?>
+
+// ✅ CV KONTROLÜ
+$cvProfileStmt = $pdo->prepare('SELECT cv_filename FROM user_cv_profiles WHERE user_id = ? LIMIT 1');
+$cvProfileStmt->execute([$user['id']]);
+$cvProfileRow = $cvProfileStmt->fetch(PDO::FETCH_ASSOC);
+
+$hasCv = false;
+$cvFilePath = '';
+
+
+if ($cvProfileRow && !empty($cvProfileRow['cv_filename'])) {
+    $cvFilePath = 'uploads/cv/' . $cvProfileRow['cv_filename'];
+    
+    // Veritabanında kayıt var VE dosya sisteminde de mevcutsa
+    if (file_exists($cvFilePath)) {
+        $hasCv = true;
+    }
+    
+}
+?>
+
         <div class="profil-cv-section" style="margin-top:1rem;">
             <?php if ($hasCv): ?>
                 <button class="cta-button" onclick="window.location.href='cv-goruntule.php'">
@@ -202,6 +199,7 @@ if (!$user) {
                 </button>
             <?php endif; ?>
         </div>
+    </div>
 </main>
 <?php include 'footer.php'; ?>
 <script src="js/profilim.js"></script>
