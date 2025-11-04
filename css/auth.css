@@ -1,0 +1,409 @@
+/* Auth Sayfaları CSS - Giriş ve Kayıt Formları */
+:root {
+  --primary: #000000;
+  --secondary: #ffffff;
+  --accent: #9370db;
+  --shadow: 8px 8px 0px var(--primary);
+}
+
+.auth-page {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Courier New", monospace;
+}
+
+.auth-page {
+  min-height: 100vh;
+  background-color: #a298b7;
+  position: relative;
+  overflow: hidden;
+  padding: 70px 0;
+}
+
+/* Matrix Animasyonu için Stiller */
+.matrix-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.auth-page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="none" stroke="#9370db" stroke-width="1"/></svg>');
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 600px;
+  border: 1px solid var(--primary);
+  padding: 40px 30px;
+  background-color: var(--secondary);
+  box-shadow: var(--shadow);
+  position: relative;
+  border-radius: 12px;
+  margin: auto;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.auth-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--primary);
+  z-index: -1;
+  border-radius: 12px;
+}
+
+.auth-container h2 {
+  color: var(--primary);
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid var(--primary);
+  background-color: var(--secondary);
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.form-group input:focus {
+  box-shadow: 4px 4px 0px var(--primary);
+}
+
+/* Butonlar */
+.auth-container button {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--accent);
+  color: var(--secondary);
+  border: 2px solid var(--primary);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+
+.auth-container button:hover {
+  box-shadow: 4px 4px 0px var(--primary);
+  transform: translate(-2px, -2px);
+}
+
+.auth-container p {
+  text-align: center;
+  margin-top: 25px;
+  color: #2c3e50; /* Gece Mavisi */
+  font-size: 0.95rem;
+}
+
+.auth-container p a {
+  color: #9370db; /* Mor */
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.auth-container p a::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    #6a0dad,
+    #9370db
+  ); /* Mor - Menekşe Gradient */
+  transition: all 0.3s ease;
+}
+
+.auth-container p a:hover {
+  color: #9370db; /* Menekşe */
+}
+
+.auth-container p a:hover::after {
+  width: 100%;
+}
+
+/* Şifre Gereksinimleri */
+.password-requirements {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-top: 5px;
+  border-left: 3px solid #b39ddb;
+  font-size: 0.85rem;
+}
+
+.password-requirements small {
+  display: block;
+  margin-bottom: 5px;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.password-requirements ul {
+  list-style-type: none;
+  padding-left: 5px;
+  margin: 0;
+}
+
+.password-requirements li {
+  margin-bottom: 3px;
+  position: relative;
+  padding-left: 20px;
+  transition: all 0.3s ease;
+}
+
+.password-requirements li.valid {
+  color: #4caf50;
+}
+
+.password-requirements li.invalid {
+  color: #f44336;
+}
+
+/* Şifre Container ve Göster/Gizle Butonu */
+.password-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input[type="password"],
+.password-container input[type="text"] {
+  width: 100%;
+  padding-right: 40px; /* Göz ikonu için yer aç */
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9370db;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  width: 36px;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.password-toggle:hover {
+  color: #9370db;
+}
+
+.password-toggle i {
+  font-size: 1.1rem;
+}
+
+/* Uyarı Mesajları */
+.alert-error,
+.alert-success {
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  position: relative;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.alert-error {
+  background-color: rgba(255, 0, 0, 0.1);
+  border-left: 4px solid #ff0000;
+  color: #d32f2f;
+}
+
+.alert-success {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-left: 4px solid #4caf50;
+  color: #388e3c;
+}
+
+/* Responsive Tasarım */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 30px 20px;
+    width: 95%;
+  }
+
+  .auth-container h2 {
+    font-size: 1.8rem;
+  }
+
+  .form-group input {
+    padding: 10px 12px;
+  }
+}
+
+/* Animasyonlar */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-container {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.form-group {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.form-group:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.form-group:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.form-group:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.form-group:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.form-group:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.form-group:nth-child(6) {
+  animation-delay: 0.6s;
+}
+.form-group:nth-child(7) {
+  animation-delay: 0.7s;
+}
+.form-group:nth-child(8) {
+  animation-delay: 0.8s;
+}
+
+.auth-container button {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out 0.9s forwards;
+}
+
+.auth-container p {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out 1s forwards;
+}
+
+/* Şifre gereksinimleri listesi */
+.password-requirements {
+  background-color: rgba(106, 13, 173, 0.05);
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-top: 5px;
+  font-size: 0.85rem;
+  color: #2c3e50;
+}
+
+.password-requirements small {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #9370db;
+}
+
+.password-requirements ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.password-requirements li {
+  margin-bottom: 3px;
+  position: relative;
+  transition: color 0.3s ease;
+  padding-left: 22px;
+}
+
+.password-requirements li::before {
+  content: "\2715"; /* X işareti */
+  position: absolute;
+  left: 0;
+  color: #d32f2f; /* Kırmızı */
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.password-requirements li.valid {
+  color: #388e3c; /* Yeşil */
+}
+
+.password-requirements li.valid::before {
+  content: "\2713"; /* Tik işareti */
+  color: #4caf50; /* Yeşil */
+}
+
+/* Şifre bilgi metni */
+.password-info {
+  margin-top: 5px;
+  font-size: 0.85rem;
+}
+
+.password-info a {
+  color: #9370db;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.password-info a:hover {
+  color: #9370db;
+  text-decoration: underline;
+}
+
+/* Google reCAPTCHA */
+.g-recaptcha {
+  margin: 10px 0;
+  transform-origin: left top;
+  transform: scale(0.95);
+}
