@@ -1,37 +1,38 @@
+<?php require_once 'includes/lang.php'; ?>
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
 <head>
     <?php include 'includes/head-meta.php'; ?>
-    <title>Hakkımızda - ASEC Kulübü</title>
+    <title><?php echo __t('about.title'); ?> - ASEC</title>
     <link rel="stylesheet" href="css/hakkimizda.css">
 </head>
 <body>
     <?php include 'header.php'; ?>
     <main>
         <section class="about-header">
-            <h2>Hakkımızda</h2>
+            <h2><?php echo __t('about.title'); ?></h2>
             <p>
-                ASEC Kulübü, Ankara Yıldırım Beyazıt Üniversitesi Yazılım Mühendisliği öğrencileri tarafından kurulan, proje geliştirme, etkinlik organizasyonu, kariyer fırsatları ve uluslararası deneyimler sunarak üyelerinin mesleki gelişimini destekleyen bir topluluktur.
+                <?php echo __t('about.intro'); ?>
             </p>
         </section>
         
         <section class="about-hero">
             <div class="hero-content">
                 <div class="hero-text">
-                    <h2 class="animate-fade-in">Hakkımızda</h2>
-                    <p class="animate-slide-up">Ankara Yıldırım Beyazıt Üniversitesi Yazılım Mühendisliği Kulübü (ASEC), 7 aktif departmanı ve 50+ üyesiyle öğrencilerin mesleki gelişimlerini destekleyen, proje geliştirme, etkinlik organizasyonu, staj ve iş fırsatları, yurtdışı deneyimleri, teknik geziler ve sponsorluk çalışmaları yürüten dinamik bir öğrenci toplululuğudur.</p>
+                    <h2 class="animate-fade-in"><?php echo __t('about.title'); ?></h2>
+                    <p class="animate-slide-up"><?php echo __t('about.description'); ?></p>
                     <div class="hero-stats animate-scale-up">
                         <div class="stat-item">
                             <span class="stat-number">7</span>
-                            <span class="stat-label">Aktif Departman</span>
+                            <span class="stat-label"><?php echo __t('about.stats.departments'); ?></span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-number">50+</span>
-                            <span class="stat-label">Üye</span>
+                            <span class="stat-label"><?php echo __t('about.stats.members'); ?></span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-number">20+</span>
-                            <span class="stat-label">Proje</span>
+                            <span class="stat-label"><?php echo __t('about.stats.projects'); ?></span>
                         </div>
                     </div>
                 </div>
@@ -54,7 +55,7 @@
         <section class="vision-mission-section">
             <div class="container">
                 <div class="section-header animate-fade-in">
-                    <h2>Vizyonumuz & Misyonumuz</h2>
+                    <h2><?php echo __t('about.vision_mission.title'); ?></h2>
                     <div class="divider"></div>
                 </div>
                 <div class="vision-mission-grid">
@@ -63,16 +64,16 @@
                             <!-- Lottie animasyonu -->
                             <lottie-player src="images/animations/vision.json" background="transparent" speed="1" loop autoplay></lottie-player>
                         </div>
-                        <h3>Vizyonumuz</h3>
-                        <p>Teknoloji dünyasında öncü, yenilikçi ve etik değerlere bağlı bireyler yetiştirerek, üyelerimizin mesleki gelişimlerini desteklemek ve sektöre daha donanımlı bireyler olarak adım atmalarını sağlamak.</p>
+                        <h3><?php echo __t('about.vision.title'); ?></h3>
+                        <p><?php echo __t('about.vision.description'); ?></p>
                     </div>
                     <div class="mission-card animate-slide-up">
                         <div class="icon-container">
                             <!-- Lottie animasyonu -->
                     <lottie-player src="images/animations/mission.json" background="transparent" speed="1" loop autoplay></lottie-player>
                         </div>
-                        <h3>Misyonumuz</h3>
-                        <p>Öğrencilere proje geliştirme, etkinlik organizasyonu, staj ve iş fırsatları, yurtdışı deneyimleri, teknik geziler ve sektör bağlantıları sunarak, mezun olmadan önce gerçek dünya deneyimi kazanmalarını sağlamak.</p>
+                        <h3><?php echo __t('about.mission.title'); ?></h3>
+                        <p><?php echo __t('about.mission.description'); ?></p>
                     </div>
                 </div>
             </div>

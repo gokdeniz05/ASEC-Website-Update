@@ -7,13 +7,27 @@ if (!isset($_SESSION['user'])) {
 }
 
 $email = $_SESSION['user'];
-$stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
-$stmt->execute([$email]);
-$user = $stmt->fetch();
-if (!$user) {
-    session_destroy();
-    header('Location: login.php');
-    exit;
+$user_type = $_SESSION['user_type'] ?? 'individual';
+
+// Check user type and fetch from appropriate table
+if ($user_type === 'corporate') {
+    $stmt = $pdo->prepare('SELECT * FROM corporate_users WHERE email = ?');
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+    if (!$user) {
+        session_destroy();
+        header('Location: corporate-login.php');
+        exit;
+    }
+} else {
+    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+    if (!$user) {
+        session_destroy();
+        header('Location: login.php');
+        exit;
+    }
 }
 
 // CV profili tablosunu oluştur (yoksa)
@@ -78,11 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ON DUPLICATE KEY UPDATE major=VALUES(major), languages=VALUES(languages), software_fields=VALUES(software_fields), companies=VALUES(companies), cv_filename=VALUES(cv_filename)');
         $stmt->execute([$user['id'], $major, $languagesJson, $softwareFieldsJson, $companiesJson, $cvFileName]);
 
-        $success = __t('cv.save.success');
-        // Güncel veriyi tekrar çek
-        $stmt = $pdo->prepare('SELECT * FROM user_cv_profiles WHERE user_id = ?');
-        $stmt->execute([$user['id']]);
-        $cvProfile = $stmt->fetch();
+        // Redirect to profile page after successful save
+        header('Location: profilim.php');
+        exit;
     }
 }
 

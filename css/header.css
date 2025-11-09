@@ -46,6 +46,81 @@ header {
   transform: scale(1.05);
 }
 
+/* Auth Buttons - Desktop */
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  order: 4;
+  flex-wrap: wrap;
+}
+
+/* Corporate Buttons - Different color to distinguish */
+.corporate-btn {
+  border-color: #6a0dad !important;
+}
+
+.corporate-btn.liquid {
+  background: linear-gradient(#6a0dad 0 0) no-repeat calc(200% - var(--p, 0%))
+    100% / 200% var(--p, 0.2em);
+  transition: 0.3s var(--t, 0s),
+    background-position 0.3s calc(0.3s - var(--t, 0s));
+}
+
+.corporate-btn.liquid:hover {
+  --p: 100%;
+  --t: 0.3s;
+  color: #fff;
+  border-color: #8b5cf6 !important;
+}
+
+/* Profile and Logout Buttons - Original Style with More Visible Color */
+.btn-login,
+.btn-register {
+  position: relative;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 200;
+  color: white;
+  background: none;
+  border: 2px solid #9370db; /* Changed to more visible purple */
+  border-radius: 30px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-login.liquid,
+.btn-register.liquid {
+  background: linear-gradient(#9370db 0 0) no-repeat calc(200% - var(--p, 0%))
+    100% / 200% var(--p, 0.2em);
+  transition: 0.3s var(--t, 0s),
+    background-position 0.3s calc(0.3s - var(--t, 0s));
+}
+
+.btn-login.liquid:hover,
+.btn-register.liquid:hover {
+  --p: 100%;
+  --t: 0.3s;
+  color: #fff;
+}
+
+/* For non-liquid buttons (Profilim, Çıkış Yap) */
+.btn-login:not(.liquid):hover,
+.btn-register:not(.liquid):hover {
+  border-color: #c084fc; /* Lighter purple on hover */
+  color: #fff;
+}
+
+.btn-login i,
+.btn-register i {
+  color: inherit;
+}
+
 /* Navigasyon */
 nav {
   flex: 1;
@@ -184,6 +259,64 @@ nav {
   color: #fff;
 }
 
+/* Language Toggle Button */
+.lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 100;
+}
+
+/* Desktop: Position to the left of auth buttons (Profilim) */
+@media (min-width: 769px) {
+  .lang-toggle {
+    position: relative;
+    margin-left: auto;
+    margin-right: 1rem;
+    order: 3; /* Place before auth-buttons which is order: 4 */
+  }
+}
+
+.btn-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn-lang i {
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.btn-lang span {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.btn-lang:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-lang:active {
+  transform: translateY(0);
+  opacity: 0.8;
+}
+
 /* Mobil Menü */
 .mobile-menu {
   display: none;
@@ -205,39 +338,56 @@ nav {
 
 @media (max-width: 768px) {
   .header-container {
-    padding: 1rem 0.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    padding: 0.75rem 0.5rem;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
     position: relative;
-    min-height: 90px;
+    min-height: 70px;
+    max-height: none;
+    height: auto;
   }
 
   .logo {
     order: 2;
-    margin: 0 auto;
-    padding: 0.5rem 0;
+    margin: 0;
+    padding: 0;
     position: absolute;
     left: 50%;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+  }
+
+  .logo img {
+    height: 45px;
+    max-height: 45px;
   }
 
   .mobile-menu {
     display: block !important;
     order: 1;
     z-index: 1001;
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
+    position: relative;
+    align-self: center;
+    margin-right: auto;
   }
 
   .auth-buttons {
-    order: 3;
-    margin-top: 15px;
+    order: 4;
+    margin-top: 0;
+    align-self: flex-start;
+    position: relative;
   }
 
-  .auth-buttons #btn-register {
+  .auth-buttons #btn-register,
+  .auth-buttons #btn-corporate-register {
     display: none;
+  }
+  
+  .auth-buttons .corporate-btn {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
   }
 
   nav {
@@ -286,19 +436,157 @@ nav {
     display: block;
   }
 
+  /* Language Toggle - Mobile */
+  .lang-toggle {
+    order: 3;
+    position: absolute;
+    left: 4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    margin: 0;
+  }
+
+  .btn-lang {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    min-height: 36px;
+    min-width: 44px; /* Better touch target */
+    justify-content: center;
+    border-radius: 6px;
+  }
+
+  .btn-lang i {
+    font-size: 0.9rem;
+  }
+
+  .btn-lang span {
+    font-size: 0.85rem;
+  }
+
+  /* Hide text on very small screens, show only icon */
+  @media (max-width: 360px) {
+    .btn-lang span {
+      display: none;
+    }
+    
+    .btn-lang {
+      padding: 8px;
+      min-width: 40px;
+    }
+  }
+
   .auth-buttons {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-    position: absolute;
-    top: 0;
-    right: 0.8rem;
-    padding: 0.5rem 0;
+    gap: 0.35rem;
+    position: relative;
+    align-self: flex-start;
+    padding: 0;
+    margin-top: 0;
+    z-index: 1001;
   }
+
 
   .btn-login,
   .btn-register {
-    padding: 0.35rem 0.6rem;
+    padding: 0.5rem 1rem;
     font-size: 0.85rem;
+    font-weight: 200;
+    min-height: 36px;
+    white-space: nowrap;
+    border-color: #9370db; /* More visible purple */
+  }
+  
+  .btn-login:not(.liquid):hover,
+  .btn-register:not(.liquid):hover {
+    border-color: #c084fc; /* Lighter purple on hover */
+  }
+
+  /* Ensure header doesn't overflow */
+  .header-container {
+    overflow: visible;
+  }
+
+  /* Adjustments for smaller mobile screens */
+  @media (max-width: 480px) {
+    .header-container {
+      padding: 0.65rem 0.4rem;
+      flex-wrap: nowrap;
+      min-height: 65px;
+    }
+
+    .logo {
+      top: 50%;
+    }
+
+    .logo img {
+      height: 40px;
+      max-height: 40px;
+    }
+
+    .lang-toggle {
+      order: 3;
+      left: 3.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .auth-buttons {
+      order: 4;
+      width: auto;
+      margin-top: 0;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .btn-login,
+    .btn-register {
+      font-size: 0.8rem;
+      padding: 0.45rem 0.75rem;
+      min-height: 34px;
+      font-weight: 200;
+    }
+  }
+
+  /* Very small screens - adjust layout */
+  @media (max-width: 360px) {
+    .header-container {
+      min-height: 70px;
+      padding: 0.5rem 0.3rem;
+    }
+
+    .logo img {
+      height: 35px;
+      max-height: 35px;
+    }
+
+    .mobile-menu {
+      font-size: 1rem;
+      padding: 0.4rem;
+    }
+
+    .lang-toggle {
+      left: 3rem;
+    }
+
+    .auth-buttons {
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-top: 0.3rem;
+    }
+  }
+
+}
+
+/* Tablet adjustments */
+@media (max-width: 992px) and (min-width: 769px) {
+  .btn-lang {
+    padding: 7px 11px;
+    font-size: 0.875rem;
+  }
+  
+  .btn-lang i {
+    font-size: 0.95rem;
   }
 }

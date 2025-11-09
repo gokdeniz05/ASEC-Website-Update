@@ -28,6 +28,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="ilanlar-yonetim.php">
+                    <i class="fas fa-briefcase"></i> İlanlar Yönetim
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="iletisim.php">
                     <i class="fas fa-envelope"></i> İletişim
                 </a>

@@ -6,53 +6,89 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 $email = $_SESSION['user'];
-$stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
-$stmt->execute([$email]);
-$user = $stmt->fetch();
-if (!$user) {
-    session_destroy();
-    header('Location: login.php');
-    exit;
+$user_type = $_SESSION['user_type'] ?? 'individual';
+
+// Check user type and fetch from appropriate table
+if ($user_type === 'corporate') {
+    $stmt = $pdo->prepare('SELECT * FROM corporate_users WHERE email = ?');
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+    if (!$user) {
+        session_destroy();
+        header('Location: corporate-login.php');
+        exit;
+    }
+} else {
+    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+    if (!$user) {
+        session_destroy();
+        header('Location: login.php');
+        exit;
+    }
 }
 
 // Profil güncelleme işlemi
 if (isset($_POST['update_profile'])) {
-    $name = trim($_POST['name'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
-    $university = trim($_POST['university'] ?? '');
-    $department = trim($_POST['department'] ?? '');
-    $class = trim($_POST['class'] ?? '');
-    $birthdate = $_POST['birthdate'] ?? null;
-    $address = trim($_POST['address'] ?? '');
-    $bio = trim($_POST['bio'] ?? '');
-    $instagram = trim($_POST['instagram'] ?? '');
-    $linkedin = trim($_POST['linkedin'] ?? '');
-    $achievements = trim($_POST['achievements'] ?? '');
-    $avatarFile = $user['avatar'];
+    if ($user_type === 'corporate') {
+        // Corporate user update
+        $company_name = trim($_POST['company_name'] ?? '');
+        $contact_person = trim($_POST['contact_person'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $address = trim($_POST['address'] ?? '');
+        $tax_number = trim($_POST['tax_number'] ?? '');
+        
+        $stmt = $pdo->prepare('UPDATE corporate_users SET company_name=?, contact_person=?, phone=?, address=?, tax_number=? WHERE id=?');
+        $stmt->execute([$company_name, $contact_person, $phone, $address, $tax_number, $user['id']]);
+        $_SESSION['user_name'] = $company_name; // Update session
+    } else {
+        // Individual user update
+        $name = trim($_POST['name'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $university = trim($_POST['university'] ?? '');
+        $department = trim($_POST['department'] ?? '');
+        $class = trim($_POST['class'] ?? '');
+        $birthdate = $_POST['birthdate'] ?? null;
+        $address = trim($_POST['address'] ?? '');
+        $bio = trim($_POST['bio'] ?? '');
+        $instagram = trim($_POST['instagram'] ?? '');
+        $linkedin = trim($_POST['linkedin'] ?? '');
+        $achievements = trim($_POST['achievements'] ?? '');
+        $avatarFile = $user['avatar'] ?? '';
 
-    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = __DIR__ . '/uploads/avatar/';
-        if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
-        $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
-        $filename = 'avatar_' . $user['id'] . '_' . time() . '.' . $ext;
-        $targetPath = $uploadDir . $filename;
-        if (move_uploaded_file($_FILES['avatar']['tmp_name'], $targetPath)) {
-            $avatarFile = $filename;
+        if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/uploads/avatar/';
+            if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
+            $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
+            $filename = 'avatar_' . $user['id'] . '_' . time() . '.' . $ext;
+            $targetPath = $uploadDir . $filename;
+            if (move_uploaded_file($_FILES['avatar']['tmp_name'], $targetPath)) {
+                $avatarFile = $filename;
+            }
         }
-    }
 
-    $stmt = $pdo->prepare('UPDATE users SET name=?, phone=?, university=?, department=?, class=?, birthdate=?, address=?, bio=?, instagram=?, linkedin=?, achievements=?, avatar=? WHERE id=?');
-    $stmt->execute([$name, $phone, $university, $department, $class, $birthdate, $address, $bio, $instagram, $linkedin, $achievements, $avatarFile, $user['id']]);
+        $stmt = $pdo->prepare('UPDATE users SET name=?, phone=?, university=?, department=?, class=?, birthdate=?, address=?, bio=?, instagram=?, linkedin=?, achievements=?, avatar=? WHERE id=?');
+        $stmt->execute([$name, $phone, $university, $department, $class, $birthdate, $address, $bio, $instagram, $linkedin, $achievements, $avatarFile, $user['id']]);
+        $_SESSION['user_name'] = $name; // Update session
+    }
     header('Location: profilim.php');
     exit;
 }
 
-$stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
-$stmt->execute([$email]);
-$user = $stmt->fetch();
+// Re-fetch user data (already done above, but keeping for consistency)
+if ($user_type === 'corporate') {
+    $stmt = $pdo->prepare('SELECT * FROM corporate_users WHERE email = ?');
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+} else {
+    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+}
 if (!$user) {
     session_destroy();
-    header('Location: login.php');
+    header('Location: ' . ($user_type === 'corporate' ? 'corporate-login.php' : 'login.php'));
     exit;
 }
 ?>
@@ -76,7 +112,10 @@ if (!$user) {
                 <?php endif; ?>
             </div>
             <div class="profil-header-info">
-                <h2><?php echo htmlspecialchars($user['name']); ?></h2>
+                <h2><?php echo htmlspecialchars($user_type === 'corporate' ? ($user['company_name'] ?? 'Kurumsal Kullanıcı') : ($user['name'] ?? 'Kullanıcı')); ?></h2>
+                <?php if ($user_type === 'corporate'): ?>
+                    <div class="profil-email"><i class="fas fa-user"></i> <?php echo htmlspecialchars($user['contact_person'] ?? ''); ?></div>
+                <?php endif; ?>
                 <div class="profil-email"><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($user['email']); ?></div>
                 <button class="cta-button" id="profil-guncelle-btn" style="margin-top:0.3rem;"><?php echo __t('profile.edit'); ?></button>
             </div>
@@ -88,66 +127,93 @@ if (!$user) {
                 <span class="profil-modal-close" id="profil-modal-close">&times;</span>
                 <h3><?php echo __t('profile.edit'); ?></h3>
                 <form id="profil-update-form" method="post" enctype="multipart/form-data">
-                    <div class="profil-form-row">
-                        <div class="profil-form-group">
-                            <label><?php echo __t('register.name'); ?></label>
-                            <input type="text" name="name" value="<?php echo htmlspecialchars($user['name']); ?>">
+                    <?php if ($user_type === 'corporate'): ?>
+                        <!-- Corporate User Form -->
+                        <div class="profil-form-row">
+                            <div class="profil-form-group">
+                                <label>Şirket Adı</label>
+                                <input type="text" name="company_name" value="<?php echo htmlspecialchars($user['company_name'] ?? ''); ?>" required>
+                            </div>
+                            <div class="profil-form-group">
+                                <label>İletişim Kişisi</label>
+                                <input type="text" name="contact_person" value="<?php echo htmlspecialchars($user['contact_person'] ?? ''); ?>" required>
+                            </div>
                         </div>
-                        <div class="profil-form-group">
-                            <label><?php echo __t('profile.labels.phone'); ?></label>
-                            <input type="text" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>">
+                        <div class="profil-form-row">
+                            <div class="profil-form-group">
+                                <label><?php echo __t('profile.labels.phone'); ?></label>
+                                <input type="text" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
+                            </div>
+                            <div class="profil-form-group">
+                                <label>Vergi Numarası</label>
+                                <input type="text" name="tax_number" value="<?php echo htmlspecialchars($user['tax_number'] ?? ''); ?>">
+                            </div>
                         </div>
-                    </div>
-                    <div class="profil-form-row">
-                        <div class="profil-form-group">
-                            <label><?php echo __t('profile.labels.university'); ?></label>
-                            <input type="text" name="university" value="<?php echo htmlspecialchars($user['university']); ?>">
+                        <div class="profil-form-row">
+                            <div class="profil-form-group" style="width: 100%;">
+                                <label><?php echo __t('profile.labels.address'); ?></label>
+                                <textarea name="address" rows="3"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                            </div>
                         </div>
-                        <div class="profil-form-group">
-                            <label><?php echo __t('profile.labels.department'); ?></label>
-                            <input type="text" name="department" value="<?php echo htmlspecialchars($user['department']); ?>">
+                    <?php else: ?>
+                        <!-- Individual User Form -->
+                        <div class="profil-form-row">
+                            <div class="profil-form-group">
+                                <label><?php echo __t('register.name'); ?></label>
+                                <input type="text" name="name" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>">
+                            </div>
+                            <div class="profil-form-group">
+                                <label><?php echo __t('profile.labels.phone'); ?></label>
+                                <input type="text" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
+                            </div>
                         </div>
-                    </div>
-                    <div class="profil-form-row">
-                        <div class="profil-form-group">
-                            <label><?php echo __t('profile.labels.class'); ?></label>
-                            <input type="text" name="class" value="<?php echo htmlspecialchars($user['class']); ?>">
+                        <div class="profil-form-row">
+                            <div class="profil-form-group">
+                                <label><?php echo __t('profile.labels.university'); ?></label>
+                                <input type="text" name="university" value="<?php echo htmlspecialchars($user['university'] ?? ''); ?>">
+                            </div>
+                            <div class="profil-form-group">
+                                <label><?php echo __t('profile.labels.department'); ?></label>
+                                <input type="text" name="department" value="<?php echo htmlspecialchars($user['department'] ?? ''); ?>">
+                            </div>
                         </div>
-                        <div class="profil-form-group">
-                            <label><?php echo __t('profile.labels.birthdate'); ?></label>
-                            <input type="date" name="birthdate" value="<?php echo htmlspecialchars($user['birthdate'] ?? ''); ?>">
+                        <div class="profil-form-row">
+                            <div class="profil-form-group">
+                                <label><?php echo __t('profile.labels.class'); ?></label>
+                                <input type="text" name="class" value="<?php echo htmlspecialchars($user['class'] ?? ''); ?>">
+                            </div>
+                            <div class="profil-form-group">
+                                <label><?php echo __t('profile.labels.birthdate'); ?></label>
+                                <input type="date" name="birthdate" value="<?php echo htmlspecialchars($user['birthdate'] ?? ''); ?>">
+                            </div>
                         </div>
-                    </div>
-                    <div class="profil-form-row">
-                        <div class="profil-form-group">
-                            <label><?php echo __t('profile.labels.address'); ?></label>
-                            <input type="text" name="address" value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>">
+                        <div class="profil-form-row">
+                            <div class="profil-form-group">
+                                <label><?php echo __t('profile.labels.bio'); ?></label>
+                                <textarea name="bio"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
+                            </div>
+                            <div class="profil-form-group">
+                                <label><?php echo __t('profile.labels.instagram'); ?></label>
+                                <input type="text" name="instagram" value="<?php echo htmlspecialchars($user['instagram'] ?? ''); ?>">
+                            </div>
                         </div>
-                        <div class="profil-form-group">
-                            <label><?php echo __t('profile.labels.bio'); ?></label>
-                            <textarea name="bio"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
+                        <div class="profil-form-row">
+                            <div class="profil-form-group">
+                                <label><?php echo __t('profile.labels.linkedin'); ?></label>
+                                <input type="text" name="linkedin" value="<?php echo htmlspecialchars($user['linkedin'] ?? ''); ?>">
+                            </div>
+                            <div class="profil-form-group">
+                                <label><?php echo __t('profile.labels.achievements'); ?></label>
+                                <textarea name="achievements"><?php echo htmlspecialchars($user['achievements'] ?? ''); ?></textarea>
+                            </div>
                         </div>
-                    </div>
-                    <div class="profil-form-row">
-                        <div class="profil-form-group">
-                            <label><?php echo __t('profile.labels.instagram'); ?></label>
-                            <input type="text" name="instagram" value="<?php echo htmlspecialchars($user['instagram'] ?? ''); ?>">
+                        <div class="profil-form-row">
+                            <div class="profil-form-group">
+                                <label>Profil Fotoğrafı:</label>
+                                <input type="file" name="avatar" accept="image/*">
+                            </div>
                         </div>
-                        <div class="profil-form-group">
-                            <label><?php echo __t('profile.labels.linkedin'); ?></label>
-                            <input type="text" name="linkedin" value="<?php echo htmlspecialchars($user['linkedin'] ?? ''); ?>">
-                        </div>
-                    </div>
-                    <div class="profil-form-row">
-                        <div class="profil-form-group">
-                            <label><?php echo __t('profile.labels.achievements'); ?></label>
-                            <input type="text" name="achievements" value="<?php echo htmlspecialchars($user['achievements'] ?? ''); ?>">
-                        </div>
-                        <div class="profil-form-group">
-                            <label>Profil Fotoğrafı:</label>
-                            <input type="file" name="avatar" accept="image/*">
-                        </div>
-                    </div>
+                    <?php endif; ?>
                     <button type="submit" name="update_profile" class="cta-button"><?php echo __t('profile.save'); ?></button>
                 </form>
             </div>

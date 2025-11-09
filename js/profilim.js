@@ -31,22 +31,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const guncelleBtn = document.getElementById('profil-guncelle-btn');
     const modal = document.getElementById('profil-modal');
     const modalClose = document.getElementById('profil-modal-close');
+    
     if (guncelleBtn && modal) {
         guncelleBtn.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             modal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
         });
     }
+    
     if (modalClose && modal) {
-        modalClose.addEventListener('click', function() {
+        modalClose.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             modal.style.display = 'none';
+            document.body.style.overflow = ''; // Restore scrolling
         });
     }
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    };
+    
+    // Close modal when clicking outside
+    if (modal) {
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+        };
+    }
 
     // Profil fotoğrafı önizleme
     const avatarInput = document.querySelector('input[name="avatar"]');

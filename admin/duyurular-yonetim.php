@@ -26,13 +26,11 @@ $duyurular = $pdo->query('SELECT * FROM duyurular ORDER BY tarih DESC')->fetchAl
           </tr>
         </thead>
         <tbody>
+            <?php if(empty($duyurular)): ?>
             <tr>
-                <th>ID</th>
-                <th>Başlık</th>
-                <th>Tarih</th>
-                <th>Kategori</th>
-                <th>İşlem</th>
+                <td colspan="5" class="text-center">Henüz duyuru eklenmemiş.</td>
             </tr>
+            <?php else: ?>
             <?php foreach($duyurular as $duyuru): ?>
             <tr>
                 <td><?= htmlspecialchars($duyuru['id']) ?></td>
@@ -45,6 +43,7 @@ $duyurular = $pdo->query('SELECT * FROM duyurular ORDER BY tarih DESC')->fetchAl
                 </td>
             </tr>
             <?php endforeach; ?>
+            <?php endif; ?>
         </tbody>
       </table>
     </div>

@@ -115,10 +115,15 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="ilanlar-yonetim.php">
+                                <i class="fas fa-briefcase"></i>
+                                İlanlar Yönetim
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="iletisim.php">
                                 <i class="fas fa-envelope"></i>
                                 İletişim
-                                Duyurular
                             </a>
                         </li>
                         <li class="nav-item">
@@ -154,7 +159,12 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                         <div class="card text-white bg-success">
                             <div class="card-body">
                                 <h5 class="card-title">Üyeler</h5>
-                                <p class="card-text h2">0</p>
+                                <?php
+                                $uye_count_sql = "SELECT COUNT(*) as count FROM users";
+                                $uye_count_result = mysqli_query($conn, $uye_count_sql);
+                                $uye_count = mysqli_fetch_assoc($uye_count_result)['count'];
+                                ?>
+                                <p class="card-text h2"><?php echo $uye_count; ?></p>
                             </div>
                         </div>
                     </div>
@@ -162,7 +172,12 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                         <div class="card text-white bg-warning">
                             <div class="card-body">
                                 <h5 class="card-title">Etkinlikler</h5>
-                                <p class="card-text h2">0</p>
+                                <?php
+                                $etkinlik_count_sql = "SELECT COUNT(*) as count FROM etkinlikler";
+                                $etkinlik_count_result = mysqli_query($conn, $etkinlik_count_sql);
+                                $etkinlik_count = mysqli_fetch_assoc($etkinlik_count_result)['count'];
+                                ?>
+                                <p class="card-text h2"><?php echo $etkinlik_count; ?></p>
                             </div>
                         </div>
                     </div>
@@ -170,7 +185,25 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                         <div class="card text-white bg-info">
                             <div class="card-body">
                                 <h5 class="card-title">Duyurular</h5>
-                                <p class="card-text h2">0</p>
+                                <?php
+                                $duyuru_count_sql = "SELECT COUNT(*) as count FROM duyurular";
+                                $duyuru_count_result = mysqli_query($conn, $duyuru_count_sql);
+                                $duyuru_count = mysqli_fetch_assoc($duyuru_count_result)['count'];
+                                ?>
+                                <p class="card-text h2"><?php echo $duyuru_count; ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="card text-white bg-danger">
+                            <div class="card-body">
+                                <h5 class="card-title">İlanlar</h5>
+                                <?php
+                                $ilan_count_sql = "SELECT COUNT(*) as count FROM ilanlar";
+                                $ilan_count_result = mysqli_query($conn, $ilan_count_sql);
+                                $ilan_count = mysqli_fetch_assoc($ilan_count_result)['count'];
+                                ?>
+                                <p class="card-text h2"><?php echo $ilan_count; ?></p>
                             </div>
                         </div>
                     </div>

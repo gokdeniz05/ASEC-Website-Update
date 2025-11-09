@@ -3,6 +3,10 @@
 if (!defined('HEADER_CSS_LOADED')) {
     define('HEADER_CSS_LOADED', true);
 }
+	// Start session if not already started
+	if (session_status() === PHP_SESSION_NONE) {
+		session_start();
+	}
 	// Load language system for public site
 	require_once __DIR__ . '/includes/lang.php';
 ?>
@@ -29,7 +33,17 @@ if (!defined('HEADER_CSS_LOADED')) {
 						<li><a href="galeri"><i class="fas fa-images"></i> <?php echo __t('nav.gallery'); ?></a></li>
                     </ul>
                 </li>
-				<li><a href="duyurular"><i class="fas fa-bullhorn"></i> <?php echo __t('nav.announcements'); ?></a></li>
+                <?php if (isset($_SESSION['user'])): ?>
+                <li class="dropdown">
+					<a href="#"><i class="fas fa-bullhorn"></i> <?php echo __t('nav.announcements_jobs'); ?> <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+						<li><a href="duyurular"><i class="fas fa-bullhorn"></i> <?php echo __t('nav.announcements'); ?></a></li>
+						<li><a href="ilanlar"><i class="fas fa-briefcase"></i> <?php echo __t('nav.jobs'); ?></a></li>
+                    </ul>
+                </li>
+                <?php else: ?>
+                <li><a href="duyurular"><i class="fas fa-bullhorn"></i> <?php echo __t('nav.announcements'); ?></a></li>
+                <?php endif; ?>
 				<li><a href="etkinlikler"><i class="fas fa-calendar-alt"></i> <?php echo __t('nav.events'); ?></a></li>
 				<li><a href="blog"><i class="fas fa-blog"></i> <?php echo __t('nav.blog'); ?></a></li>
 				<li><a href="iletisim"><i class="fas fa-envelope"></i> <?php echo __t('nav.contact'); ?></a></li>
@@ -44,10 +58,10 @@ if (!defined('HEADER_CSS_LOADED')) {
 			$query['lang'] = $targetLang;
 			$toggleUrl = $baseUrl . '?' . http_build_query($query);
 		?>
-		<div class="lang-toggle" style="margin-left:auto; display:flex; align-items:center; gap:8px;">
-			<a href="<?php echo htmlspecialchars($toggleUrl); ?>" class="btn-lang" title="Language / Dil" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid rgba(255,255,255,0.2); border-radius:6px; text-decoration:none; color:#ffffff; margin-right:12px;">
-				<i class="fas fa-globe" style="color:#ffffff;"></i>
-				<span style="color:#ffffff;">&nbsp;<?php echo __t('lang.label'); ?></span>
+		<div class="lang-toggle">
+			<a href="<?php echo htmlspecialchars($toggleUrl); ?>" class="btn-lang" title="Language / Dil">
+				<i class="fas fa-globe"></i>
+				<span><?php echo __t('lang.label'); ?></span>
 			</a>
 		</div>
         <?php
@@ -60,11 +74,11 @@ if (!defined('HEADER_CSS_LOADED')) {
             </div>
         <?php } else { ?>
             <div class="auth-buttons">
-				<button onclick="window.location.href='login.php'" class="btn liquid">
-					<span><?php echo __t('auth.login'); ?></span>
+                <button onclick="window.location.href='login.php'" class="btn liquid">
+                    <span><?php echo __t('auth.login'); ?></span>
                 </button>
-				<button onclick="window.location.href='register.php'" class="btn liquid" id="btn-register">
-					<span><?php echo __t('auth.register'); ?></span>
+                <button onclick="window.location.href='register.php'" class="btn liquid" id="btn-register">
+                    <span><?php echo __t('auth.register'); ?></span>
                 </button>
             </div>
         <?php } ?>
@@ -106,6 +120,22 @@ if (!defined('HEADER_CSS_LOADED')) {
                     e.preventDefault();
                     dropdown.classList.toggle('active');
                 }
+            });
+        });
+
+        // Language button touch feedback for mobile
+        const langButtons = document.querySelectorAll('.btn-lang');
+        langButtons.forEach(btn => {
+            btn.addEventListener('touchstart', function() {
+                this.style.opacity = '0.7';
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            btn.addEventListener('touchend', function() {
+                setTimeout(() => {
+                    this.style.opacity = '1';
+                    this.style.transform = 'scale(1)';
+                }, 100);
             });
         });
     });
