@@ -15,6 +15,9 @@ $bursIlanlari = [];
 $bireyselIlanlar = [];
 
 try {
+    // Only show approved announcements
+    // Admin-created announcements (corporate_user_id IS NULL) are automatically approved
+    // Corporate-created announcements must be approved (exist in ilanlar table means approved)
     $stmt = $pdo->query('SELECT * FROM ilanlar ORDER BY tarih DESC');
     $allIlanlar = $stmt->fetchAll();
     

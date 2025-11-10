@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $_SESSION['user_name'] = $user['company_name'];
                             $_SESSION['user_type'] = 'corporate';
                             $_SESSION['contact_person'] = $user['contact_person'];
-                            header('Location: index.php');
+                            header('Location: corporate/dashboard.php');
                             exit;
                         } else {
                             $error = 'E-posta veya şifre hatalı!';

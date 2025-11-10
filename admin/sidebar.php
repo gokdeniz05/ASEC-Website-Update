@@ -42,6 +42,16 @@
                     <i class="fas fa-image"></i> Galeri Yönetim
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'kurumsal-istekler.php' ? 'active' : ''; ?>" href="kurumsal-istekler.php">
+                    <i class="fas fa-building"></i> Kurumsal İstekler
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'ilan-istekleri.php' ? 'active' : ''; ?>" href="ilan-istekleri.php">
+                    <i class="fas fa-file-alt"></i> İlan İstekleri
+                </a>
+            </li>
         </ul>
     </div>
 </nav>

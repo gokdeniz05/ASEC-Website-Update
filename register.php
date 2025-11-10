@@ -18,6 +18,26 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_users (
     INDEX idx_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
+// Corporate requests tablosunu oluştur (yoksa) - Onay bekleyen kurumsal kullanıcı istekleri
+$pdo->exec('CREATE TABLE IF NOT EXISTS corporate_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_name VARCHAR(255) NOT NULL,
+    contact_person VARCHAR(150) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    address TEXT,
+    tax_number VARCHAR(50),
+    password VARCHAR(255) NOT NULL,
+    status ENUM("pending", "approved", "rejected") DEFAULT "pending",
+    admin_notes TEXT,
+    reviewed_by INT,
+    reviewed_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+
 // CSRF token oluştur
 $csrf_token = generateCSRFToken();
 
@@ -70,19 +90,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($stmt->fetch()) {
                             $error = 'Bu e-posta adresi zaten bireysel kullanıcı olarak kayıtlı!';
                         } else {
+                            // Check if already exists in corporate_users
                             $stmt = $pdo->prepare('SELECT id FROM corporate_users WHERE email = ?');
                             $stmt->execute([$email]);
                             if ($stmt->fetch()) {
                                 $error = 'Bu e-posta adresi zaten kurumsal kullanıcı olarak kayıtlı!';
                             } else {
-                                $hashed = password_hash($password, PASSWORD_DEFAULT);
-                                $stmt = $pdo->prepare('INSERT INTO corporate_users (company_name, contact_person, email, phone, address, tax_number, password) VALUES (?, ?, ?, ?, ?, ?, ?)');
-                                $ok = $stmt->execute([$company_name, $contact_person, $email, $phone, $address, $tax_number, $hashed]);
-                                if ($ok) {
-                                    $success = true;
-                                    $activeTab = 'corporate';
+                                // Check if there's a pending or approved request (not rejected)
+                                $stmt = $pdo->prepare('SELECT id FROM corporate_requests WHERE email = ? AND status IN ("pending", "approved")');
+                                $stmt->execute([$email]);
+                                if ($stmt->fetch()) {
+                                    $error = 'Bu e-posta adresi için zaten bir onay bekleyen veya onaylanmış istek var!';
                                 } else {
-                                    $error = 'Kayıt sırasında bir hata oluştu!';
+                                    // Şifreyi hashle ve istek olarak kaydet
+                                    $hashed = password_hash($password, PASSWORD_DEFAULT);
+                                    $stmt = $pdo->prepare('INSERT INTO corporate_requests (company_name, contact_person, email, phone, address, tax_number, password, status) VALUES (?, ?, ?, ?, ?, ?, ?, "pending")');
+                                    $ok = $stmt->execute([$company_name, $contact_person, $email, $phone, $address, $tax_number, $hashed]);
+                                    if ($ok) {
+                                        $success = true;
+                                        $activeTab = 'corporate';
+                                        $success_message = 'Kayıt isteğiniz başarıyla oluşturuldu! Hesabınız yönetici onayından sonra aktif olacaktır.';
+                                    } else {
+                                        $error = 'Kayıt sırasında bir hata oluştu!';
+                                    }
                                 }
                             }
                         }
@@ -324,8 +354,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="post">
                     <input type="hidden" name="user_type" value="corporate">
                     <?php if (!empty($error) && $activeTab === 'corporate') { echo '<div class="alert-error">'.$error.'</div>'; } ?>
-                    <?php if (!empty($success) && $activeTab === 'corporate') { echo '<div class="alert-success">Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...</div>'; 
-                        echo '<script>setTimeout(function(){ window.location.href = "login.php?tab=corporate"; }, 2000);</script>'; } ?>
+                    <?php if (!empty($success) && $activeTab === 'corporate') { 
+                        echo '<div class="alert-success">'.($success_message ?? 'Kayıt isteğiniz başarıyla oluşturuldu! Hesabınız yönetici onayından sonra aktif olacaktır.').'</div>'; 
+                    } ?>
                     <div class="form-group">
                         <label for="company_name">Şirket Adı <span style="color: red;">*</span></label>
                         <input type="text" id="company_name" name="company_name" required value="<?php echo htmlspecialchars($_POST['company_name'] ?? ''); ?>">

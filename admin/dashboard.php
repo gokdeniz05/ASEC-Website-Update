@@ -85,7 +85,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                 <div class="sidebar-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" href="dashboard.php">
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>" href="dashboard.php">
                                 <i class="fas fa-home"></i>
                                 Ana Sayfa
                             </a>
@@ -130,6 +130,18 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                             <a class="nav-link" href="galeri-yonetim.php">
                                 <i class="fas fa-image"></i>
                                 Galeri Yönetim
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'kurumsal-istekler.php' ? 'active' : ''; ?>" href="kurumsal-istekler.php">
+                                <i class="fas fa-building"></i>
+                                Kurumsal İstekler
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'ilan-istekleri.php' ? 'active' : ''; ?>" href="ilan-istekleri.php">
+                                <i class="fas fa-file-alt"></i>
+                                İlan İstekleri
                             </a>
                         </li>
                     </ul>
@@ -204,6 +216,59 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                                 $ilan_count = mysqli_fetch_assoc($ilan_count_result)['count'];
                                 ?>
                                 <p class="card-text h2"><?php echo $ilan_count; ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="card text-white bg-warning">
+                            <div class="card-body">
+                                <h5 class="card-title">Kurumsal İstekler</h5>
+                                <?php
+                                // Use PDO for corporate_requests table
+                                require_once '../db.php';
+                                $corporate_requests_count = $pdo->query("SELECT COUNT(*) FROM corporate_requests WHERE status = 'pending'")->fetchColumn();
+                                ?>
+                                <p class="card-text h2"><?php echo $corporate_requests_count; ?></p>
+                                <a href="kurumsal-istekler.php" class="text-white">Görüntüle <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="card text-white" style="background-color: #6c757d;">
+                            <div class="card-body">
+                                <h5 class="card-title">İlan İstekleri</h5>
+                                <?php
+                                // Use PDO for corporate_ilan_requests table
+                                try {
+                                    // Ensure table exists
+                                    $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
+                                        id INT AUTO_INCREMENT PRIMARY KEY,
+                                        corporate_user_id INT NOT NULL,
+                                        baslik VARCHAR(255) NOT NULL,
+                                        icerik TEXT NOT NULL,
+                                        kategori VARCHAR(100) NOT NULL,
+                                        tarih DATE NOT NULL,
+                                        link VARCHAR(500),
+                                        sirket VARCHAR(255),
+                                        lokasyon VARCHAR(255),
+                                        son_basvuru DATE,
+                                        status ENUM("pending", "approved", "rejected") DEFAULT "pending",
+                                        admin_notes TEXT,
+                                        reviewed_by INT,
+                                        reviewed_at TIMESTAMP NULL,
+                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                        INDEX idx_corporate_user_id (corporate_user_id),
+                                        INDEX idx_status (status),
+                                        INDEX idx_kategori (kategori)
+                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+                                    $ilan_requests_count = $pdo->query("SELECT COUNT(*) FROM corporate_ilan_requests WHERE status = 'pending'")->fetchColumn();
+                                } catch (PDOException $e) {
+                                    $ilan_requests_count = 0;
+                                }
+                                ?>
+                                <p class="card-text h2"><?php echo $ilan_requests_count; ?></p>
+                                <a href="ilan-istekleri.php" class="text-white">Görüntüle <i class="fas fa-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>

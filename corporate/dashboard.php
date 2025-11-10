@@ -1,0 +1,133 @@
+<?php
+require_once 'includes/config.php';
+?>
+
+<?php include 'corporate-header.php'; ?>
+<?php include 'corporate-sidebar.php'; ?>
+<main class="container-fluid">
+    <div class="row">
+        <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Kurumsal Kontrol Paneli</h1>
+            </div>
+            
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> Hoş Geldiniz!</h5>
+                <p>Bu panelden <strong>Staj İlanları</strong> ve <strong>Burs İlanları</strong> oluşturabilir ve yönetebilirsiniz.</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body">
+                            <h5 class="card-title">Staj İlanlarım</h5>
+                            <?php
+                            // Ensure corporate_ilan_requests table exists
+                            $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
+                                id INT AUTO_INCREMENT PRIMARY KEY,
+                                corporate_user_id INT NOT NULL,
+                                baslik VARCHAR(255) NOT NULL,
+                                icerik TEXT NOT NULL,
+                                kategori VARCHAR(100) NOT NULL,
+                                tarih DATE NOT NULL,
+                                link VARCHAR(500),
+                                sirket VARCHAR(255),
+                                lokasyon VARCHAR(255),
+                                son_basvuru DATE,
+                                status ENUM("pending", "approved", "rejected") DEFAULT "pending",
+                                admin_notes TEXT,
+                                reviewed_by INT,
+                                reviewed_at TIMESTAMP NULL,
+                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                INDEX idx_corporate_user_id (corporate_user_id),
+                                INDEX idx_status (status),
+                                INDEX idx_kategori (kategori)
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+                            
+                            // Count approved staj announcements in ilanlar table
+                            try {
+                                $columns = $pdo->query("SHOW COLUMNS FROM ilanlar")->fetchAll(PDO::FETCH_COLUMN);
+                                if (in_array('corporate_user_id', $columns)) {
+                                    $staj_count_sql = "SELECT COUNT(*) as count FROM ilanlar WHERE kategori = 'Staj İlanları' AND corporate_user_id = ?";
+                                    $staj_stmt = $pdo->prepare($staj_count_sql);
+                                    $staj_stmt->execute([$_SESSION['user_id']]);
+                                    $staj_count = $staj_stmt->fetch()['count'];
+                                } else {
+                                    $staj_count = 0;
+                                }
+                            } catch (PDOException $e) {
+                                $staj_count = 0;
+                            }
+                            ?>
+                            <p class="card-text h2"><?php echo $staj_count; ?></p>
+                            <a href="ilanlar-yonetim.php?kategori=Staj İlanları" class="text-white">Görüntüle <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card text-white bg-success">
+                        <div class="card-body">
+                            <h5 class="card-title">Burs İlanlarım</h5>
+                            <?php
+                            // Count approved burs announcements in ilanlar table
+                            try {
+                                $columns = $pdo->query("SHOW COLUMNS FROM ilanlar")->fetchAll(PDO::FETCH_COLUMN);
+                                if (in_array('corporate_user_id', $columns)) {
+                                    $burs_count_sql = "SELECT COUNT(*) as count FROM ilanlar WHERE kategori = 'Burs İlanları' AND corporate_user_id = ?";
+                                    $burs_stmt = $pdo->prepare($burs_count_sql);
+                                    $burs_stmt->execute([$_SESSION['user_id']]);
+                                    $burs_count = $burs_stmt->fetch()['count'];
+                                } else {
+                                    $burs_count = 0;
+                                }
+                            } catch (PDOException $e) {
+                                $burs_count = 0;
+                            }
+                            ?>
+                            <p class="card-text h2"><?php echo $burs_count; ?></p>
+                            <a href="ilanlar-yonetim.php?kategori=Burs İlanları" class="text-white">Görüntüle <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-warning text-white">
+                            <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Hızlı İşlemler</h5>
+                        </div>
+                        <div class="card-body">
+                            <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary mr-2 mb-2">
+                                <i class="fas fa-briefcase"></i> Staj İlanı Ekle
+                            </a>
+                            <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success mb-2">
+                                <i class="fas fa-graduation-cap"></i> Burs İlanı Ekle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-search"></i> CV Arama</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Uygun adayları bulmak için CV filtreleme sayfasını kullanın.</p>
+                            <a href="cv-filtrele.php" class="btn btn-info">
+                                <i class="fas fa-filter"></i> CV Filtrele
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
