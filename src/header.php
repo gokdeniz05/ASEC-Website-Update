@@ -11,6 +11,18 @@ if (!defined('HEADER_CSS_LOADED')) {
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+// --- DEBUG KODU BAŞLANGIÇ ---
+echo "<div style='background:yellow; color:black; border:2px solid red; padding:10px; position:relative; z-index:99999;'>";
+echo "<strong>OTURUM DURUMU:</strong><br>";
+if (empty($_SESSION)) {
+    echo "Oturum BOMBOŞ! (Session başlamamış veya silinmiş)";
+} else {
+    echo "<pre>";
+    print_r($_SESSION);
+    echo "</pre>";
+}
+echo "</div>";
+// --- DEBUG KODU BİTİŞ ---
 
 // 4. Dil Dosyasını Güvenli Çağır (__DIR__ ile yol hatasını önle)
 // Dosya varsa dahil et, yoksa hata verme (Silent fail)
