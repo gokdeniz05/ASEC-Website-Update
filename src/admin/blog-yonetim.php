@@ -1,14 +1,7 @@
 <?php
-// 1. DOCKER İÇİN ZORUNLU BAŞLANGIÇ KODU
-ob_start(); // Çıktı tamponlamayı başlat
-if (session_status() === PHP_SESSION_NONE) {
-    session_start(); // Oturumu başlat
-}
-
 require_once 'includes/config.php';
 
-// 2. OTURUM KONTROLÜ
-// Artık session_start() olduğu için burası seni tanıyacak
+// Oturum kontrolü
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
     exit;
@@ -140,7 +133,4 @@ $result = mysqli_query($conn, $sql);
         }
     </script>
 </body>
-</html>
-<?php 
-ob_end_flush(); // Tamponu boşalt
-?>
+</html> 

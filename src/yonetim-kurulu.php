@@ -1,12 +1,4 @@
-<?php 
-ob_start(); // Docker'da hata almamak için tamponlama
-if (session_status() === PHP_SESSION_NONE) {
-    session_start(); // Oturumu başlat
-}
-require_once 'db.php'; // Veritabanını dahil et
-require_once 'includes/lang.php';
-
-?>
+<?php require_once 'includes/lang.php'; ?>
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
 <head>
@@ -28,7 +20,7 @@ require_once 'includes/lang.php';
         <section class="board-members-page-section">
             <div class="container">
                 <?php
-                
+                require_once 'db.php';
                 try {
                     // Ensure table exists
                     $pdo->exec('CREATE TABLE IF NOT EXISTS board_members (

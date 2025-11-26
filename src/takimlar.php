@@ -1,11 +1,11 @@
 <?php
+require_once 'db.php';
 ob_start(); // Docker'da hata almamak için tamponlama
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Oturumu başlat
 }
-require_once 'db.php';
-?>
 
+?>
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
 <head>

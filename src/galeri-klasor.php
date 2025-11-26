@@ -1,3 +1,11 @@
+<?php
+require_once 'db.php';
+ob_start(); // Docker'da hata almamak için tamponlama
+if (session_status() === PHP_SESSION_NONE) {
+    session_start(); // Oturumu başlat
+}
+
+?>
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
 <head>
@@ -122,7 +130,6 @@
     <?php include 'header.php'; ?>
     <main>
         <?php
-        require_once 'db.php';
         require_once 'includes/lang.php';
         $folder_id = intval($_GET['id'] ?? 0);
         

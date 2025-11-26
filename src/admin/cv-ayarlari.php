@@ -1,13 +1,7 @@
 <?php
-// 1. DOCKER İÇİN ZORUNLU BAŞLANGIÇ KODU
-ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // Admin CV Options Management
-require_once 'includes/config.php'; // mysqli bağlantısı (sidebar için gerekebilir)
-require_once '../db.php'; // PDO bağlantısı (bu sayfanın işlemleri için)
+require_once 'includes/config.php';
+require_once '../db.php'; // Use PDO for cv_options table
 
 // Ensure user is logged in
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
@@ -177,6 +171,7 @@ $softwareFields = $pdo->query('SELECT * FROM cv_options WHERE type = "software_f
                 </div>
             <?php endif; ?>
 
+            <!-- Programming Languages Section -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-code mr-2"></i> Programlama Dilleri</h5>
@@ -242,6 +237,7 @@ $softwareFields = $pdo->query('SELECT * FROM cv_options WHERE type = "software_f
                 </div>
             </div>
 
+            <!-- Software Fields Section -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-gradient-success text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-laptop-code mr-2"></i> Yazılım Alanları</h5>
@@ -310,6 +306,7 @@ $softwareFields = $pdo->query('SELECT * FROM cv_options WHERE type = "software_f
     </div>
 </main>
 
+<!-- Add Language Modal -->
 <div class="modal fade" id="addLanguageModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content shadow-lg">
@@ -343,6 +340,7 @@ $softwareFields = $pdo->query('SELECT * FROM cv_options WHERE type = "software_f
     </div>
 </div>
 
+<!-- Edit Language Modal -->
 <div class="modal fade" id="editLanguageModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content shadow-lg">
@@ -374,6 +372,7 @@ $softwareFields = $pdo->query('SELECT * FROM cv_options WHERE type = "software_f
     </div>
 </div>
 
+<!-- Add Software Field Modal -->
 <div class="modal fade" id="addSoftwareFieldModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content shadow-lg">
@@ -407,6 +406,7 @@ $softwareFields = $pdo->query('SELECT * FROM cv_options WHERE type = "software_f
     </div>
 </div>
 
+<!-- Edit Software Field Modal -->
 <div class="modal fade" id="editSoftwareFieldModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content shadow-lg">
@@ -594,6 +594,3 @@ $('.modal').on('hidden.bs.modal', function() {
 </script>
 </body>
 </html>
-<?php 
-ob_end_flush(); 
-?>

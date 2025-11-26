@@ -7,24 +7,21 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        /* --- TASARIM DEĞİŞİKLİĞİ: Yükseklikler 56px'den 70px'e çıkarıldı --- */
         body {
             background: #f5f6fa;
-            padding-top: 70px; /* Navbar yüksekliği kadar boşluk */
+            padding-top: 56px;
         }
         .navbar {
             z-index: 200;
-            min-height: 70px; /* Navbarın kendisi de uzatıldı */
         }
         .navbar-brand {
             padding-top: .75rem;
             padding-bottom: .75rem;
-            font-size: 1.25rem; /* Yazı biraz büyütüldü */
-            font-weight: bold; /* Kalınlaştırıldı */
+            font-size: 1rem;
         }
         .sidebar {
             position: fixed;
-            top: 70px; /* Sidebar artık 70px aşağıdan başlıyor */
+            top: 56px;
             bottom: 0;
             left: 0;
             z-index: 100;
@@ -36,13 +33,11 @@
         .sidebar-sticky {
             position: relative;
             top: 0;
-            height: calc(100vh - 70px); /* Yükseklik hesaplaması güncellendi */
+            height: calc(100vh - 56px);
             padding-top: .5rem;
             overflow-x: hidden;
             overflow-y: auto;
         }
-        /* --------------------------------------------------------- */
-
         .sidebar .nav-link {
             font-weight: 500;
             color: #fff;
@@ -69,7 +64,7 @@
         .main-content {
             margin-left: 240px;
             padding: 20px;
-            min-height: calc(100vh - 70px); /* Burası da güncellendi */
+            min-height: calc(100vh - 56px);
             transition: margin-left 0.3s ease-in-out;
         }
         
@@ -96,27 +91,26 @@
             margin: 0 auto;
         }
         
-        /* Navbar Brand Styling */
+        /* Make navbar brand (main page button) more visible */
         .navbar-brand {
             padding: 0.5rem 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
             background-color: rgba(147, 112, 219, 0.2);
             border-radius: 5px;
             transition: all 0.3s ease;
             color: #fff !important;
             border: 1px solid rgba(147, 112, 219, 0.5);
-            display: flex;
-            align-items: center;
-            height: 40px; /* Logo kutusu yüksekliği sabitlendi */
         }
         .navbar-brand:hover {
             background-color: rgba(147, 112, 219, 0.4);
             border-color: rgba(147, 112, 219, 0.8);
-            transform: scale(1.02);
+            transform: scale(1.05);
             color: #fff !important;
             text-decoration: none;
         }
         
-        /* Logout Button */
+        /* Make logout button more visible */
         .navbar .nav-link[href="logout.php"],
         .navbar .nav-link[href*="logout"] {
             background-color: rgba(220, 53, 69, 0.2);
@@ -139,10 +133,10 @@
         /* Mobile Styles */
         @media (max-width: 768px) {
             body {
-                padding-top: 70px; /* Mobile için de güncellendi */
+                padding-top: 56px;
             }
             .navbar-brand {
-                font-size: 1rem;
+                font-size: 0.9rem;
                 padding: 0.4rem 0.8rem;
             }
             .navbar-nav {
@@ -151,7 +145,7 @@
             .navbar-nav .nav-link {
                 padding: 0.5rem 0.75rem;
                 font-size: 0.875rem;
-                min-height: 44px; 
+                min-height: 44px; /* Touch-friendly size */
                 display: flex;
                 align-items: center;
             }
@@ -165,10 +159,10 @@
             }
             .sidebar {
                 position: fixed;
-                top: 70px; /* Mobile için güncellendi */
+                top: 56px;
                 left: 0;
                 width: 260px;
-                height: calc(100vh - 70px); /* Mobile için güncellendi */
+                height: calc(100vh - 56px);
                 transform: translateX(-100%);
                 z-index: 150;
                 box-shadow: 2px 0 10px rgba(0,0,0,0.3);
@@ -179,7 +173,7 @@
             .sidebar-overlay {
                 display: none;
                 position: fixed;
-                top: 70px; /* Mobile için güncellendi */
+                top: 56px;
                 left: 0;
                 right: 0;
                 bottom: 0;
@@ -216,15 +210,15 @@
             }
             .btn-group .btn {
                 margin-bottom: 5px;
-                min-height: 44px; 
+                min-height: 44px; /* Touch-friendly */
             }
             .form-control-lg {
-                font-size: 16px; 
+                font-size: 16px; /* Prevents zoom on iOS */
                 min-height: 48px;
                 padding: 12px 16px;
             }
             .btn {
-                min-height: 44px; 
+                min-height: 44px; /* Touch-friendly buttons */
                 padding: 10px 20px;
                 font-size: 1rem;
             }
@@ -239,7 +233,7 @@
         }
         @media (max-width: 576px) {
             .navbar-brand {
-                font-size: 0.9rem;
+                font-size: 0.8rem;
                 padding: 0.35rem 0.6rem;
             }
             .navbar-nav .nav-link {
@@ -283,27 +277,28 @@
             }
         }
         
+        /* Touch-friendly improvements */
         @media (max-width: 768px) {
             a, button, .btn {
                 -webkit-tap-highlight-color: rgba(147, 112, 219, 0.3);
                 touch-action: manipulation;
             }
             input, select, textarea {
-                font-size: 16px !important; 
+                font-size: 16px !important; /* Prevents zoom on iOS */
             }
         }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-        <div class="d-flex align-items-center h-100">
+        <div class="d-flex align-items-center">
             <button class="navbar-toggler d-md-none border-0 mr-2" type="button" id="sidebarToggle" aria-label="Toggle navigation" style="padding: 0.25rem 0.5rem;">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
             <a class="navbar-brand px-2 px-md-3" href="dashboard.php">
-                <i class="fas fa-building mr-2"></i>
-                ASEC Kurumsal Panel
+                <i class="fas fa-building d-md-none"></i>
+                <span class="d-none d-sm-inline">ASEC</span>
+                <span class="d-none d-md-inline">ASEC Kurumsal</span>
             </a>
         </div>
         <ul class="navbar-nav px-2 px-md-3 d-flex flex-row align-items-center ml-auto">
@@ -322,6 +317,7 @@
         </ul>
     </nav>
     
+    <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
     <script>
@@ -372,3 +368,4 @@
             });
         });
     </script>
+

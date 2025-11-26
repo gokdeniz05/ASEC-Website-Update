@@ -1,13 +1,7 @@
 <?php
-// 1. DOCKER İÇİN ZORUNLU BAŞLANGIÇ KODU
-ob_start(); // Çıktı tamponlamayı başlat
-if (session_status() === PHP_SESSION_NONE) {
-    session_start(); // Oturumu başlat
-}
-
 require_once 'includes/config.php';
 
-// 2. OTURUM KONTROLÜ
+// Oturum kontrolü
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
     exit;
@@ -42,26 +36,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     
     // Görsel yükleme işlemi
     if (isset($_FILES["image_file"]) && $_FILES["image_file"]["error"] == 0) {
-        // Admin klasöründen bir üstteki uploads klasörüne erişim için ../ gerekebilir ama
-        // veritabanına kaydederken "uploads/..." olarak kaydetmeliyiz.
-        
-        $target_dir = "../uploads/"; // Fiziksel yükleme konumu (Admin'in dışı)
-        if (!file_exists($target_dir)) {
-            mkdir($target_dir, 0777, true);
-        }
-
-        $original_filename = basename($_FILES["image_file"]["name"]);
-        $new_filename = time() . "_" . $original_filename; // Benzersiz isim
-        $target_file = $target_dir . $new_filename;
-        
+        $target_dir = "uploads/";
+        $target_file = $target_dir . basename($_FILES["image_file"]["name"]);
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
         // Sadece belirli dosya türlerine izin ver
         $allowed_types = ["jpg", "jpeg", "png", "gif"];
         if (in_array($imageFileType, $allowed_types)) {
             if (move_uploaded_file($_FILES["image_file"]["tmp_name"], $target_file)) {
-                // Veritabanına kaydedilecek yol (Site kökünden itibaren)
-                $image_url = "uploads/" . $new_filename; 
+                $image_url = $target_file; // Veritabanına kaydedilecek dosya yolu
             } else {
                 $image_err = "Dosya yüklenirken bir hata oluştu.";
             }
@@ -71,7 +54,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     }
     
     // Hata yoksa kaydet
-    if(empty($title_err) && empty($content_err) && empty($image_err)){ // image_err kontrolü de eklendi
+    if(empty($title_err) && empty($content_err)){
         $sql = "INSERT INTO blog_posts (title, category, author, content, image_url) VALUES (?, ?, ?, ?, ?)";
         
         if($stmt = mysqli_prepare($conn, $sql)){
@@ -164,8 +147,42 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     <div class="container-fluid">
         <div class="row">
-            
-            <?php include 'sidebar.php'; ?>
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+                <div class="sidebar-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.php">
+                                <i class="fas fa-home"></i>
+                                Ana Sayfa
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="blog-yonetim.php">
+                                <i class="fas fa-blog"></i>
+                                Blog
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="uyeler-yonetim.php">
+                                <i class="fas fa-users"></i>
+                                Üyeler
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="etkinlikler-yonetim.php">
+                                <i class="fas fa-calendar-alt"></i>
+                                Etkinlikler
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="duyurular-yonetim.php">
+                                <i class="fas fa-bullhorn"></i>
+                                Duyurular
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
 
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -199,13 +216,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     
                     <div class="form-group">
                         <label>Görsel URL (Opsiyonel)</label>
-                        <input type="text" name="image_url" class="form-control" value="<?php echo $image_url; ?>" placeholder="Örn: https://...">
+                        <input type="text" name="image_url" class="form-control" value="<?php echo $image_url; ?>">
                     </div>
                     
                     <div class="form-group">
                         <label>Görsel Yükle (Opsiyonel)</label>
                         <input type="file" name="image_file" class="form-control-file">
-                        <small class="text-muted">URL yerine bilgisayardan dosya yükleyebilirsiniz.</small>
                     </div>
                     
                     <div class="form-group">
@@ -249,6 +265,3 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     </script>
 </body>
 </html>
-<?php 
-ob_end_flush(); // Tamponu boşalt
-?>

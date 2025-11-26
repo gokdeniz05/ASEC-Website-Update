@@ -26,27 +26,15 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
 $id = intval($_GET['id'] ?? 0);
-$type = $_GET['type'] ?? 'request';
-$allowedCategories = ['Staj İlanları', 'Burs İlanları'];
-
 if ($id > 0) {
-    if ($type === 'published') {
-        // Delete published ilan from main ilanlar table if corporate user owns it
-        $stmt = $pdo->prepare('SELECT id, kategori FROM ilanlar WHERE id = ? AND corporate_user_id = ?');
-        $stmt->execute([$id, $_SESSION['user_id']]);
-        $ilan = $stmt->fetch();
-
-        if ($ilan && in_array($ilan['kategori'], $allowedCategories, true)) {
-            $delete_stmt = $pdo->prepare('DELETE FROM ilanlar WHERE id = ? AND corporate_user_id = ?');
-            $delete_stmt->execute([$id, $_SESSION['user_id']]);
-        }
-    } else {
-        // Verify ownership and delete from requests table (only pending requests can be deleted)
-        $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ? AND status = "pending"');
-        $stmt->execute([$id, $_SESSION['user_id']]);
-        $ilan = $stmt->fetch();
-        
-        if ($ilan && in_array($ilan['kategori'], $allowedCategories, true)) {
+    // Verify ownership and delete from requests table (only pending requests can be deleted)
+    $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ? AND status = "pending"');
+    $stmt->execute([$id, $_SESSION['user_id']]);
+    $ilan = $stmt->fetch();
+    
+    if ($ilan) {
+        // Verify it's a staj or burs announcement
+        if (in_array($ilan['kategori'], ['Staj İlanları', 'Burs İlanları'])) {
             $delete_stmt = $pdo->prepare('DELETE FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ?');
             $delete_stmt->execute([$id, $_SESSION['user_id']]);
         }

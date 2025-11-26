@@ -6,9 +6,6 @@ ob_start(); // Docker için tamponlama
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Oturumu yakalamak için şart
 }
- // Veritabanı bağlantısı
-
-// ... Buradan sonra sayfanın kendi kodları başlar ...
 
 // Form gönderildiyse
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

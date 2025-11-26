@@ -1,9 +1,10 @@
 <?php 
+require_once 'db.php';
 ob_start(); // Docker için tamponlama
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Oturumu yakalamak için şart
 }
-require_once 'db.php'; // Veritabanı bağlantısı
+ // Veritabanı bağlantısı
 
 // ... Buradan sonra sayfanın kendi kodları başlar ...
 

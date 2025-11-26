@@ -1,8 +1,6 @@
 <?php
 // Corporate config.php – Session management for corporate users
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 
 // Check if user is logged in and is a corporate user
 if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'corporate'){

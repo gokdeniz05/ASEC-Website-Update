@@ -1,10 +1,4 @@
 <?php
-// 1. DOCKER İÇİN KRİTİK BAŞLANGIÇ
-ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // Corporate İlan Düzenle - Sadece kendi ilanlarını düzenleyebilir
 require_once 'includes/config.php';
 
@@ -214,30 +208,28 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
             </div>
           </div>
         </div>
-
-        <div class="row mt-3">
-            <div class="col-md-6 mb-2 mb-md-0">
-                <?php if($is_approved_announcement): ?>
-                    <a href="ilan-ekle.php" class="btn btn-primary btn-block py-3 font-weight-bold shadow-sm">
-                      <i class="fas fa-plus mr-2"></i>Yeni İlan Oluştur
-                    </a>
-                <?php elseif(isset($ilan['status']) && $ilan['status'] !== 'pending'): ?>
-                    <button class="btn btn-primary btn-block py-3 font-weight-bold shadow-sm" disabled>
-                      <i class="fas fa-save mr-2"></i>Kaydet (Devre Dışı)
-                    </button>
-                <?php else: ?>
-                    <button class="btn btn-primary btn-block py-3 font-weight-bold shadow-sm" type="submit">
-                      <i class="fas fa-save mr-2"></i>Kaydet
-                    </button>
-                <?php endif; ?>
+        <div class="form-group mb-4 d-flex flex-column flex-md-row gap-2">
+          <?php if($is_approved_announcement): ?>
+            <div class="alert alert-info w-100 mb-3">
+              <i class="fas fa-info-circle mr-2"></i>Bu ilan onaylanmış ve yayında. Değişiklik yapmak için yeni bir ilan oluşturun.
             </div>
-            <div class="col-md-6">
-                <a href="ilanlar-yonetim.php" class="btn btn-secondary btn-block py-3 font-weight-bold shadow-sm">
-                    <i class="fas fa-times mr-2"></i>İptal
-                </a>
+            <a href="ilan-ekle.php" class="btn btn-primary btn-lg btn-block btn-md-block px-4 mb-2">
+              <i class="fas fa-plus mr-2"></i>Yeni İlan Oluştur
+            </a>
+          <?php elseif(isset($ilan['status']) && $ilan['status'] !== 'pending'): ?>
+            <div class="alert alert-<?= $ilan['status'] === 'rejected' ? 'danger' : 'info' ?> w-100 mb-3">
+              <i class="fas fa-info-circle mr-2"></i>Bu ilan <?= $ilan['status'] === 'rejected' ? 'reddedilmiştir' : 'onaylanmıştır' ?>. Sadece bekleyen ilanlar düzenlenebilir.
             </div>
+          <?php else: ?>
+            <button class="btn btn-primary btn-lg btn-block btn-md-block px-4" type="submit">
+              <i class="fas fa-save mr-2"></i>Kaydet
+            </button>
+          <?php endif; ?>
+          <a href="ilanlar-yonetim.php" class="btn btn-secondary btn-lg btn-block btn-md-block px-4">
+            <i class="fas fa-times mr-2"></i>İptal
+          </a>
         </div>
-        </form>
+      </form>
     </main>
   </div>
 </div>
@@ -270,6 +262,4 @@ input:focus, textarea:focus, select:focus {outline:none;border-color:#9370db;bac
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php
-ob_end_flush(); // Tamponu boşalt
-?>
+

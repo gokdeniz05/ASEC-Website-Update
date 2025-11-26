@@ -1,10 +1,11 @@
 <?php
+require_once 'db.php';
 ob_start(); // Docker'da hata almamak için tamponlama
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Oturumu başlat
 }
 // Etkinlik Detay Sayfası
-require_once 'db.php';
+
 $id = intval($_GET['id'] ?? 0);
 $stmt = $pdo->prepare('SELECT * FROM etkinlikler WHERE id=?');
 $stmt->execute([$id]);

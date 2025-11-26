@@ -1,10 +1,10 @@
 <?php
+require_once 'db.php'; // Veritabanını dahil et
 ob_start(); // Docker'da hata almamak için tamponlama
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Oturumu başlat
 }
-require_once 'db.php'; // Veritabanını dahil et?>
-
+?>
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
 <head>
@@ -18,7 +18,7 @@ require_once 'db.php'; // Veritabanını dahil et?>
         <div class="events-container">
             <h2 class="page-title"><?php echo __t('events.page.title'); ?></h2>
             <?php
-            
+            require_once 'db.php';
             $today = date('Y-m-d');
             $stmt = $pdo->prepare("SELECT * FROM etkinlikler ORDER BY tarih DESC");
             $stmt->execute();

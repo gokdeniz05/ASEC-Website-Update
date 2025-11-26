@@ -1,20 +1,5 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-// 1. DOCKER İÇİN KRİTİK BAŞLANGIÇ
-ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 require_once 'includes/config.php';
-
-// Oturum kontrolü (Güvenlik için)
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: login.php");
-    exit;
-}
 ?>
 
 <?php include 'corporate-header.php'; ?>
@@ -26,14 +11,14 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                 <h1 class="h2">Kurumsal Kontrol Paneli</h1>
             </div>
             
-            <div class="alert alert-info shadow-sm">
+            <div class="alert alert-info">
                 <h5><i class="fas fa-info-circle"></i> Hoş Geldiniz!</h5>
-                <p class="mb-0">Bu panelden <strong>Staj İlanları</strong> ve <strong>Burs İlanları</strong> oluşturabilir ve yönetebilirsiniz.</p>
+                <p>Bu panelden <strong>Staj İlanları</strong> ve <strong>Burs İlanları</strong> oluşturabilir ve yönetebilirsiniz.</p>
             </div>
             
             <div class="row">
                 <div class="col-12 col-md-6 mb-4">
-                    <div class="card text-white bg-primary h-100 shadow-sm">
+                    <div class="card text-white bg-primary h-100">
                         <div class="card-body">
                             <h5 class="card-title"><i class="fas fa-briefcase mr-2"></i>Staj İlanlarım</h5>
                             <?php
@@ -76,14 +61,14 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                             }
                             ?>
                             <p class="card-text h2 mb-3"><?php echo htmlspecialchars($staj_count); ?></p>
-                            <a href="ilanlar-yonetim.php?kategori=Staj İlanları" class="text-white text-decoration-none font-weight-bold">
+                            <a href="ilanlar-yonetim.php?kategori=Staj İlanları" class="text-white text-decoration-none">
                                 <i class="fas fa-eye mr-1"></i> Görüntüle <i class="fas fa-arrow-right ml-1"></i>
                             </a>
                         </div>
                     </div>
                 </div>
                 <div class="col-12 col-md-6 mb-4">
-                    <div class="card text-white bg-success h-100 shadow-sm">
+                    <div class="card text-white bg-success h-100">
                         <div class="card-body">
                             <h5 class="card-title"><i class="fas fa-graduation-cap mr-2"></i>Burs İlanlarım</h5>
                             <?php
@@ -103,7 +88,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                             }
                             ?>
                             <p class="card-text h2 mb-3"><?php echo htmlspecialchars($burs_count); ?></p>
-                            <a href="ilanlar-yonetim.php?kategori=Burs İlanları" class="text-white text-decoration-none font-weight-bold">
+                            <a href="ilanlar-yonetim.php?kategori=Burs İlanları" class="text-white text-decoration-none">
                                 <i class="fas fa-eye mr-1"></i> Görüntüle <i class="fas fa-arrow-right ml-1"></i>
                             </a>
                         </div>
@@ -117,18 +102,14 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                         <div class="card-header bg-warning text-white">
                             <h5 class="mb-0"><i class="fas fa-plus-circle mr-2"></i>Hızlı İşlemler</h5>
                         </div>
-                        <div class="card-body d-flex align-items-center">
-                            <div class="row w-100 mx-0">
-                                <div class="col-md-6 px-1 mb-3 mb-md-0">
-                                    <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary w-100 py-3 font-weight-bold shadow-sm">
-                                        <i class="fas fa-briefcase mr-2"></i>Staj İlanı Ekle
-                                    </a>
-                                </div>
-                                <div class="col-md-6 px-1">
-                                    <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success w-100 py-3 font-weight-bold shadow-sm">
-                                        <i class="fas fa-graduation-cap mr-2"></i>Burs İlanı Ekle
-                                    </a>
-                                </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-column flex-md-row gap-2">
+                                <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary btn-block mb-2 mb-md-0">
+                                    <i class="fas fa-briefcase mr-2"></i>Staj İlanı Ekle
+                                </a>
+                                <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success btn-block">
+                                    <i class="fas fa-graduation-cap mr-2"></i>Burs İlanı Ekle
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -138,9 +119,9 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                         <div class="card-header bg-info text-white">
                             <h5 class="mb-0"><i class="fas fa-search mr-2"></i>CV Arama</h5>
                         </div>
-                        <div class="card-body d-flex flex-column justify-content-center">
-                            <p class="text-center mb-3">Uygun adayları bulmak için CV filtreleme sayfasını kullanın.</p>
-                            <a href="cv-filtrele.php" class="btn btn-info btn-block py-3 font-weight-bold shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <p class="flex-grow-1">Uygun adayları bulmak için CV filtreleme sayfasını kullanın.</p>
+                            <a href="cv-filtrele.php" class="btn btn-info btn-block">
                                 <i class="fas fa-filter mr-2"></i>CV Filtrele
                             </a>
                         </div>
@@ -155,6 +136,4 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php 
-ob_end_flush(); // Tamponu boşalt
-?>
+

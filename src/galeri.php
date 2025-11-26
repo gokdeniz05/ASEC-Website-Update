@@ -1,11 +1,9 @@
 <?php
+require_once 'db.php'; // Veritabanı bağlantısı
 ob_start(); // Docker için tamponlama
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Oturumu yakalamak için şart
 }
-require_once 'db.php'; // Veritabanı bağlantısı
-
-// ... Buradan sonra sayfanın kendi kodları başlar ...
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">

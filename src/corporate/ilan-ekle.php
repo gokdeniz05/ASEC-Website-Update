@@ -1,10 +1,4 @@
 <?php
-// 1. BEYAZ EKRAN ÇÖZÜMÜ (Tamponlama ve Session)
-ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // Corporate İlan Ekleme - Sadece Staj ve Burs İlanları
 require_once 'includes/config.php';
 
@@ -75,7 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($ok) {
                 $success = true;
-                header('Location: ilanlar-yonetim.php?success=1');
+                $success_message = 'İlan isteğiniz başarıyla oluşturuldu! İlanınız yönetici onayından sonra yayınlanacaktır.';
+                header('Location: ilan-ekle.php?success=1&kategori=' . urlencode($kategori));
                 exit;
             } else {
                 $error = 'İlan isteği oluşturulurken bir hata oluştu!';
@@ -102,7 +97,6 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
       </div>
       <?php if($msg): ?><div class="alert alert-success alert-dismissible fade show" role="alert"><?= htmlspecialchars($msg) ?><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div><?php endif; ?>
       <?php if($error): ?><div class="alert alert-danger alert-dismissible fade show" role="alert"><?= htmlspecialchars($error) ?><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div><?php endif; ?>
-      
       <form method="post" class="bg-white p-3 p-md-4 rounded shadow-sm">
         <div class="row">
           <div class="col-12 col-md-6">
@@ -160,20 +154,15 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
             </div>
           </div>
         </div>
-
-        <div class="row mt-3">
-            <div class="col-md-6 mb-2 mb-md-0">
-                <button class="btn btn-primary btn-block py-3 font-weight-bold shadow-sm" type="submit">
-                    <i class="fas fa-save mr-2"></i>Kaydet
-                </button>
-            </div>
-            <div class="col-md-6">
-                <a href="ilanlar-yonetim.php" class="btn btn-secondary btn-block py-3 font-weight-bold shadow-sm">
-                    <i class="fas fa-times mr-2"></i>İptal
-                </a>
-            </div>
+        <div class="form-group mb-4 d-flex flex-column flex-md-row gap-2">
+          <button class="btn btn-primary btn-lg btn-block btn-md-block px-4" type="submit">
+            <i class="fas fa-save mr-2"></i>Kaydet
+          </button>
+          <a href="ilanlar-yonetim.php" class="btn btn-secondary btn-lg btn-block btn-md-block px-4">
+            <i class="fas fa-times mr-2"></i>İptal
+          </a>
         </div>
-        </form>
+      </form>
     </main>
   </div>
 </div>
@@ -206,6 +195,4 @@ input:focus, textarea:focus, select:focus {outline:none;border-color:#9370db;bac
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php
-ob_end_flush(); // Tamponu boşalt
-?>
+

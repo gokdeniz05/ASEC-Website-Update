@@ -1,13 +1,7 @@
 <?php
-// 1. DOCKER İÇİN ZORUNLU BAŞLANGIÇ KODU
-ob_start(); // Çıktı tamponlamayı başlat
-if (session_status() === PHP_SESSION_NONE) {
-    session_start(); // Oturumu başlat
-}
-
 require_once 'includes/config.php';
 
-// 2. OTURUM KONTROLÜ
+// Oturum kontrolü
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
     exit;
@@ -88,22 +82,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     
         // Tüm kontroller tamamsa dosyayı yükle
         if(empty($image_err)) {
-            // Admin klasöründen çıktığımız için ../ eklememiz gerekebilir ama
-            // veritabanına kaydederken 'uploads/...' olarak kaydediyoruz.
-            // Dosyayı fiziksel olarak yüklerken:
-            $target_dir = "../uploads/"; // Admin klasörünün bir üstündeki uploads
-            
+            $target_dir = "uploads/";
             if (!file_exists($target_dir)) {
                 mkdir($target_dir, 0777, true);
             }
-            
-            // Benzersiz isim
-            $new_filename = time() . "_" . basename($filename);
-            $target_file = $target_dir . $new_filename;
+            $target_file = $target_dir . time() . "_" . basename($filename);
             
             if(move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-                // Veritabanına kaydedilecek yol (Site kökünden itibaren)
-                $image_url = "uploads/" . $new_filename;
+                $image_url = "uploads/" . time() . "_" . basename($filename);
             } else {
                 $image_err = "Dosya yüklenirken bir hata oluştu.";
             }
@@ -206,8 +192,42 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     <div class="container-fluid">
         <div class="row">
-            
-            <?php include 'sidebar.php'; ?>
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+                <div class="sidebar-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.php">
+                                <i class="fas fa-home"></i>
+                                Ana Sayfa
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="blog-yonetim.php">
+                                <i class="fas fa-blog"></i>
+                                Blog
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="uyeler-yonetim.php">
+                                <i class="fas fa-users"></i>
+                                Üyeler
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="etkinlikler-yonetim.php">
+                                <i class="fas fa-calendar-alt"></i>
+                                Etkinlikler
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="duyurular-yonetim.php">
+                                <i class="fas fa-bullhorn"></i>
+                                Duyurular
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
 
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -294,5 +314,4 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         });
     </script>
 </body>
-</html>
-<?php ob_end_flush(); ?>
+</html> 

@@ -1,10 +1,4 @@
 <?php
-// 1. DOCKER İÇİN KRİTİK BAŞLANGIÇ
-ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // Corporate İlanlar Yönetim Paneli
 require_once 'includes/config.php';
 
@@ -103,36 +97,31 @@ usort($ilanlar, function($a, $b) {
         <h1 class="h3 mb-3 mb-md-0">İlanlarım</h1>
       </div>
       
-      <div class="row mb-4">
-          <div class="col-md-6 mb-2 mb-md-0">
-            <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary w-100 py-3 font-weight-bold shadow-sm">
-              <i class="fas fa-briefcase mr-2"></i>Staj İlanı Ekle
-            </a>
-          </div>
-          <div class="col-md-6">
-            <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success w-100 py-3 font-weight-bold shadow-sm">
-              <i class="fas fa-graduation-cap mr-2"></i>Burs İlanı Ekle
-            </a>
-          </div>
+      <div class="mb-3 d-flex flex-column flex-md-row gap-2">
+        <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary btn-block btn-md mb-2 mb-md-0">
+          <i class="fas fa-plus mr-2"></i>Staj İlanı Ekle
+        </a>
+        <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success btn-block btn-md">
+          <i class="fas fa-plus mr-2"></i>Burs İlanı Ekle
+        </a>
       </div>
       
-      <div class="mb-4">
-        <div class="btn-group w-100 d-flex flex-wrap mb-2 shadow-sm" role="group">
-          <a href="ilanlar-yonetim.php" class="btn btn-outline-secondary flex-fill py-2 font-weight-bold <?php echo $kategori_filter === '' ? 'active' : ''; ?>">Tümü</a>
-          <a href="ilanlar-yonetim.php?kategori=Staj İlanları" class="btn btn-outline-primary flex-fill py-2 font-weight-bold <?php echo $kategori_filter === 'Staj İlanları' ? 'active' : ''; ?>">Staj</a>
-          <a href="ilanlar-yonetim.php?kategori=Burs İlanları" class="btn btn-outline-success flex-fill py-2 font-weight-bold <?php echo $kategori_filter === 'Burs İlanları' ? 'active' : ''; ?>">Burs</a>
+      <div class="mb-3">
+        <div class="btn-group btn-group-sm mb-2 w-100 d-flex flex-wrap" role="group">
+          <a href="ilanlar-yonetim.php" class="btn btn-outline-secondary flex-fill <?php echo $kategori_filter === '' ? 'active' : ''; ?>">Tümü</a>
+          <a href="ilanlar-yonetim.php?kategori=Staj İlanları" class="btn btn-outline-primary flex-fill <?php echo $kategori_filter === 'Staj İlanları' ? 'active' : ''; ?>">Staj</a>
+          <a href="ilanlar-yonetim.php?kategori=Burs İlanları" class="btn btn-outline-success flex-fill <?php echo $kategori_filter === 'Burs İlanları' ? 'active' : ''; ?>">Burs</a>
         </div>
-        
-        <div class="btn-group w-100 d-flex flex-wrap shadow-sm" role="group">
-          <a href="ilanlar-yonetim.php<?php echo $kategori_filter ? '?kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-info flex-fill py-2 font-weight-bold <?php echo $status_filter === 'all' ? 'active' : ''; ?>">Tümü</a>
-          <a href="ilanlar-yonetim.php?status=pending<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-warning flex-fill py-2 font-weight-bold <?php echo $status_filter === 'pending' ? 'active' : ''; ?>">Bekleyen</a>
-          <a href="ilanlar-yonetim.php?status=approved<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-success flex-fill py-2 font-weight-bold <?php echo $status_filter === 'approved' ? 'active' : ''; ?>">Onaylanan</a>
-          <a href="ilanlar-yonetim.php?status=rejected<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-danger flex-fill py-2 font-weight-bold <?php echo $status_filter === 'rejected' ? 'active' : ''; ?>">Reddedilen</a>
+        <div class="btn-group btn-group-sm w-100 d-flex flex-wrap" role="group">
+          <a href="ilanlar-yonetim.php<?php echo $kategori_filter ? '?kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-info flex-fill <?php echo $status_filter === 'all' ? 'active' : ''; ?>">Tümü</a>
+          <a href="ilanlar-yonetim.php?status=pending<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-warning flex-fill <?php echo $status_filter === 'pending' ? 'active' : ''; ?>">Bekleyen</a>
+          <a href="ilanlar-yonetim.php?status=approved<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-success flex-fill <?php echo $status_filter === 'approved' ? 'active' : ''; ?>">Onaylanan</a>
+          <a href="ilanlar-yonetim.php?status=rejected<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-danger flex-fill <?php echo $status_filter === 'rejected' ? 'active' : ''; ?>">Reddedilen</a>
         </div>
       </div>
       
-      <div class="table-responsive shadow-sm rounded">
-      <table class="table table-striped table-hover admin-table mb-0">
+      <div class="table-responsive">
+      <table class="table table-striped table-hover admin-table">
         <thead class="thead-dark">
           <tr>
             <th class="d-none d-md-table-cell">ID</th>
@@ -150,7 +139,7 @@ usort($ilanlar, function($a, $b) {
                     <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
                     <p class="text-muted">Henüz ilan eklenmemiş.</p>
                     <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary mt-2">
-                        <i class="fas fa-plus mr-2"></i>İlk İlanı Ekle
+                        <i class="fas fa-plus mr-2"></i>İlan Ekle
                     </a>
                 </td>
             </tr>
@@ -185,9 +174,9 @@ usort($ilanlar, function($a, $b) {
                     <?php endif; ?>
                 </td>
                 <td>
-                    <div class="btn-group btn-group-sm" role="group">
+                    <div class="btn-group-vertical btn-group-sm d-md-inline-flex" role="group">
                         <?php if($is_request && $ilan['status'] === 'pending'): ?>
-                            <a href="ilan-duzenle.php?id=<?= $ilan['id'] ?>" class="btn btn-warning btn-sm">
+                            <a href="ilan-duzenle.php?id=<?= $ilan['id'] ?>" class="btn btn-warning btn-sm mb-1 mb-md-0">
                                 <i class="fas fa-edit d-md-none"></i>
                                 <span class="d-none d-md-inline"><i class="fas fa-edit mr-1"></i>Düzenle</span>
                             </a>
@@ -199,11 +188,12 @@ usort($ilanlar, function($a, $b) {
                             <button class="btn btn-secondary btn-sm" disabled>
                                 <i class="fas fa-times mr-1"></i><span class="d-none d-md-inline">Reddedildi</span>
                             </button>
-                        <?php elseif(!$is_request): ?>
-                            <a href="ilan-sil.php?id=<?= $ilan['id'] ?>&type=published" class="btn btn-danger btn-sm" onclick="return confirm('Yayındaki ilanı silmek istediğinize emin misiniz?')">
-                                <i class="fas fa-trash d-md-none"></i>
-                                <span class="d-none d-md-inline"><i class="fas fa-trash mr-1"></i>Sil</span>
-                            </a>
+                        <?php elseif($is_approved || (isset($ilan['request_status']) && $ilan['request_status'] === 'approved')): ?>
+                            <span class="badge badge-info">
+                                <i class="fas fa-check-circle d-md-none"></i>
+                                <span class="d-none d-md-inline">Yayında - Düzenlenemez</span>
+                                <span class="d-md-none">Yayında</span>
+                            </span>
                         <?php endif; ?>
                     </div>
                 </td>
@@ -221,6 +211,4 @@ usort($ilanlar, function($a, $b) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php
-ob_end_flush(); // Tamponu boşalt
-?>
+

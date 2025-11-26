@@ -1,9 +1,10 @@
 <?php
+require_once 'db.php';
 ob_start(); // Docker'da hata almamak için tamponlama
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Oturumu başlat
 }
-require_once 'db.php'; // Veritabanını dahil et
+ // Veritabanını dahil et
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -18,7 +19,7 @@ require_once 'db.php'; // Veritabanını dahil et
         <div class="bilgilendirmeler-container">
             <h2 class="page-title">Önemli Bilgilendirmeler</h2>
             <?php
-            ;
+            require_once 'db.php';
             
             // Create table if not exists
             $pdo->exec('CREATE TABLE IF NOT EXISTS onemli_bilgiler (

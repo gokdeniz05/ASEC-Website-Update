@@ -1,7 +1,8 @@
 <?php
+require_once 'db.php';
 ob_start(); // Çıktı tamponlamayı başlat (Docker için hayati önem taşır!)
 session_start(); // Oturumu başlat
-require_once 'db.php'; // Veritabanını çağır
+ // Veritabanını çağır
 // ... kodların devamı ...
 ?>
 <!DOCTYPE html>

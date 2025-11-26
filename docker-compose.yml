@@ -4,9 +4,9 @@ services:
   # --- 1. Web Sunucusu ---
   website:
     build: .
-    container_name: asec_website  # <-- EKLENDİ: İsim çakışmasını önlemek için özel isim
+    container_name: asec_website
     ports:
-      - "8083:80"  # <-- DOĞRU: Yönetici bu portu istedi
+      - "8083:80"
     volumes:
       - ./src:/var/www/html
       - ./config/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
@@ -17,12 +17,13 @@ services:
       - database
 
   # --- 2. Veritabanı ---
+  # PHP Config dosyasında 'DB_SERVER' olarak bu servisin adı olan 'database' kullanılmalı.
   database:
     image: mysql:8.0
-    container_name: asec_mysql_db  # <-- DEĞİŞTİ: "mysql_db" çok yaygın, çakışabilir. Bunu özelleştirdik.
+    container_name: asec_mysql_db
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root  # PHP Config dosyasında DB_PASSWORD 'root' olmalı
       MYSQL_DATABASE: db_asec
       TZ: Europe/Istanbul
     volumes:
@@ -30,12 +31,11 @@ services:
       - ./sql:/docker-entrypoint-initdb.d
 
   # --- 3. Yönetim Paneli ---
-  # --- 3. Yönetim Paneli ---
   pma:
     image: phpmyadmin/phpmyadmin
     container_name: asec_pma
     ports:
-      - "45081:80"  # <-- DEĞİŞTİ: 8081 yerine 45081 gibi rastgele bir port yaptık.
+      - "45081:80"
     environment:
       PMA_HOST: database
       MYSQL_ROOT_PASSWORD: root

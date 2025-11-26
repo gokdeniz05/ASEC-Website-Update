@@ -1,19 +1,7 @@
 <?php
-// 1. DOCKER İÇİN KRİTİK BAŞLANGIÇ (Beyaz sayfa ve yönlendirme sorunlarını çözer)
-ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // Admin İlan Requests Management
 require_once 'includes/config.php';
-require_once '../db.php'; // PDO bağlantısı
-
-// 2. OTURUM KONTROLÜ (Güvenlik)
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: login.php");
-    exit;
-}
+require_once '../db.php'; // Use PDO for corporate_ilan_requests table
 
 // Ensure corporate_ilan_requests table exists
 $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
@@ -62,6 +50,25 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS individual_ilan_requests (
     INDEX idx_kategori (kategori)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
+// Also ensure ilanlar table has corporate_user_id and user_id for individual ads
+try {
+    $columns = $pdo->query("SHOW COLUMNS FROM ilanlar")->fetchAll(PDO::FETCH_COLUMN);
+    if (!in_array('corporate_user_id', $columns)) {
+        $pdo->exec("ALTER TABLE ilanlar ADD COLUMN corporate_user_id INT NULL AFTER id");
+        $pdo->exec("ALTER TABLE ilanlar ADD INDEX idx_corporate_user_id (corporate_user_id)");
+    }
+    if (!in_array('user_id', $columns)) {
+        $pdo->exec("ALTER TABLE ilanlar ADD COLUMN user_id INT NULL AFTER id");
+        $pdo->exec("ALTER TABLE ilanlar ADD INDEX idx_user_id (user_id)");
+    }
+    if (!in_array('individual_ilan_request_id', $columns)) {
+        $pdo->exec("ALTER TABLE ilanlar ADD COLUMN individual_ilan_request_id INT NULL AFTER id");
+        $pdo->exec("ALTER TABLE ilanlar ADD INDEX idx_individual_ilan_request_id (individual_ilan_request_id)");
+    }
+} catch (PDOException $e) {
+    // Column might already exist, continue
+}
+
 // Handle approve/reject action
 $msg = '';
 $error = '';
@@ -81,16 +88,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($request) {
                 if ($action === 'approve') {
-                    // --- HATA ÇÖZÜMÜ BURADA ---
-                    // 'tip' sütunu eksikti, onu ekledik. Değer olarak kategoriyi veriyoruz.
-                    $insert_stmt = $pdo->prepare('INSERT INTO ilanlar (corporate_user_id, baslik, icerik, kategori, tip, tarih, link, sirket, lokasyon, son_basvuru) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-                    
+                    // Create announcement in ilanlar table
+                    $insert_stmt = $pdo->prepare('INSERT INTO ilanlar (corporate_user_id, baslik, icerik, kategori, tarih, link, sirket, lokasyon, son_basvuru) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
                     $insert_ok = $insert_stmt->execute([
                         $request['corporate_user_id'],
                         $request['baslik'],
                         $request['icerik'],
                         $request['kategori'],
-                        $request['kategori'], // 'tip' alanı için kategori değerini kullanıyoruz
                         $request['tarih'],
                         $request['link'],
                         $request['sirket'],
@@ -99,15 +103,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                     
                     if ($insert_ok) {
-                        $admin_user_id = $_SESSION['id'] ?? 0; // $_SESSION['user_id'] yerine admin id'si
+                        // Update request status
+                        $admin_user_id = $_SESSION['user_id'] ?? null;
                         $update_stmt = $pdo->prepare('UPDATE corporate_ilan_requests SET status = "approved", admin_notes = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?');
                         $update_stmt->execute([$admin_notes, $admin_user_id, $request_id]);
                         $msg = 'İlan başarıyla onaylandı ve yayınlandı!';
                     } else {
-                        $error = 'İlan oluşturulurken bir hata oluştu! (İlanlar tablosu yapısını kontrol edin)';
+                        $error = 'İlan oluşturulurken bir hata oluştu!';
                     }
                 } elseif ($action === 'reject') {
-                    $admin_user_id = $_SESSION['id'] ?? 0;
+                    // Update request status to rejected
+                    $admin_user_id = $_SESSION['user_id'] ?? null;
                     $update_stmt = $pdo->prepare('UPDATE corporate_ilan_requests SET status = "rejected", admin_notes = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?');
                     $update_stmt->execute([$admin_notes, $admin_user_id, $request_id]);
                     $msg = 'İlan isteği reddedildi.';
@@ -123,17 +129,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($request) {
                 if ($action === 'approve') {
-                    // --- HATA ÇÖZÜMÜ BURADA (Bireysel İçin) ---
-                    // Buraya da 'tip' eklendi
-                    $insert_stmt = $pdo->prepare('INSERT INTO ilanlar (user_id, individual_ilan_request_id, baslik, icerik, kategori, tip, tarih, link, sirket, lokasyon, son_basvuru) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-                    
+                    // Create announcement in ilanlar table (include user_id and individual_ilan_request_id for tracking)
+                    $insert_stmt = $pdo->prepare('INSERT INTO ilanlar (user_id, individual_ilan_request_id, baslik, icerik, kategori, tarih, link, sirket, lokasyon, son_basvuru) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
                     $insert_ok = $insert_stmt->execute([
                         $request['user_id'],
-                        $request_id, 
+                        $request_id, // Store the request ID to link back
                         $request['baslik'],
                         $request['icerik'],
                         $request['kategori'],
-                        $request['kategori'], // 'tip' alanı
                         $request['tarih'],
                         $request['link'],
                         $request['sirket'],
@@ -142,7 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                     
                     if ($insert_ok) {
-                        $admin_user_id = $_SESSION['id'] ?? 0;
+                        // Update request status
+                        $admin_user_id = $_SESSION['user_id'] ?? null;
                         $update_stmt = $pdo->prepare('UPDATE individual_ilan_requests SET status = "approved", admin_notes = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?');
                         $update_stmt->execute([$admin_notes, $admin_user_id, $request_id]);
                         $msg = 'İlan başarıyla onaylandı ve yayınlandı!';
@@ -150,7 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $error = 'İlan oluşturulurken bir hata oluştu!';
                     }
                 } elseif ($action === 'reject') {
-                    $admin_user_id = $_SESSION['id'] ?? 0;
+                    // Update request status to rejected
+                    $admin_user_id = $_SESSION['user_id'] ?? null;
                     $update_stmt = $pdo->prepare('UPDATE individual_ilan_requests SET status = "rejected", admin_notes = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?');
                     $update_stmt->execute([$admin_notes, $admin_user_id, $request_id]);
                     $msg = 'İlan isteği reddedildi.';
@@ -242,6 +247,7 @@ $rejected_count = $corporate_rejected + $individual_rejected;
                 </div>
             <?php endif; ?>
 
+            <!-- Filter Tabs -->
             <div class="mb-3">
                 <ul class="nav nav-tabs">
                     <li class="nav-item">
@@ -267,6 +273,7 @@ $rejected_count = $corporate_rejected + $individual_rejected;
                 </ul>
             </div>
 
+            <!-- Requests Table -->
             <div class="card shadow-sm">
                 <div class="card-body">
                     <?php if(empty($requests)): ?>
@@ -337,6 +344,7 @@ $rejected_count = $corporate_rejected + $individual_rejected;
                                             </td>
                                         </tr>
 
+                                        <!-- Detail Modal -->
                                         <div class="modal fade" id="detailModal<?= $req['request_type'] ?>_<?= $req['id'] ?>" tabindex="-1" role="dialog">
                                             <div class="modal-dialog modal-lg" role="document">
                                                 <div class="modal-content">
@@ -393,6 +401,7 @@ $rejected_count = $corporate_rejected + $individual_rejected;
                                             </div>
                                         </div>
 
+                                        <!-- Approve Modal -->
                                         <div class="modal fade" id="approveModal<?= $req['request_type'] ?>_<?= $req['id'] ?>" tabindex="-1" role="dialog">
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
@@ -425,6 +434,7 @@ $rejected_count = $corporate_rejected + $individual_rejected;
                                             </div>
                                         </div>
 
+                                        <!-- Reject Modal -->
                                         <div class="modal fade" id="rejectModal<?= $req['request_type'] ?>_<?= $req['id'] ?>" tabindex="-1" role="dialog">
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
@@ -470,6 +480,4 @@ $rejected_count = $corporate_rejected + $individual_rejected;
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php 
-ob_end_flush(); // Tamponu boşalt
-?>
+

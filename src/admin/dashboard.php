@@ -1,22 +1,4 @@
 <?php
-// 1. TAM PONLAMA VE SESSION (Standart Docker Girişi)
-ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// 2. OTURUM KONTROLÜ (Kritik Nokta)
-// login.php'de $_SESSION["loggedin"] = true; yapmıştık.
-// Burada onu kontrol ediyoruz.
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    // Eğer oturum yoksa login sayfasına postala
-    header("location: login.php");
-    exit;
-}
-
-// Veritabanı bağlantısı (Gerekirse)
-
-
 require_once 'includes/config.php';
 
 // Oturum kontrolü
