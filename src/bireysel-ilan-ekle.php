@@ -9,6 +9,13 @@ if (!isset($_SESSION['user']) || !isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Get the logged-in user's ID and validate it
+$logged_in_user_id = intval($_SESSION['user_id']);
+if ($logged_in_user_id <= 0) {
+    header('Location: login.php');
+    exit;
+}
+
 // Ensure individual_ilan_requests table exists
 $pdo->exec('CREATE TABLE IF NOT EXISTS individual_ilan_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -56,10 +63,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (empty($tarih)) {
             $error = 'Tarih alanı zorunludur!';
         } else {
-            // Create request
+            // Create request - automatically set owner to the currently logged-in user
+            // The user_id is taken from the session (cannot be overridden via POST/GET)
             $insertColumns = ['user_id', 'baslik', 'icerik', 'kategori', 'tarih', 'link', 'sirket', 'lokasyon', 'son_basvuru', 'iletisim_bilgisi', 'status'];
             $insertValues = [
-                $_SESSION['user_id'], 
+                $logged_in_user_id, // Automatically set to the currently logged-in user
                 $baslik, 
                 $icerik, 
                 'Bireysel İlanlar', 

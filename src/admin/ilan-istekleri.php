@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Admin İlan Requests Management
 require_once 'includes/config.php';
 require_once '../db.php'; // Use PDO for corporate_ilan_requests table
@@ -88,28 +92,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($request) {
                 if ($action === 'approve') {
-                    // Create announcement in ilanlar table
-                    $insert_stmt = $pdo->prepare('INSERT INTO ilanlar (corporate_user_id, baslik, icerik, kategori, tarih, link, sirket, lokasyon, son_basvuru) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-                    $insert_ok = $insert_stmt->execute([
-                        $request['corporate_user_id'],
-                        $request['baslik'],
-                        $request['icerik'],
-                        $request['kategori'],
-                        $request['tarih'],
-                        $request['link'],
-                        $request['sirket'],
-                        $request['lokasyon'],
-                        $request['son_basvuru']
-                    ]);
-                    
-                    if ($insert_ok) {
-                        // Update request status
-                        $admin_user_id = $_SESSION['user_id'] ?? null;
-                        $update_stmt = $pdo->prepare('UPDATE corporate_ilan_requests SET status = "approved", admin_notes = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?');
-                        $update_stmt->execute([$admin_notes, $admin_user_id, $request_id]);
-                        $msg = 'İlan başarıyla onaylandı ve yayınlandı!';
-                    } else {
-                        $error = 'İlan oluşturulurken bir hata oluştu!';
+                    try {
+                        // Create announcement in ilanlar table
+                        $insert_stmt = $pdo->prepare('INSERT INTO ilanlar (corporate_user_id, baslik, icerik, kategori, tarih, link, sirket, lokasyon, son_basvuru, tip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                        $insert_ok = $insert_stmt->execute([
+                            $request['corporate_user_id'],
+                            $request['baslik'],
+                            $request['icerik'],
+                            $request['kategori'],
+                            $request['tarih'],
+                            $request['link'],
+                            $request['sirket'],
+                            $request['lokasyon'],
+                            $request['son_basvuru'],
+                            'corporate'
+                        ]);
+                        
+                        if ($insert_ok) {
+                            // Update request status
+                            $admin_user_id = $_SESSION['user_id'] ?? null;
+                            $update_stmt = $pdo->prepare('UPDATE corporate_ilan_requests SET status = "approved", admin_notes = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?');
+                            $update_stmt->execute([$admin_notes, $admin_user_id, $request_id]);
+                            $msg = 'İlan başarıyla onaylandı ve yayınlandı!';
+                        } else {
+                            $errorInfo = $insert_stmt->errorInfo();
+                            $error = 'İlan oluşturulurken bir hata oluştu! ' . ($errorInfo[2] ?? '');
+                        }
+                    } catch (PDOException $e) {
+                        $error = 'İlan oluşturulurken bir hata oluştu! ' . $e->getMessage();
                     }
                 } elseif ($action === 'reject') {
                     // Update request status to rejected
@@ -129,29 +139,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($request) {
                 if ($action === 'approve') {
-                    // Create announcement in ilanlar table (include user_id and individual_ilan_request_id for tracking)
-                    $insert_stmt = $pdo->prepare('INSERT INTO ilanlar (user_id, individual_ilan_request_id, baslik, icerik, kategori, tarih, link, sirket, lokasyon, son_basvuru) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-                    $insert_ok = $insert_stmt->execute([
-                        $request['user_id'],
-                        $request_id, // Store the request ID to link back
-                        $request['baslik'],
-                        $request['icerik'],
-                        $request['kategori'],
-                        $request['tarih'],
-                        $request['link'],
-                        $request['sirket'],
-                        $request['lokasyon'],
-                        $request['son_basvuru']
-                    ]);
-                    
-                    if ($insert_ok) {
-                        // Update request status
-                        $admin_user_id = $_SESSION['user_id'] ?? null;
-                        $update_stmt = $pdo->prepare('UPDATE individual_ilan_requests SET status = "approved", admin_notes = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?');
-                        $update_stmt->execute([$admin_notes, $admin_user_id, $request_id]);
-                        $msg = 'İlan başarıyla onaylandı ve yayınlandı!';
-                    } else {
-                        $error = 'İlan oluşturulurken bir hata oluştu!';
+                    try {
+                        // Create announcement in ilanlar table (include user_id and individual_ilan_request_id for tracking)
+                        $insert_stmt = $pdo->prepare('INSERT INTO ilanlar (user_id, individual_ilan_request_id, baslik, icerik, kategori, tarih, link, sirket, lokasyon, son_basvuru, tip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                        $insert_ok = $insert_stmt->execute([
+                            $request['user_id'],
+                            $request_id, // Store the request ID to link back
+                            $request['baslik'],
+                            $request['icerik'],
+                            $request['kategori'],
+                            $request['tarih'],
+                            $request['link'],
+                            $request['sirket'],
+                            $request['lokasyon'],
+                            $request['son_basvuru'],
+                            'individual'
+                        ]);
+                        
+                        if ($insert_ok) {
+                            // Update request status
+                            $admin_user_id = $_SESSION['user_id'] ?? null;
+                            $update_stmt = $pdo->prepare('UPDATE individual_ilan_requests SET status = "approved", admin_notes = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?');
+                            $update_stmt->execute([$admin_notes, $admin_user_id, $request_id]);
+                            $msg = 'İlan başarıyla onaylandı ve yayınlandı!';
+                        } else {
+                            $errorInfo = $insert_stmt->errorInfo();
+                            $error = 'İlan oluşturulurken bir hata oluştu! ' . ($errorInfo[2] ?? '');
+                        }
+                    } catch (PDOException $e) {
+                        $error = 'İlan oluşturulurken bir hata oluştu! ' . $e->getMessage();
                     }
                 } elseif ($action === 'reject') {
                     // Update request status to rejected

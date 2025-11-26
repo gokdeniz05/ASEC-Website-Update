@@ -1,5 +1,9 @@
 <?php
 // Corporate İlan Ekleme - Sadece Staj ve Burs İlanları
+// Start output buffering to prevent any output issues with redirects
+if (!ob_get_level()) {
+    ob_start();
+}
 require_once 'includes/config.php';
 
 // Ensure corporate_ilan_requests table exists
@@ -68,9 +72,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ok = $stmt->execute($insertValues);
             
             if ($ok) {
-                $success = true;
-                $success_message = 'İlan isteğiniz başarıyla oluşturuldu! İlanınız yönetici onayından sonra yayınlanacaktır.';
-                header('Location: ilan-ekle.php?success=1&kategori=' . urlencode($kategori));
+                // Clean output buffer before redirect
+                if (ob_get_level()) {
+                    ob_end_clean();
+                }
+                // Redirect to listing management page
+                header('Location: ilanlar-yonetim.php?kategori=' . urlencode($kategori));
                 exit;
             } else {
                 $error = 'İlan isteği oluşturulurken bir hata oluştu!';
@@ -81,11 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Check for success message from redirect
-if (isset($_GET['success']) && $_GET['success'] == '1') {
-    $msg = 'İlan isteğiniz başarıyla oluşturuldu! İlanınız yönetici onayından sonra yayınlanacaktır.';
-    $default_kategori = $_GET['kategori'] ?? $default_kategori;
-}
+// Success message is no longer needed as we redirect directly to management page
 ?>
 <?php include 'corporate-header.php'; ?>
 <div class="container-fluid">
@@ -154,11 +157,11 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
             </div>
           </div>
         </div>
-        <div class="form-group mb-4 d-flex flex-column flex-md-row gap-2">
-          <button class="btn btn-primary btn-lg btn-block btn-md-block px-4" type="submit">
+        <div class="form-group mb-4 d-flex flex-column flex-md-row justify-content-center align-items-center" style="gap: 16px;">
+          <button class="btn btn-primary btn-lg" type="submit" style="min-width: 180px; min-height: 54px;">
             <i class="fas fa-save mr-2"></i>Kaydet
           </button>
-          <a href="ilanlar-yonetim.php" class="btn btn-secondary btn-lg btn-block btn-md-block px-4">
+          <a href="ilanlar-yonetim.php" class="btn btn-secondary btn-lg" style="min-width: 180px; min-height: 54px;">
             <i class="fas fa-times mr-2"></i>İptal
           </a>
         </div>
@@ -183,10 +186,22 @@ input:focus, textarea:focus, select:focus {outline:none;border-color:#9370db;bac
 .btn {padding:10px 28px;background:#9370db;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:1rem;transition:background 0.2s;}
 .btn:hover {background:#7a5fb8;}
 .msg {margin-bottom:1rem; color:green;}
+
+/* Save and Cancel button styling */
+.form-group.d-flex.flex-column.flex-md-row .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 @media (max-width: 768px) {
     .admin-form-container {
         padding: 18px 4vw 18px 4vw;
         max-width: 99vw;
+    }
+    
+    .form-group.d-flex.flex-column .btn {
+        width: 100%;
     }
 }
 </style>
