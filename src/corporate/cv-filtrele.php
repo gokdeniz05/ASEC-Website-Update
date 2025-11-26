@@ -239,14 +239,14 @@ unset($candidate);
                             </div>
                         </div>
 
-                        <div class="form-group d-flex flex-column flex-md-row align-items-md-center gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg btn-block btn-md-block">
+                        <div class="form-group d-flex flex-column flex-md-row align-items-md-center" style="gap: 16px;">
+                            <button type="submit" class="btn btn-primary btn-lg" style="min-width: 180px; min-height: 54px; flex: 0 0 auto;">
                                 <i class="fas fa-search mr-2"></i>Filtrele
                             </button>
-                            <a href="cv-filtrele.php" class="btn btn-secondary btn-lg btn-block btn-md-block">
+                            <a href="cv-filtrele.php" class="btn btn-secondary btn-lg" style="min-width: 180px; min-height: 54px; flex: 0 0 auto;">
                                 <i class="fas fa-times mr-2"></i>Temizle
                             </a>
-                            <span class="text-muted text-center text-md-left mt-2 mt-md-0">
+                            <span class="text-muted text-center text-md-left mt-2 mt-md-0" style="flex: 1;">
                                 <strong><?= count($candidates) ?></strong> aday bulundu
                             </span>
                         </div>
@@ -370,6 +370,22 @@ unset($candidate);
 </div>
 
 <style>
+/* Filter and Clear button styling */
+.form-group .btn-lg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 24px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+@media (max-width: 767px) {
+    .form-group .btn-lg {
+        width: 100%;
+    }
+}
+
 .filter-chips {
     display: flex;
     flex-wrap: wrap;

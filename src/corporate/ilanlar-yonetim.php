@@ -89,6 +89,88 @@ usort($ilanlar, function($a, $b) {
 });
 ?>
 <?php include 'corporate-header.php'; ?>
+<style>
+    /* Style for Add Internship/Scholarship buttons */
+    .mb-3.d-flex.flex-column.flex-md-row {
+        justify-content: center;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .mb-3.d-flex.flex-column.flex-md-row .btn {
+        min-height: 60px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 500;
+        min-width: 280px;
+    }
+    
+    /* Style for filter button groups */
+    .mb-3 .btn-group {
+        justify-content: center;
+        display: flex;
+        margin-bottom: 12px;
+    }
+    
+    .mb-3 .btn-group .btn {
+        min-height: 50px;
+        padding: 12px 20px;
+        font-size: 1rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        max-width: 250px;
+        min-width: 180px;
+    }
+    
+    /* Type filter buttons (Tümü, Staj, Burs) */
+    .btn-group[role="group"]:first-of-type {
+        margin-bottom: 12px;
+    }
+    
+    /* Status filter buttons (Tümü, Bekleyen, Onaylanan, Reddedilen) */
+    .btn-group[role="group"]:last-of-type {
+        margin-bottom: 0;
+    }
+    
+    /* Ensure buttons in groups are aligned */
+    .btn-group .btn.flex-fill {
+        flex: 1;
+        min-width: 180px;
+    }
+    
+    /* Style for action buttons in table */
+    .table .btn-group-sm .btn {
+        min-width: 90px;
+        padding: 8px 16px;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 767px) {
+        .mb-3.d-flex.flex-column .btn {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        
+        .mb-3.d-flex.flex-column .btn:last-child {
+            margin-bottom: 0;
+        }
+        
+        .btn-group {
+            flex-wrap: wrap;
+        }
+        
+        .btn-group .btn {
+            min-width: calc(50% - 4px);
+            margin: 2px;
+        }
+    }
+</style>
 <div class="container-fluid">
   <div class="row">
     <?php include 'corporate-sidebar.php'; ?>
@@ -97,26 +179,26 @@ usort($ilanlar, function($a, $b) {
         <h1 class="h3 mb-3 mb-md-0">İlanlarım</h1>
       </div>
       
-      <div class="mb-3 d-flex flex-column flex-md-row gap-2">
-        <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary btn-block btn-md mb-2 mb-md-0">
+      <div class="mb-3 d-flex flex-column flex-md-row justify-content-center align-items-stretch" style="gap: 12px;">
+        <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary" style="min-width: 280px;">
           <i class="fas fa-plus mr-2"></i>Staj İlanı Ekle
         </a>
-        <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success btn-block btn-md">
+        <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success" style="min-width: 280px;">
           <i class="fas fa-plus mr-2"></i>Burs İlanı Ekle
         </a>
       </div>
       
-      <div class="mb-3">
-        <div class="btn-group btn-group-sm mb-2 w-100 d-flex flex-wrap" role="group">
-          <a href="ilanlar-yonetim.php" class="btn btn-outline-secondary flex-fill <?php echo $kategori_filter === '' ? 'active' : ''; ?>">Tümü</a>
-          <a href="ilanlar-yonetim.php?kategori=Staj İlanları" class="btn btn-outline-primary flex-fill <?php echo $kategori_filter === 'Staj İlanları' ? 'active' : ''; ?>">Staj</a>
-          <a href="ilanlar-yonetim.php?kategori=Burs İlanları" class="btn btn-outline-success flex-fill <?php echo $kategori_filter === 'Burs İlanları' ? 'active' : ''; ?>">Burs</a>
+      <div class="mb-3 d-flex flex-column align-items-center">
+        <div class="btn-group mb-2 d-flex justify-content-center" role="group" style="gap: 8px; width: 100%; max-width: 700px;">
+          <a href="ilanlar-yonetim.php" class="btn btn-outline-secondary flex-fill <?php echo $kategori_filter === '' ? 'active' : ''; ?>" style="min-width: 180px;">Tümü</a>
+          <a href="ilanlar-yonetim.php?kategori=Staj İlanları" class="btn btn-outline-primary flex-fill <?php echo $kategori_filter === 'Staj İlanları' ? 'active' : ''; ?>" style="min-width: 180px;">Staj</a>
+          <a href="ilanlar-yonetim.php?kategori=Burs İlanları" class="btn btn-outline-success flex-fill <?php echo $kategori_filter === 'Burs İlanları' ? 'active' : ''; ?>" style="min-width: 180px;">Burs</a>
         </div>
-        <div class="btn-group btn-group-sm w-100 d-flex flex-wrap" role="group">
-          <a href="ilanlar-yonetim.php<?php echo $kategori_filter ? '?kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-info flex-fill <?php echo $status_filter === 'all' ? 'active' : ''; ?>">Tümü</a>
-          <a href="ilanlar-yonetim.php?status=pending<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-warning flex-fill <?php echo $status_filter === 'pending' ? 'active' : ''; ?>">Bekleyen</a>
-          <a href="ilanlar-yonetim.php?status=approved<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-success flex-fill <?php echo $status_filter === 'approved' ? 'active' : ''; ?>">Onaylanan</a>
-          <a href="ilanlar-yonetim.php?status=rejected<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-danger flex-fill <?php echo $status_filter === 'rejected' ? 'active' : ''; ?>">Reddedilen</a>
+        <div class="btn-group d-flex justify-content-center" role="group" style="gap: 8px; width: 100%; max-width: 900px;">
+          <a href="ilanlar-yonetim.php<?php echo $kategori_filter ? '?kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-info flex-fill <?php echo $status_filter === 'all' ? 'active' : ''; ?>" style="min-width: 180px;">Tümü</a>
+          <a href="ilanlar-yonetim.php?status=pending<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-warning flex-fill <?php echo $status_filter === 'pending' ? 'active' : ''; ?>" style="min-width: 180px;">Bekleyen</a>
+          <a href="ilanlar-yonetim.php?status=approved<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-success flex-fill <?php echo $status_filter === 'approved' ? 'active' : ''; ?>" style="min-width: 180px;">Onaylanan</a>
+          <a href="ilanlar-yonetim.php?status=rejected<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-danger flex-fill <?php echo $status_filter === 'rejected' ? 'active' : ''; ?>" style="min-width: 180px;">Reddedilen</a>
         </div>
       </div>
       
@@ -180,7 +262,7 @@ usort($ilanlar, function($a, $b) {
                                 <i class="fas fa-edit d-md-none"></i>
                                 <span class="d-none d-md-inline"><i class="fas fa-edit mr-1"></i>Düzenle</span>
                             </a>
-                            <a href="ilan-sil.php?id=<?= $ilan['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')">
+                            <a href="ilan-sil.php?id=<?= $ilan['id'] ?>&type=request" class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')">
                                 <i class="fas fa-trash d-md-none"></i>
                                 <span class="d-none d-md-inline"><i class="fas fa-trash mr-1"></i>Sil</span>
                             </a>
@@ -189,11 +271,10 @@ usort($ilanlar, function($a, $b) {
                                 <i class="fas fa-times mr-1"></i><span class="d-none d-md-inline">Reddedildi</span>
                             </button>
                         <?php elseif($is_approved || (isset($ilan['request_status']) && $ilan['request_status'] === 'approved')): ?>
-                            <span class="badge badge-info">
-                                <i class="fas fa-check-circle d-md-none"></i>
-                                <span class="d-none d-md-inline">Yayında - Düzenlenemez</span>
-                                <span class="d-md-none">Yayında</span>
-                            </span>
+                            <a href="ilan-sil.php?id=<?= $ilan['id'] ?>&type=published" class="btn btn-danger btn-sm" onclick="return confirm('Yayındaki bu ilanı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')">
+                                <i class="fas fa-trash d-md-none"></i>
+                                <span class="d-none d-md-inline"><i class="fas fa-trash mr-1"></i>Sil</span>
+                            </a>
                         <?php endif; ?>
                     </div>
                 </td>

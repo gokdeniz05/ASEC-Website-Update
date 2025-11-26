@@ -102,105 +102,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title><?php echo __t('login.title'); ?> - ASEC</title>
     <link rel="stylesheet" href="css/auth.css">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <style>
-        .auth-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            padding: 0;
-            background: transparent;
-        }
-        .auth-tabs button {
-            width: auto !important;
-            margin: 0 !important;
-        }
+     <style>
+        /* TAB BUTONLARI STİLİ */
+        .auth-tabs { display: flex; gap: 10px; margin-bottom: 30px; }
+        .auth-tabs button { width: auto !important; margin: 0 !important; }
+        
         .auth-tab {
-            flex: 1;
-            padding: 12px 20px;
-            background: #9370db !important;
-            border: 2px solid var(--primary) !important;
-            border-bottom: 2px solid var(--primary) !important;
+            flex: 1; 
+            padding: 12px 20px; 
+            background: transparent !important; 
+            color: #1c2444 !important; 
+            border: 2px solid #1c2444 !important; 
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            color: #ffffff !important;
-            transition: all 0.3s ease;
-            text-align: center;
-            position: relative;
-            display: inline-block;
-            text-decoration: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            overflow: visible;
-            box-shadow: 4px 4px 0px var(--primary);
+            font-weight: 600; 
             border-radius: 8px;
+            box-shadow: none !important;
+            transition: all 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
         }
-        .auth-tab span,
-        .auth-tab::before,
-        .auth-tab::after {
-            display: inline !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            color: inherit !important;
-        }
+        
         .auth-tab:hover {
-            color: #ffffff !important;
-            background: #a082dd !important;
-            box-shadow: 6px 6px 0px var(--primary);
-            transform: translate(-2px, -2px);
+            background: rgba(28, 36, 68, 0.05) !important;
         }
-        .auth-tab:active {
-            color: #ffffff !important;
-            background: #9370db !important;
-            box-shadow: 4px 4px 0px var(--primary);
-            transform: translate(0, 0);
-        }
+
         .auth-tab.active {
+            background: #1c2444 !important;
             color: #ffffff !important;
-            border: 2px solid var(--primary) !important;
-            background: #9370db !important;
-            box-shadow: 4px 4px 0px var(--primary);
+            border-color: #1c2444 !important;
+            box-shadow: none !important;
         }
-        .auth-tab.active:hover {
-            color: #ffffff !important;
-            background: #a082dd !important;
-            box-shadow: 6px 6px 0px var(--primary);
-            transform: translate(-2px, -2px);
-        }
-        .auth-tab.corporate {
-            background: #9370db !important;
-        }
-        .auth-tab.corporate:hover {
-            color: #ffffff !important;
-            background: #a082dd !important;
-            box-shadow: 6px 6px 0px var(--primary);
-            transform: translate(-2px, -2px);
-        }
-        .auth-tab.corporate:active {
-            color: #ffffff !important;
-            background: #9370db !important;
-            box-shadow: 4px 4px 0px var(--primary);
-            transform: translate(0, 0);
-        }
-        .auth-tab.corporate.active {
-            color: #ffffff !important;
-            border: 2px solid var(--primary) !important;
-            background: #9370db !important;
-            box-shadow: 4px 4px 0px var(--primary);
-        }
-        .auth-tab.corporate.active:hover {
-            color: #ffffff !important;
-            background: #a082dd !important;
-            box-shadow: 6px 6px 0px var(--primary);
-            transform: translate(-2px, -2px);
-        }
-        .auth-form-container {
-            display: none;
-        }
-        .auth-form-container.active {
-            display: block;
-        }
+
+        .auth-form-container { display: none; }
+        .auth-form-container.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>

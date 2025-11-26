@@ -1,6 +1,7 @@
 <?php
 require_once 'db.php';
 require_once 'includes/validation.php';
+require_once 'includes/lang.php';
 session_start();
 
 // Corporate users tablosunu oluştur (yoksa)
@@ -191,90 +192,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .auth-tab {
             flex: 1;
             padding: 12px 20px;
-            background: #9370db !important;
-            border: 2px solid var(--primary) !important;
-            border-bottom: 2px solid var(--primary) !important;
+            background: transparent !important;
+            border: 2px solid #1c2444 !important;
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            color: #ffffff !important;
+            color: #1c2444 !important;
             transition: all 0.3s ease;
             text-align: center;
-            position: relative;
-            display: inline-block;
-            text-decoration: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            overflow: visible;
-            box-shadow: 4px 4px 0px var(--primary);
             border-radius: 8px;
-        }
-        .auth-tab span,
-        .auth-tab::before,
-        .auth-tab::after {
-            display: inline !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            color: inherit !important;
+            box-shadow: none !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
         }
         .auth-tab:hover {
-            color: #ffffff !important;
-            background: #a082dd !important;
-            box-shadow: 6px 6px 0px var(--primary);
-            transform: translate(-2px, -2px);
+            background: rgba(28, 36, 68, 0.05) !important;
         }
-        .auth-tab:active {
-            color: #ffffff !important;
-            background: #9370db !important;
-            box-shadow: 4px 4px 0px var(--primary);
-            transform: translate(0, 0);
-        }
-        .auth-tab.active {
-            color: #ffffff !important;
-            border: 2px solid var(--primary) !important;
-            background: #9370db !important;
-            box-shadow: 4px 4px 0px var(--primary);
-        }
-        .auth-tab.active:hover {
-            color: #ffffff !important;
-            background: #a082dd !important;
-            box-shadow: 6px 6px 0px var(--primary);
-            transform: translate(-2px, -2px);
-        }
-        .auth-tab.corporate {
-            background: #9370db !important;
-        }
-        .auth-tab.corporate:hover {
-            color: #ffffff !important;
-            background: #a082dd !important;
-            box-shadow: 6px 6px 0px var(--primary);
-            transform: translate(-2px, -2px);
-        }
-        .auth-tab.corporate:active {
-            color: #ffffff !important;
-            background: #9370db !important;
-            box-shadow: 4px 4px 0px var(--primary);
-            transform: translate(0, 0);
-        }
+        .auth-tab.active,
         .auth-tab.corporate.active {
             color: #ffffff !important;
-            border: 2px solid var(--primary) !important;
-            background: #9370db !important;
-            box-shadow: 4px 4px 0px var(--primary);
+            border: 2px solid #1c2444 !important;
+            background: #1c2444 !important;
+            box-shadow: none !important;
         }
-        .auth-tab.corporate.active:hover {
-            color: #ffffff !important;
-            background: #a082dd !important;
-            box-shadow: 6px 6px 0px var(--primary);
-            transform: translate(-2px, -2px);
-        }
-        .auth-form-container {
-            display: none;
-        }
-        .auth-form-container.active {
-            display: block;
-        }
+        .auth-form-container { display: none; }
+        .auth-form-container.active { display: block; }
     </style>
 </head>
 <body>
@@ -282,16 +223,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="auth-page">
         <div class="auth-container">
             <div class="auth-tabs">
-                <button class="auth-tab <?php echo $activeTab === 'individual' ? 'active' : ''; ?>" onclick="switchTab('individual')">
-                    Bireysel Kayıt
+                <button class="auth-tab <?php echo $activeTab === 'individual' ? 'active' : ''; ?>" onclick="switchTab('individual', event)">
+                    <?php echo __t('register.individual'); ?>
                 </button>
-                <button class="auth-tab corporate <?php echo $activeTab === 'corporate' ? 'active' : ''; ?>" onclick="switchTab('corporate')">
-                    Kurumsal Kayıt
+                <button class="auth-tab corporate <?php echo $activeTab === 'corporate' ? 'active' : ''; ?>" onclick="switchTab('corporate', event)">
+                    <?php echo __t('register.corporate'); ?>
                 </button>
             </div>
             
             <div id="individual-form" class="auth-form-container <?php echo $activeTab === 'individual' ? 'active' : ''; ?>">
-                <h2>Bireysel Kayıt</h2>
+                <h2><?php echo __t('register.individual'); ?></h2>
                 <form method="post">
                     <input type="hidden" name="user_type" value="individual">
                     <?php if (!empty($error) && $activeTab === 'individual') { echo '<div class="alert-error">'.$error.'</div>'; } ?>
@@ -350,54 +291,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <div id="corporate-form" class="auth-form-container <?php echo $activeTab === 'corporate' ? 'active' : ''; ?>">
-                <h2>Kurumsal Kayıt</h2>
+                <h2><?php echo __t('register.corporate'); ?></h2>
                 <form method="post">
                     <input type="hidden" name="user_type" value="corporate">
                     <?php if (!empty($error) && $activeTab === 'corporate') { echo '<div class="alert-error">'.$error.'</div>'; } ?>
                     <?php if (!empty($success) && $activeTab === 'corporate') { 
-                        echo '<div class="alert-success">'.($success_message ?? 'Kayıt isteğiniz başarıyla oluşturuldu! Hesabınız yönetici onayından sonra aktif olacaktır.').'</div>'; 
+                        echo '<div class="alert-success">'.($success_message ?? __t('register.corporate.success')).'</div>'; 
                     } ?>
                     <div class="form-group">
-                        <label for="company_name">Şirket Adı <span style="color: red;">*</span></label>
+                        <label for="company_name"><?php echo __t('register.corporate.company_name'); ?> <span style="color: red;">*</span></label>
                         <input type="text" id="company_name" name="company_name" required value="<?php echo htmlspecialchars($_POST['company_name'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="contact_person">İletişim Kişisi <span style="color: red;">*</span></label>
+                        <label for="contact_person"><?php echo __t('register.corporate.contact_person'); ?> <span style="color: red;">*</span></label>
                         <input type="text" id="contact_person" name="contact_person" required value="<?php echo htmlspecialchars($_POST['contact_person'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="corporate_phone">Telefon <span style="color: red;">*</span></label>
+                        <label for="corporate_phone"><?php echo __t('register.corporate.phone'); ?> <span style="color: red;">*</span></label>
                         <input type="tel" id="corporate_phone" name="phone" required value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="corporate_email">E-posta <span style="color: red;">*</span></label>
+                        <label for="corporate_email"><?php echo __t('register.corporate.email'); ?> <span style="color: red;">*</span></label>
                         <input type="email" id="corporate_email" name="email" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="address">Adres</label>
+                        <label for="address"><?php echo __t('register.corporate.address'); ?></label>
                         <textarea id="address" name="address" rows="3" style="width: 100%; padding: 12px 15px; border: 2px solid var(--primary); background-color: var(--secondary); font-size: 16px; outline: none; transition: all 0.3s; font-family: inherit;"><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="tax_number">Vergi Numarası</label>
+                        <label for="tax_number"><?php echo __t('register.corporate.tax_number'); ?></label>
                         <input type="text" id="tax_number" name="tax_number" value="<?php echo htmlspecialchars($_POST['tax_number'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="corporate_password">Şifre <span style="color: red;">*</span></label>
+                        <label for="corporate_password"><?php echo __t('register.corporate.password'); ?> <span style="color: red;">*</span></label>
                         <input type="password" id="corporate_password" name="password" required>
                     </div>
                     <div class="form-group">
-                        <label for="corporate_password2">Şifre Tekrar <span style="color: red;">*</span></label>
+                        <label for="corporate_password2"><?php echo __t('register.corporate.password2'); ?> <span style="color: red;">*</span></label>
                         <input type="password" id="corporate_password2" name="password2" required>
                     </div>
                     <div class="form-group">
                         <div class="password-requirements">
-                            <small>Şifre Gereksinimleri:</small>
+                            <small><?php echo __t('register.corporate.requirements.title'); ?></small>
                             <ul>
-                                <li id="corporate-length-check">En az 8 karakter</li>
-                                <li id="corporate-upper-check">En az bir büyük harf</li>
-                                <li id="corporate-lower-check">En az bir küçük harf</li>
-                                <li id="corporate-number-check">En az bir rakam</li>
-                                <li id="corporate-special-check">En az bir özel karakter</li>
+                                <li id="corporate-length-check"><?php echo __t('register.corporate.requirements.length'); ?></li>
+                                <li id="corporate-upper-check"><?php echo __t('register.corporate.requirements.upper'); ?></li>
+                                <li id="corporate-lower-check"><?php echo __t('register.corporate.requirements.lower'); ?></li>
+                                <li id="corporate-number-check"><?php echo __t('register.corporate.requirements.number'); ?></li>
+                                <li id="corporate-special-check"><?php echo __t('register.corporate.requirements.special'); ?></li>
                             </ul>
                         </div>
                     </div>
@@ -405,9 +346,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="g-recaptcha" data-sitekey="6LeLMC8rAAAAAChTj8rlQ_zyjedV3VdnejoNAZy1"></div>
                     </div>
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                    <button type="submit" class="cta-button">Kayıt Ol</button>
+                    <button type="submit" class="cta-button"><?php echo __t('register.corporate.submit'); ?></button>
                 </form>
-                <p>Zaten hesabınız var mı? <a href="login.php?tab=corporate">Giriş Yap</a></p>
+                <p><?php echo __t('register.corporate.have_account'); ?> <a href="login.php?tab=corporate"><?php echo __t('register.corporate.login'); ?></a></p>
             </div>
         </div>
     </main>
@@ -416,19 +357,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="javascript/password-validator.js"></script>
     <script src="javascript/password-toggle.js"></script>
     <script>
-        function switchTab(tab) {
+        function switchTab(tab, event) {
             // Update active tab button
-            document.querySelectorAll('.auth-tab').forEach(btn => {
+            const buttons = document.querySelectorAll('.auth-tab');
+            buttons.forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            // Find the clicked button and activate it
+            if (event && event.target) {
+                event.target.closest('.auth-tab')?.classList.add('active');
+            } else {
+                // Fallback: find button by tab name
+                document.querySelector(`.auth-tab[onclick*="${tab}"]`)?.classList.add('active');
+            }
             
             // Update active form
             document.getElementById('individual-form').classList.remove('active');
             document.getElementById('corporate-form').classList.remove('active');
             document.getElementById(tab + '-form').classList.add('active');
             
-            // Update URL without reload
+            // Update URL without reload (preserving language and other params)
             const url = new URL(window.location);
             url.searchParams.set('tab', tab);
             window.history.pushState({}, '', url);

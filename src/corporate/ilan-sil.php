@@ -1,5 +1,5 @@
 <?php
-// Corporate İlan Sil - Sadece bekleyen istekleri silebilir
+// Corporate İlan Sil - Bekleyen istekleri ve yayındaki ilanları silebilir
 require_once 'includes/config.php';
 
 // Ensure corporate_ilan_requests table exists
@@ -26,17 +26,34 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
 $id = intval($_GET['id'] ?? 0);
+$type = $_GET['type'] ?? 'request'; // 'request' or 'published'
+
 if ($id > 0) {
-    // Verify ownership and delete from requests table (only pending requests can be deleted)
-    $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ? AND status = "pending"');
-    $stmt->execute([$id, $_SESSION['user_id']]);
-    $ilan = $stmt->fetch();
-    
-    if ($ilan) {
-        // Verify it's a staj or burs announcement
-        if (in_array($ilan['kategori'], ['Staj İlanları', 'Burs İlanları'])) {
-            $delete_stmt = $pdo->prepare('DELETE FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ?');
-            $delete_stmt->execute([$id, $_SESSION['user_id']]);
+    if ($type === 'published') {
+        // Delete from ilanlar table (published listings)
+        $stmt = $pdo->prepare('SELECT * FROM ilanlar WHERE id = ? AND corporate_user_id = ?');
+        $stmt->execute([$id, $_SESSION['user_id']]);
+        $ilan = $stmt->fetch();
+        
+        if ($ilan) {
+            // Verify it's a staj or burs announcement
+            if (in_array($ilan['kategori'], ['Staj İlanları', 'Burs İlanları'])) {
+                $delete_stmt = $pdo->prepare('DELETE FROM ilanlar WHERE id = ? AND corporate_user_id = ?');
+                $delete_stmt->execute([$id, $_SESSION['user_id']]);
+            }
+        }
+    } else {
+        // Delete from requests table (only pending requests can be deleted)
+        $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ? AND status = "pending"');
+        $stmt->execute([$id, $_SESSION['user_id']]);
+        $ilan = $stmt->fetch();
+        
+        if ($ilan) {
+            // Verify it's a staj or burs announcement
+            if (in_array($ilan['kategori'], ['Staj İlanları', 'Burs İlanları'])) {
+                $delete_stmt = $pdo->prepare('DELETE FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ?');
+                $delete_stmt->execute([$id, $_SESSION['user_id']]);
+            }
         }
     }
 }

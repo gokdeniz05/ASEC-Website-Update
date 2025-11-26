@@ -3,6 +3,43 @@ require_once 'includes/config.php';
 ?>
 
 <?php include 'corporate-header.php'; ?>
+<style>
+    /* Quick Actions and CV Filter buttons styling */
+    .card-body .btn-primary,
+    .card-body .btn-success,
+    .card-body .btn-info {
+        min-height: 60px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    
+    /* Ensure buttons in Quick Actions are centered and aligned */
+    .card-body .d-flex.flex-column.flex-md-row {
+        align-items: stretch;
+        justify-content: center;
+    }
+    
+    /* Make sure buttons have equal height */
+    .card-body .d-flex .btn {
+        flex: 1;
+        margin: 0 4px;
+    }
+    
+    /* Mobile: stack buttons vertically, maintain height */
+    @media (max-width: 767px) {
+        .card-body .d-flex.flex-column .btn {
+            margin: 0 0 8px 0;
+            width: 100%;
+        }
+        .card-body .d-flex.flex-column .btn:last-child {
+            margin-bottom: 0;
+        }
+    }
+</style>
 <div class="container-fluid">
     <div class="row">
         <?php include 'corporate-sidebar.php'; ?>
@@ -103,11 +140,11 @@ require_once 'includes/config.php';
                             <h5 class="mb-0"><i class="fas fa-plus-circle mr-2"></i>Hızlı İşlemler</h5>
                         </div>
                         <div class="card-body">
-                            <div class="d-flex flex-column flex-md-row gap-2">
-                                <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary btn-block mb-2 mb-md-0">
+                            <div class="d-flex flex-column flex-md-row justify-content-center align-items-stretch" style="gap: 12px;">
+                                <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary" style="min-width: 200px;">
                                     <i class="fas fa-briefcase mr-2"></i>Staj İlanı Ekle
                                 </a>
-                                <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success btn-block">
+                                <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success" style="min-width: 200px;">
                                     <i class="fas fa-graduation-cap mr-2"></i>Burs İlanı Ekle
                                 </a>
                             </div>

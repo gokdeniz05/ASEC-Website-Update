@@ -9,10 +9,11 @@
     <style>
         body {
             background: #f5f6fa;
-            padding-top: 56px;
+            padding-top: 64px;
         }
         .navbar {
             z-index: 200;
+            min-height: 64px;
         }
         .navbar-brand {
             padding-top: .75rem;
@@ -21,7 +22,7 @@
         }
         .sidebar {
             position: fixed;
-            top: 56px;
+            top: 64px;
             bottom: 0;
             left: 0;
             z-index: 100;
@@ -33,7 +34,7 @@
         .sidebar-sticky {
             position: relative;
             top: 0;
-            height: calc(100vh - 56px);
+            height: calc(100vh - 64px);
             padding-top: .5rem;
             overflow-x: hidden;
             overflow-y: auto;
@@ -64,7 +65,7 @@
         .main-content {
             margin-left: 240px;
             padding: 20px;
-            min-height: calc(100vh - 56px);
+            min-height: calc(100vh - 64px);
             transition: margin-left 0.3s ease-in-out;
         }
         
@@ -133,7 +134,7 @@
         /* Mobile Styles */
         @media (max-width: 768px) {
             body {
-                padding-top: 56px;
+                padding-top: 64px;
             }
             .navbar-brand {
                 font-size: 0.9rem;
@@ -159,10 +160,10 @@
             }
             .sidebar {
                 position: fixed;
-                top: 56px;
+                top: 64px;
                 left: 0;
                 width: 260px;
-                height: calc(100vh - 56px);
+                height: calc(100vh - 64px);
                 transform: translateX(-100%);
                 z-index: 150;
                 box-shadow: 2px 0 10px rgba(0,0,0,0.3);
@@ -173,7 +174,7 @@
             .sidebar-overlay {
                 display: none;
                 position: fixed;
-                top: 56px;
+                top: 64px;
                 left: 0;
                 right: 0;
                 bottom: 0;
@@ -298,7 +299,7 @@
             <a class="navbar-brand px-2 px-md-3" href="dashboard.php">
                 <i class="fas fa-building d-md-none"></i>
                 <span class="d-none d-sm-inline">ASEC</span>
-                <span class="d-none d-md-inline">ASEC Kurumsal</span>
+                <span class="d-none d-md-inline">ASEC Kurumsal Panel</span>
             </a>
         </div>
         <ul class="navbar-nav px-2 px-md-3 d-flex flex-row align-items-center ml-auto">
