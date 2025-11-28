@@ -1,5 +1,5 @@
 <?php
-ob_start();
+
 require_once 'db.php';
 require_once 'includes/validation.php';
 session_start();
@@ -60,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         if ($user && password_verify($password, $user['password'])) {
                             resetLoginAttempts($pdo, $email);
+                            $_SESSION["loggedin"] = true;
                             $_SESSION['user'] = $user['email'];
                             $_SESSION['user_id'] = $user['id'];
                             $_SESSION['user_name'] = $user['company_name'];
