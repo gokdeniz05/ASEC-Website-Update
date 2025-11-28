@@ -109,43 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/auth.css?v=<?php echo time(); ?>">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
-        /* REGISTER SAYFASINDAN ALINAN CSS DÜZENLEMELERİ */
-        .auth-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            padding: 0;
-            background: transparent;
-        }
-        .auth-tabs button {
-            width: auto !important;
-            margin: 0 !important;
-        }
-        .auth-tab {
-            flex: 1;
-            padding: 12px 20px;
-            background: transparent !important;
-            border: 2px solid #1c2444 !important;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            color: #1c2444 !important; /* Pasif durumda koyu renk */
-            transition: all 0.3s ease;
-            text-align: center;
-            border-radius: 8px;
-            box-shadow: none !important;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-        }
-        .auth-tab:hover {
-            background: rgba(28, 36, 68, 0.05) !important;
-        }
-        .auth-tab.active,
-        .auth-tab.corporate.active {
-            color: #ffffff !important; /* Aktif durumda beyaz renk */
-            border: 2px solid #1c2444 !important;
-            background: #1c2444 !important;
-            box-shadow: none !important;
-        }
+        .auth-tabs { display: flex; gap: 10px; margin-bottom: 30px; }
+        .auth-tabs button { width: auto !important; margin: 0 !important; }
+        .auth-tab { flex: 1; padding: 12px 20px; background: transparent !important; border: 2px solid #1c2444 !important; cursor: pointer; font-weight: 600; border-radius: 8px; transition: all 0.3s ease; }
+        .auth-tab.active, .auth-tab.corporate.active { color: #ffffff !important; border: 2px solid #1c2444 !important; background: #1c2444 !important; box-shadow: none !important; }
         .auth-form-container { display: none; }
         .auth-form-container.active { display: block; }
     </style>
