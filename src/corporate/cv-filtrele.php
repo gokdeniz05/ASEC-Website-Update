@@ -1,4 +1,5 @@
 <?php
+require_once '../db.php';
 // 1. DOCKER İÇİN KRİTİK BAŞLANGIÇ
 ob_start();
 if (session_status() === PHP_SESSION_NONE) {

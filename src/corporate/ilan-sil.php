@@ -1,5 +1,6 @@
 <?php
 // 1. DOCKER UYUMLU BAŞLANGIÇ (Oturum Sorunu Çözümü)
+require_once '../db.php';
 ob_start();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

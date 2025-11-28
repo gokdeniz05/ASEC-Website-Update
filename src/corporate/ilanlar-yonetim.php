@@ -4,6 +4,7 @@ ob_start();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+require_once '../db.php';
 
 // Corporate İlan Ekleme - Sadece Staj ve Burs İlanları
 require_once 'includes/config.php';
