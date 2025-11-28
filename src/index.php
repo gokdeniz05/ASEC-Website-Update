@@ -1,4 +1,5 @@
 <?php
+require_once 'db.php'; 
 // 1. TAM GÜVENLİK İÇİN EN BAŞTA BAŞLATILMALI
 ob_start(); // Çıktı tamponlamayı en başta başlatın
 
