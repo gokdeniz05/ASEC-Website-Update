@@ -1,18 +1,6 @@
 <?php
-// 1. DOCKER UYUMLU BAŞLANGIÇ
-ob_start();
 
-// 2. SESSION VE DB BAĞLANTISI (KRİTİK NOKTA)
-// 'corporate' klasöründe olduğumuz için bir üst dizindeki db.php'ye '../' ile çıkıyoruz.
-// Bu dosya session_start() işlemini de yapar.
-require_once '../db.php'; 
 
-// 3. YETKİ KONTROLÜ
-// Giriş yapmamışsa veya kullanıcı tipi 'corporate' değilse login sayfasına at
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION['user_type'] !== 'corporate'){
-    header("location: ../login.php");
-    exit;
-}
 require_once 'includes/config.php';
 ?>
 
