@@ -1,5 +1,4 @@
 <?php
-require_once '../db.php';
 // Corporate İlan Ekleme - Sadece Staj ve Burs İlanları
 // Start output buffering to prevent any output issues with redirects
 if (!ob_get_level()) {

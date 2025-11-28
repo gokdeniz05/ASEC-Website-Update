@@ -1,19 +1,6 @@
 <?php
-require_once '../db.php';
-// 1. DOCKER İÇİN KRİTİK BAŞLANGIÇ
-ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // Corporate CV Filtering Page
 require_once 'includes/config.php';
-
-// Oturum kontrolü (Güvenlik)
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: login.php");
-    exit;
-}
 
 // Ensure user_cv_profiles table exists
 $pdo->exec('CREATE TABLE IF NOT EXISTS user_cv_profiles (
@@ -166,6 +153,7 @@ unset($candidate);
                 <h1 class="h2">CV Filtreleme</h1>
             </div>
 
+            <!-- Filter Form -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0"><i class="fas fa-filter"></i> Filtreler</h5>
@@ -251,27 +239,22 @@ unset($candidate);
                             </div>
                         </div>
 
-                        <div class="row align-items-center">
-                            <div class="col-md-4 mb-2">
-                                <button type="submit" class="btn btn-primary btn-lg w-100 py-3 font-weight-bold shadow-sm">
-                                    <i class="fas fa-search mr-2"></i>Filtrele
-                                </button>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <a href="cv-filtrele.php" class="btn btn-secondary btn-lg w-100 py-3 font-weight-bold shadow-sm">
-                                    <i class="fas fa-times mr-2"></i>Temizle
-                                </a>
-                            </div>
-                            <div class="col-md-4 text-center text-md-left">
-                                <span class="text-muted h5">
-                                    <strong><?= count($candidates) ?></strong> aday bulundu
-                                </span>
-                            </div>
+                        <div class="form-group d-flex flex-column flex-md-row align-items-md-center" style="gap: 16px;">
+                            <button type="submit" class="btn btn-primary btn-lg" style="min-width: 180px; min-height: 54px; flex: 0 0 auto;">
+                                <i class="fas fa-search mr-2"></i>Filtrele
+                            </button>
+                            <a href="cv-filtrele.php" class="btn btn-secondary btn-lg" style="min-width: 180px; min-height: 54px; flex: 0 0 auto;">
+                                <i class="fas fa-times mr-2"></i>Temizle
+                            </a>
+                            <span class="text-muted text-center text-md-left mt-2 mt-md-0" style="flex: 1;">
+                                <strong><?= count($candidates) ?></strong> aday bulundu
+                            </span>
                         </div>
-                        </form>
+                    </form>
                 </div>
             </div>
 
+            <!-- Results -->
             <div class="card shadow-sm">
                 <div class="card-header bg-info text-white">
                     <h5 class="mb-0"><i class="fas fa-users"></i> Bulunan Adaylar</h5>
@@ -387,6 +370,22 @@ unset($candidate);
 </div>
 
 <style>
+/* Filter and Clear button styling */
+.form-group .btn-lg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 24px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+@media (max-width: 767px) {
+    .form-group .btn-lg {
+        width: 100%;
+    }
+}
+
 .filter-chips {
     display: flex;
     flex-wrap: wrap;
@@ -522,6 +521,4 @@ unset($candidate);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php 
-ob_end_flush(); // Tamponu boşalt
-?>
+

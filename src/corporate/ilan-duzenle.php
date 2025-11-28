@@ -1,20 +1,8 @@
 <?php
-// 1. DOCKER UYUMLU BAŞLANGIÇ
-ob_start();
-
-// 2. SESSION VE DB BAĞLANTISI (EN KRİTİK NOKTA)
-// 'corporate' klasöründe olduğumuz için bir üstteki db.php'ye '../' ile çıkıyoruz.
-// Bu satır EN ÜSTTE olmazsa session çalışmaz ve seni login'e atar.
-require_once '../db.php'; 
+// Corporate İlan Düzenle - Sadece kendi ilanlarını düzenleyebilir
 require_once 'includes/config.php';
 
-// 3. YETKİ KONTROLÜ
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION['user_type'] !== 'corporate'){
-    header("location: ../login.php");
-    exit;
-}
-
-// Ensure tables exist (Garanti olsun)
+// Ensure corporate_ilan_requests table exists
 $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     corporate_user_id INT NOT NULL,
@@ -37,55 +25,54 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
     INDEX idx_kategori (kategori)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
-// ID KONTROLÜ
 $id = intval($_GET['id'] ?? 0);
 if ($id <= 0) {
     header('Location: ilanlar-yonetim.php');
     exit;
 }
 
-// VERİ ÇEKME (İLAN SAHİBİ KONTROLÜ)
-// Önce bekleyen isteklerde ara
+// First try to get from requests table
 $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ?');
 $stmt->execute([$id, $_SESSION['user_id']]);
 $ilan = $stmt->fetch();
 
-// Bulamazsa yayındaki ilanlarda ara
+// If not found in requests, try ilanlar table (for approved announcements)
 if (!$ilan) {
     $stmt = $pdo->prepare('SELECT * FROM ilanlar WHERE id = ? AND corporate_user_id = ?');
     $stmt->execute([$id, $_SESSION['user_id']]);
     $ilan = $stmt->fetch();
     
     if ($ilan) {
+        // This is an approved announcement - editing creates a new request
         $is_approved = true;
     }
 }
 
-// İlan bulunamazsa listeye geri at
 if (!$ilan) {
     header('Location: ilanlar-yonetim.php');
     exit;
 }
 
-// Kategori Kontrolü (Sadece Staj ve Burs)
+// Verify it's a staj or burs announcement
 if (!in_array($ilan['kategori'], ['Staj İlanları', 'Burs İlanları'])) {
     header('Location: ilanlar-yonetim.php');
     exit;
 }
 
+// If it's an approved announcement, we can't edit directly - need to create new request
+// For now, we'll disable editing of approved announcements
 $is_approved_announcement = isset($is_approved) && $is_approved;
 
 $msg = '';
 $error = '';
 
-// Durum Mesajları
+// If editing an approved announcement or non-pending request, show message
 if ($is_approved_announcement) {
     $msg = 'Bu ilan onaylanmış ve yayında. Değişiklik yapmak için yeni bir ilan oluşturun.';
 } elseif (isset($ilan['status']) && $ilan['status'] !== 'pending') {
     $msg = 'Bu ilan ' . ($ilan['status'] === 'rejected' ? 'reddedilmiştir' : 'onaylanmıştır') . '. Sadece bekleyen ilanlar düzenlenebilir.';
 }
 
-// GÜNCELLEME İŞLEMİ
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_approved_announcement && (isset($ilan['status']) && $ilan['status'] === 'pending')) {
     try {
         $baslik = trim($_POST['baslik'] ?? '');
@@ -104,33 +91,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_approved_announcement && (isse
             $error = 'İçerik alanı zorunludur!';
         } elseif (empty($kategori)) {
             $error = 'Kategori seçimi zorunludur!';
+        } elseif (!in_array($kategori, ['Staj İlanları', 'Burs İlanları'])) {
+            $error = 'Sadece Staj İlanları ve Burs İlanları düzenleyebilirsiniz!';
+        } elseif (empty($tarih)) {
+            $error = 'Tarih alanı zorunludur!';
         } else {
-            // Update request
-            $updateColumns = ['baslik = ?', 'icerik = ?', 'kategori = ?', 'tarih = ?', 'link = ?', 'sirket = ?', 'lokasyon = ?', 'son_basvuru = ?'];
-            $updateValues = [$baslik, $icerik, $kategori, $tarih, $link ?: null, $sirket ?: null, $lokasyon ?: null, $son_basvuru ?: null];
-            $updateValues[] = $id;
-            $updateValues[] = $_SESSION['user_id'];
-            
-            $sql = 'UPDATE corporate_ilan_requests SET ' . implode(', ', $updateColumns) . ' WHERE id = ? AND corporate_user_id = ?';
-            $stmt2 = $pdo->prepare($sql);
-            $ok = $stmt2->execute($updateValues);
-            
-            if ($ok) {
-                $msg = 'İlan isteği güncellendi!';
-                // Veriyi yenile
-                $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ?');
-                $stmt->execute([$id, $_SESSION['user_id']]);
-                $ilan = $stmt->fetch();
+            // Update request (only if it's still pending)
+            if (isset($ilan['status']) && $ilan['status'] === 'pending') {
+                $updateColumns = ['baslik = ?', 'icerik = ?', 'kategori = ?', 'tarih = ?', 'link = ?', 'sirket = ?', 'lokasyon = ?', 'son_basvuru = ?'];
+                $updateValues = [$baslik, $icerik, $kategori, $tarih, $link ?: null, $sirket ?: null, $lokasyon ?: null, $son_basvuru ?: null];
+                $updateValues[] = $id;
+                $updateValues[] = $_SESSION['user_id'];
+                
+                $sql = 'UPDATE corporate_ilan_requests SET ' . implode(', ', $updateColumns) . ' WHERE id = ? AND corporate_user_id = ?';
+                $stmt2 = $pdo->prepare($sql);
+                $ok = $stmt2->execute($updateValues);
+                
+                if ($ok) {
+                    $msg = 'İlan isteği güncellendi!';
+                    // Refresh the request data
+                    $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ?');
+                    $stmt->execute([$id, $_SESSION['user_id']]);
+                    $ilan = $stmt->fetch();
+                } else {
+                    $error = 'İlan isteği güncellenirken bir hata oluştu!';
+                }
             } else {
-                $error = 'İlan isteği güncellenirken bir hata oluştu!';
+                $error = 'Sadece bekleyen ilan istekleri düzenlenebilir!';
             }
         }
     } catch (PDOException $e) {
         $error = 'Veritabanı hatası: ' . $e->getMessage();
     }
 }
-?>
 
+// Check for success message from redirect
+if (isset($_GET['success']) && $_GET['success'] == '1') {
+    $msg = 'İlan isteği güncellendi!';
+}
+?>
 <?php include 'corporate-header.php'; ?>
 <div class="container-fluid">
   <div class="row">
@@ -141,7 +140,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_approved_announcement && (isse
       </div>
       <?php if($msg): ?><div class="alert alert-<?= $is_approved_announcement ? 'info' : 'success' ?> alert-dismissible fade show" role="alert"><?= htmlspecialchars($msg) ?><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div><?php endif; ?>
       <?php if($error): ?><div class="alert alert-danger alert-dismissible fade show" role="alert"><?= htmlspecialchars($error) ?><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div><?php endif; ?>
-      
       <?php if(isset($ilan['status'])): ?>
         <div class="alert alert-<?= $ilan['status'] === 'pending' ? 'warning' : ($ilan['status'] === 'approved' ? 'success' : 'danger') ?>">
           Durum: <strong><?= $ilan['status'] === 'pending' ? 'Onay Bekliyor' : ($ilan['status'] === 'approved' ? 'Onaylandı' : 'Reddedildi') ?></strong>
@@ -150,7 +148,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_approved_announcement && (isse
           <?php endif; ?>
         </div>
       <?php endif; ?>
-      
       <form method="post" class="bg-white p-3 p-md-4 rounded shadow-sm" <?= ($is_approved_announcement || (isset($ilan['status']) && $ilan['status'] !== 'pending')) ? 'onsubmit="return false;"' : '' ?>>
         <div class="row">
           <div class="col-12 col-md-6">
@@ -211,28 +208,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_approved_announcement && (isse
             </div>
           </div>
         </div>
-
-        <div class="row mt-3">
-            <div class="col-md-6 mb-2 mb-md-0">
-                <?php if($is_approved_announcement): ?>
-                    <a href="ilan-ekle.php" class="btn btn-primary btn-block py-3 font-weight-bold shadow-sm">
-                      <i class="fas fa-plus mr-2"></i>Yeni İlan Oluştur
-                    </a>
-                <?php elseif(isset($ilan['status']) && $ilan['status'] !== 'pending'): ?>
-                    <button class="btn btn-primary btn-block py-3 font-weight-bold shadow-sm" disabled>
-                      <i class="fas fa-save mr-2"></i>Kaydet (Devre Dışı)
-                    </button>
-                <?php else: ?>
-                    <button class="btn btn-primary btn-block py-3 font-weight-bold shadow-sm" type="submit">
-                      <i class="fas fa-save mr-2"></i>Kaydet
-                    </button>
-                <?php endif; ?>
+        <div class="form-group mb-4 d-flex flex-column flex-md-row gap-2">
+          <?php if($is_approved_announcement): ?>
+            <div class="alert alert-info w-100 mb-3">
+              <i class="fas fa-info-circle mr-2"></i>Bu ilan onaylanmış ve yayında. Değişiklik yapmak için yeni bir ilan oluşturun.
             </div>
-            <div class="col-md-6">
-                <a href="ilanlar-yonetim.php" class="btn btn-secondary btn-block py-3 font-weight-bold shadow-sm">
-                    <i class="fas fa-times mr-2"></i>İptal
-                </a>
+            <a href="ilan-ekle.php" class="btn btn-primary btn-lg btn-block btn-md-block px-4 mb-2">
+              <i class="fas fa-plus mr-2"></i>Yeni İlan Oluştur
+            </a>
+          <?php elseif(isset($ilan['status']) && $ilan['status'] !== 'pending'): ?>
+            <div class="alert alert-<?= $ilan['status'] === 'rejected' ? 'danger' : 'info' ?> w-100 mb-3">
+              <i class="fas fa-info-circle mr-2"></i>Bu ilan <?= $ilan['status'] === 'rejected' ? 'reddedilmiştir' : 'onaylanmıştır' ?>. Sadece bekleyen ilanlar düzenlenebilir.
             </div>
+          <?php else: ?>
+            <button class="btn btn-primary btn-lg btn-block btn-md-block px-4" type="submit">
+              <i class="fas fa-save mr-2"></i>Kaydet
+            </button>
+          <?php endif; ?>
+          <a href="ilanlar-yonetim.php" class="btn btn-secondary btn-lg btn-block btn-md-block px-4">
+            <i class="fas fa-times mr-2"></i>İptal
+          </a>
         </div>
       </form>
     </main>
@@ -240,24 +235,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_approved_announcement && (isse
 </div>
 
 <style>
-/* Tasarım Kodları */
-.admin-form-container { max-width: 700px; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(44,62,80,0.08); padding: 32px 32px 24px 32px; margin: 40px 0 40px 0; }
-.form-group { margin-bottom: 1rem; }
-label { font-weight: 600; }
-input, textarea, select { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 6px; background: #f8fafc; font-size: 1rem; margin-bottom: 8px; }
-input:focus, textarea:focus, select:focus { outline: none; border-color: #9370db; background: #fff; }
-.btn { padding: 10px 28px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: background 0.2s; }
-.btn-primary { background: #9370db; color: #fff; }
-.btn-primary:hover { background: #7a5fb8; }
-.btn-secondary { background: #6c757d; color: #fff; }
-.btn-secondary:hover { background: #5a6268; }
-@media (max-width: 768px) { .admin-form-container { padding: 18px 4vw 18px 4vw; max-width: 99vw; } }
+.admin-form-container {
+    max-width: 700px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(44,62,80,0.08);
+    padding: 32px 32px 24px 32px;
+    margin: 40px 0 40px 0;
+}
+.form-group {margin-bottom:1rem;}
+label {font-weight:600;}
+input, textarea, select {width:100%;padding:10px 14px;border:1px solid #d1d5db;border-radius:6px;background:#f8fafc;font-size:1rem;margin-bottom:8px;}
+input:focus, textarea:focus, select:focus {outline:none;border-color:#9370db;background:#fff;}
+.btn {padding:10px 28px;background:#9370db;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:1rem;transition:background 0.2s;}
+.btn:hover {background:#7a5fb8;}
+.msg {margin-bottom:1rem; color:green;}
+@media (max-width: 768px) {
+    .admin-form-container {
+        padding: 18px 4vw 18px 4vw;
+        max-width: 99vw;
+    }
+}
 </style>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php 
-ob_end_flush(); 
-?>
+

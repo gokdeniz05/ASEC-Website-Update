@@ -1,5 +1,4 @@
 <?php
-require_once '../db.php';
 // Corporate CV Viewer - Secure CV viewing for corporate users
 require_once 'includes/config.php';
 

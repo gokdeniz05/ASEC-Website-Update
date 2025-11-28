@@ -1,21 +1,10 @@
 <?php
-// 1. DOCKER UYUMLU BAŞLANGIÇ
-ob_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-// 2. SESSION VE DB BAĞLANTISI (EN KRİTİK ADIM)
-// 'corporate' klasöründe olduğumuz için bir üstteki db.php'ye '../' ile çıkıyoruz.
-// Bu dosya session_save_path ayarını yaptığı için ZORUNLUDUR.
-require_once '../db.php'; 
-
-// Corporate İlanlar Yönetim Paneli için diğer config (Varsa kalsın, yoksa db.php yeterli)
+// Corporate İlanlar Yönetim Paneli
 require_once 'includes/config.php';
-
-// 3. YETKİ KONTROLÜ
-// Giriş yapmamışsa veya kurumsal değilse at
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION['user_type'] !== 'corporate'){
-    header("location: ../login.php");
-    exit;
-}
 
 // Ensure corporate_ilan_requests table exists
 $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
@@ -217,8 +206,8 @@ usort($ilanlar, function($a, $b) {
         </div>
       </div>
       
-      <div class="table-responsive shadow-sm rounded">
-      <table class="table table-striped table-hover admin-table mb-0">
+      <div class="table-responsive">
+      <table class="table table-striped table-hover admin-table">
         <thead class="thead-dark">
           <tr>
             <th class="d-none d-md-table-cell">ID</th>
@@ -236,7 +225,7 @@ usort($ilanlar, function($a, $b) {
                     <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
                     <p class="text-muted">Henüz ilan eklenmemiş.</p>
                     <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary mt-2">
-                        <i class="fas fa-plus mr-2"></i>İlk İlanı Ekle
+                        <i class="fas fa-plus mr-2"></i>İlan Ekle
                     </a>
                 </td>
             </tr>
@@ -271,9 +260,9 @@ usort($ilanlar, function($a, $b) {
                     <?php endif; ?>
                 </td>
                 <td>
-                    <div class="btn-group btn-group-sm" role="group">
+                    <div class="btn-group-vertical btn-group-sm d-md-inline-flex" role="group">
                         <?php if($is_request && $ilan['status'] === 'pending'): ?>
-                            <a href="ilan-duzenle.php?id=<?= $ilan['id'] ?>" class="btn btn-warning btn-sm">
+                            <a href="ilan-duzenle.php?id=<?= $ilan['id'] ?>" class="btn btn-warning btn-sm mb-1 mb-md-0">
                                 <i class="fas fa-edit d-md-none"></i>
                                 <span class="d-none d-md-inline"><i class="fas fa-edit mr-1"></i>Düzenle</span>
                             </a>
@@ -286,10 +275,10 @@ usort($ilanlar, function($a, $b) {
                                 <i class="fas fa-times mr-1"></i><span class="d-none d-md-inline">Reddedildi</span>
                             </button>
                         <?php elseif($is_approved || (isset($ilan['request_status']) && $ilan['request_status'] === 'approved')): ?>
-                            <span class="badge badge-info p-2">
-                                <i class="fas fa-check-circle d-md-none"></i>
-                                <span class="d-none d-md-inline">Yayında</span>
-                            </span>
+                            <a href="ilan-sil.php?id=<?= $ilan['id'] ?>&type=published" class="btn btn-danger btn-sm" onclick="return confirm('Yayındaki bu ilanı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')">
+                                <i class="fas fa-trash d-md-none"></i>
+                                <span class="d-none d-md-inline"><i class="fas fa-trash mr-1"></i>Sil</span>
+                            </a>
                         <?php endif; ?>
                     </div>
                 </td>
@@ -307,6 +296,4 @@ usort($ilanlar, function($a, $b) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php
-ob_end_flush(); // Tamponu boşalt
-?>
+

@@ -1,16 +1,6 @@
 <?php
-// 1. DOCKER UYUMLU BAŞLANGIÇ
-ob_start();
-
-// 2. SESSION VE DB BAĞLANTISI
-// 'corporate' klasöründe olduğumuz için bir üst dizindeki db.php'yi çağırıyoruz.
-require_once '../db.php'; 
-
-// 3. YETKİ KONTROLÜ
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION['user_type'] !== 'corporate'){
-    header("location: ../login.php");
-    exit;
-}
+// Corporate Profile Page
+require_once 'includes/config.php';
 
 // Get corporate user data
 $stmt = $pdo->prepare('SELECT * FROM corporate_users WHERE id = ?');
@@ -130,19 +120,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                                     <textarea class="form-control" id="address" name="address" rows="3"><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
                                 </div>
                                 
-                                <div class="row mt-4">
-                                    <div class="col-md-6 mb-2 mb-md-0">
-                                        <button type="submit" class="btn btn-primary w-100 py-3 font-weight-bold shadow-sm">
-                                            <i class="fas fa-save mr-2"></i>Kaydet
-                                        </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <a href="dashboard.php" class="btn btn-secondary w-100 py-3 font-weight-bold shadow-sm">
-                                            <i class="fas fa-times mr-2"></i>İptal
-                                        </a>
-                                    </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary btn-block btn-lg mb-2">
+                                        <i class="fas fa-save mr-2"></i>Kaydet
+                                    </button>
+                                    <a href="dashboard.php" class="btn btn-secondary btn-block btn-lg">
+                                        <i class="fas fa-times mr-2"></i>İptal
+                                    </a>
                                 </div>
-                                </form>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -182,4 +168,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php ob_end_flush(); ?>
+

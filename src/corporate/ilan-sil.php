@@ -1,21 +1,8 @@
 <?php
-// 1. DOCKER UYUMLU BAŞLANGIÇ (Oturum Sorunu Çözümü)
-require_once '../db.php';
-ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+// Corporate İlan Sil - Bekleyen istekleri ve yayındaki ilanları silebilir
 require_once 'includes/config.php';
 
-// 2. GÜVENLİK KONTROLÜ
-// Eğer giriş yapılmamışsa işlem yapma, login sayfasına at.
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION['user_type'] !== 'corporate'){
-    header("location: ../login.php");
-    exit;
-}
-
-// Tablo oluşturma kodları (Garanti olsun diye kalsın)
+// Ensure corporate_ilan_requests table exists
 $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     corporate_user_id INT NOT NULL,
@@ -43,26 +30,26 @@ $type = $_GET['type'] ?? 'request'; // 'request' or 'published'
 
 if ($id > 0) {
     if ($type === 'published') {
-        // YAYINLANMIŞ İLANI SİL
+        // Delete from ilanlar table (published listings)
         $stmt = $pdo->prepare('SELECT * FROM ilanlar WHERE id = ? AND corporate_user_id = ?');
         $stmt->execute([$id, $_SESSION['user_id']]);
         $ilan = $stmt->fetch();
         
         if ($ilan) {
-            // Sadece Staj ve Burs ilanlarını silebilir
+            // Verify it's a staj or burs announcement
             if (in_array($ilan['kategori'], ['Staj İlanları', 'Burs İlanları'])) {
                 $delete_stmt = $pdo->prepare('DELETE FROM ilanlar WHERE id = ? AND corporate_user_id = ?');
                 $delete_stmt->execute([$id, $_SESSION['user_id']]);
             }
         }
     } else {
-        // BEKLEYEN İSTEĞİ SİL (Sadece 'pending' durumundakiler)
-        $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ?');
+        // Delete from requests table (only pending requests can be deleted)
+        $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ? AND status = "pending"');
         $stmt->execute([$id, $_SESSION['user_id']]);
         $ilan = $stmt->fetch();
         
         if ($ilan) {
-            // Reddedilmiş veya Bekleyen ilanları silebilir
+            // Verify it's a staj or burs announcement
             if (in_array($ilan['kategori'], ['Staj İlanları', 'Burs İlanları'])) {
                 $delete_stmt = $pdo->prepare('DELETE FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ?');
                 $delete_stmt->execute([$id, $_SESSION['user_id']]);
@@ -70,8 +57,7 @@ if ($id > 0) {
         }
     }
 }
-
-// İşlem bitince listeye geri dön
 header('Location: ilanlar-yonetim.php');
 exit;
 ?>
+
