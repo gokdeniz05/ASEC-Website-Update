@@ -1,16 +1,23 @@
 <?php
-require_once 'db.php'; 
-// 1. TAM GÜVENLİK İÇİN EN BAŞTA BAŞLATILMALI
-ob_start(); // Çıktı tamponlamayı en başta başlatın
+// 1. HER ŞEYDEN ÖNCE TAMPONLAMAYI BAŞLAT (BOM veya boşluk hatalarını yutar)
+ob_start();
 
-// Oturum daha önce başlatılmadıysa başlat
+// 2. OTURUMU GÜVENLİ BAŞLAT
+// db.php içinde session_start() varsa bu blok hata vermez, yoksa başlatır.
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// 3. DB ve DİL DOSYALARINI TEK SEFER ÇAĞIR
 require_once 'db.php'; 
-require_once 'includes/lang.php'; // Dil dosyanız varsa buraya ekleyin, yoksa hata verebilir
+require_once 'includes/lang.php'; 
+
+// Hata ayıklama için (Sorun çözülünce bu satırı silin):
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
 ?>
+<!DOCTYPE html>
+... (HTML kodların buradan devam etsin)
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
 <head>

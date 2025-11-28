@@ -1,10 +1,16 @@
 <?php
-// 1. DOCKER UYUMLU BAŞLANGIÇ
+// 1. TAM GÜVENLİK VE TAMPONLAMA
+// db.php yüklenmeden önce tamponlamayı başlatıyoruz ki header hatası almayalım.
 ob_start();
 
-require_once 'db.php'; // Session başlatma ve DB bağlantısı burada
+// db.php zaten session_start() yapıyor, o yüzden tekrar başlatmıyoruz.
+require_once 'db.php'; 
 require_once 'includes/validation.php';
 require_once 'includes/lang.php';
+
+// HATA GÖSTERİMİ (Geliştirme aşamasında açabilirsin, canlıda kapat)
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
 
 // CSRF token oluştur
 $csrf_token = generateCSRFToken();
@@ -20,7 +26,7 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF token doğrulama
     if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
-        $error = 'Güvenlik doğrulaması başarısız oldu.';
+        $error = 'Güvenlik doğrulaması başarısız oldu. Lütfen sayfayı yenileyin.';
     } else {
         $user_type = $_POST['user_type'] ?? 'individual';
         $email = trim($_POST['email'] ?? '');
@@ -30,38 +36,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!validateEmail($email)) {
             $error = 'Geçersiz e-posta adresi!';
         } else {
-            // --- CAPTCHA KONTROLÜ (AKTİF) ---
+            // --- CAPTCHA KONTROLÜ ---
             $captcha_response = $_POST['g-recaptcha-response'] ?? '';
             
+            // Eğer localhost'ta çalışıyorsan bazen captcha kapatmak gerekebilir, 
+            // ama sunucuda bu fonksiyonun doğru çalıştığından emin ol.
             if (!validateCaptcha($captcha_response)) {
                 $error = 'Lütfen robot olmadığınızı doğrulayın!';
             } else {
-                // Giriş denemesi kontrolü
+                // Giriş denemesi kontrolü (Brute-force koruması)
                 $login_check = checkLoginAttempts($pdo, $email);
+                
                 if ($login_check['locked']) {
                     $error = $login_check['message'];
                 } else {
-                    // KURUMSAL GİRİŞ
+                    
+                    // --- KURUMSAL GİRİŞ İŞLEMLERİ ---
                     if ($user_type === 'corporate') {
                         $stmt = $pdo->prepare('SELECT * FROM corporate_users WHERE email = ?');
                         $stmt->execute([$email]);
                         $user = $stmt->fetch();
                         
                         if ($user && password_verify($password, $user['password'])) {
+                            // Başarılı giriş
                             resetLoginAttempts($pdo, $email);
-                            session_regenerate_id(true);
+                            session_regenerate_id(true); // Session hijacking önlemi
                             
                             // Session verilerini ata
                             $_SESSION["loggedin"] = true;
-                            $_SESSION['user_id'] = $user['id'];
+                            $_SESSION['user_id'] = (int)$user['id']; // ID'yi integer'a çevirmek önemlidir
                             $_SESSION['user_name'] = $user['company_name'];
                             $_SESSION['user_type'] = 'corporate';
                             $_SESSION['contact_person'] = $user['contact_person'];
                             
-                            // --- SORUNU ÇÖZEN KOD ---
-                            // Yönlendirmeden önce veriyi diske yazmayı zorla
+                            // KRİTİK: Veriyi kaydet ve yönlendir
                             session_write_close();
-                            
                             header('Location: corporate/dashboard.php');
                             exit;
                         } else {
@@ -69,28 +78,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $activeTab = 'corporate';
                         }
                     } 
-                    // BİREYSEL GİRİŞ
+                    
+                    // --- BİREYSEL GİRİŞ İŞLEMLERİ ---
                     else {
                         $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
                         $stmt->execute([$email]);
                         $user = $stmt->fetch();
                         
+                        // Şifre doğrulama
                         if ($user && password_verify($password, $user['password'])) {
+                            // Başarılı giriş
                             resetLoginAttempts($pdo, $email);
                             session_regenerate_id(true);
                             
                             // Session verilerini ata
                             $_SESSION["loggedin"] = true;
                             $_SESSION['user_id'] = (int)$user['id'];
-                            $_SESSION['user_name'] = $user['name'];
+                            $_SESSION['user_name'] = $user['name']; // DB'deki sütun adının 'name' olduğundan emin ol
                             $_SESSION['user_type'] = 'individual';
                             
-                            // --- SORUNU ÇÖZEN KOD ---
+                            // Debug için (gerekirse aç):
+                            // var_dump($_SESSION); die();
+                            
+                            // KRİTİK: Session verisini diske yazmayı zorla
                             session_write_close();
                             
+                            // Yönlendir
                             header('Location: index.php');
                             exit;
                         } else {
+                            // Başarısız giriş denemesi
                             $error = 'E-posta veya şifre hatalı!';
                             $activeTab = 'individual';
                         }
@@ -109,7 +126,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/auth.css?v=<?php echo time(); ?>">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
-        /* REGISTER SAYFASINDAN ALINAN CSS DÜZENLEMELERİ */
         .auth-tabs {
             display: flex;
             gap: 10px;
@@ -129,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            color: #1c2444 !important; /* Pasif durumda koyu renk */
+            color: #1c2444 !important;
             transition: all 0.3s ease;
             text-align: center;
             border-radius: 8px;
@@ -141,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .auth-tab.active,
         .auth-tab.corporate.active {
-            color: #ffffff !important; /* Aktif durumda beyaz renk */
+            color: #ffffff !important;
             border: 2px solid #1c2444 !important;
             background: #1c2444 !important;
             box-shadow: none !important;
@@ -164,12 +180,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="post">
                     <input type="hidden" name="user_type" value="individual">
                     <input type="hidden" name="active_tab_input" value="individual">
+                    
                     <?php if (!empty($error) && $activeTab === 'individual') { echo '<div class="alert-error">'.$error.'</div>'; } ?>
-                    <div class="form-group"><label><?php echo __t('login.email'); ?></label><input type="email" name="email" required value="<?php echo htmlspecialchars($activeTab === 'individual' ? ($_POST['email'] ?? '') : ''); ?>"></div>
-                    <div class="form-group"><label><?php echo __t('login.password'); ?></label><input type="password" name="password" required>
+                    
+                    <div class="form-group">
+                        <label><?php echo __t('login.email'); ?></label>
+                        <input type="email" name="email" required value="<?php echo htmlspecialchars($activeTab === 'individual' ? ($_POST['email'] ?? '') : ''); ?>">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><?php echo __t('login.password'); ?></label>
+                        <input type="password" name="password" required>
                         <div class="password-info"><small><a href="sifremi-unuttum.php"><?php echo __t('login.forgot'); ?></a></small></div>
                     </div>
-                    <div class="form-group"><div class="g-recaptcha" data-sitekey="6LeLMC8rAAAAAChTj8rlQ_zyjedV3VdnejoNAZy1"></div></div>
+                    
+                    <div class="form-group">
+                        <div class="g-recaptcha" data-sitekey="6LeLMC8rAAAAAChTj8rlQ_zyjedV3VdnejoNAZy1"></div>
+                    </div>
+                    
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                     <button type="submit" class="cta-button"><?php echo __t('login.submit'); ?></button>
                 </form>
@@ -181,12 +209,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="post">
                     <input type="hidden" name="user_type" value="corporate">
                     <input type="hidden" name="active_tab_input" value="corporate">
+                    
                     <?php if (!empty($error) && $activeTab === 'corporate') { echo '<div class="alert-error">'.$error.'</div>'; } ?>
-                    <div class="form-group"><label><?php echo __t('login.email'); ?></label><input type="email" name="email" required value="<?php echo htmlspecialchars($activeTab === 'corporate' ? ($_POST['email'] ?? '') : ''); ?>"></div>
-                    <div class="form-group"><label><?php echo __t('login.password'); ?></label><input type="password" name="password" required>
+                    
+                    <div class="form-group">
+                        <label><?php echo __t('login.email'); ?></label>
+                        <input type="email" name="email" required value="<?php echo htmlspecialchars($activeTab === 'corporate' ? ($_POST['email'] ?? '') : ''); ?>">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><?php echo __t('login.password'); ?></label>
+                        <input type="password" name="password" required>
                         <div class="password-info"><small><a href="sifremi-unuttum.php"><?php echo __t('login.reset'); ?></a></small></div>
                     </div>
-                    <div class="form-group"><div class="g-recaptcha" data-sitekey="6LeLMC8rAAAAAChTj8rlQ_zyjedV3VdnejoNAZy1"></div></div>
+                    
+                    <div class="form-group">
+                        <div class="g-recaptcha" data-sitekey="6LeLMC8rAAAAAChTj8rlQ_zyjedV3VdnejoNAZy1"></div>
+                    </div>
+                    
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                     <button type="submit" class="cta-button"><?php echo __t('login.submit'); ?></button>
                 </form>
@@ -203,6 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             event.currentTarget.classList.add('active');
             document.querySelectorAll('.auth-form-container').forEach(form => form.classList.remove('active'));
             document.getElementById(tab + '-form').classList.add('active');
+            
             const url = new URL(window.location);
             url.searchParams.set('tab', tab);
             window.history.pushState({}, '', url);
