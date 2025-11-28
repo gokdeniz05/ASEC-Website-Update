@@ -1,7 +1,10 @@
 <?php
 // Corporate Profile Page
 require_once 'includes/config.php';
-
+if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION['user_type'] !== 'corporate'){
+    header("location: ../login.php");
+    exit;
+}
 // Get corporate user data
 $stmt = $pdo->prepare('SELECT * FROM corporate_users WHERE id = ?');
 $stmt->execute([$_SESSION['user_id']]);
