@@ -1,23 +1,16 @@
 <?php
-// 1. HER ŞEYDEN ÖNCE TAMPONLAMAYI BAŞLAT (BOM veya boşluk hatalarını yutar)
+// 1. TAMPONLAMAYI EN BAŞTA BAŞLAT
 ob_start();
 
-// 2. OTURUMU GÜVENLİ BAŞLAT
-// db.php içinde session_start() varsa bu blok hata vermez, yoksa başlatır.
+// 2. OTURUM KONTROLÜ
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 3. DB ve DİL DOSYALARINI TEK SEFER ÇAĞIR
+// 3. GEREKLİ DOSYALAR
 require_once 'db.php'; 
 require_once 'includes/lang.php'; 
-
-// Hata ayıklama için (Sorun çözülünce bu satırı silin):
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
 ?>
-<!DOCTYPE html>
-... (HTML kodların buradan devam etsin)
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
 <head>
@@ -55,10 +48,9 @@ require_once 'includes/lang.php';
                     <p><?php echo __t('home.hero.desc'); ?></p>
                     <div class="cta-buttons">
                         <?php
-                        // BURADAKİ TEKRARLANAN SESSION_START KODUNU KALDIRDIK
-                        // Çünkü sayfanın en başında zaten başlattık.
+                        // Oturum zaten en başta başlatıldığı için burada tekrar session_start GEREKMEZ.
                         
-                        // Check for both regular user session and admin session
+                        // Check for both regular user session and admin/corporate session
                         if (isset($_SESSION['user']) || (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true)) {
                             // Show "Important Information" button when logged in
                             echo '<a href="onemli-bilgilendirmeler.php" class="btn-primary"><i class="fas fa-info-circle"></i> ' . __t('home.hero.cta.notifications') . '</a>';
@@ -134,8 +126,9 @@ require_once 'includes/lang.php';
               if (count($yaklasan_etkinlikler) > 0) {
                   foreach ($yaklasan_etkinlikler as $etkinlik) {
                       $tarih = new DateTime($etkinlik['tarih']);
-                      // strftime kullanımı PHP 8.1+ sürümlerinde deprecated olabilir, yerine IntlDateFormatter önerilir ama şimdilik kalsın
-                      $tarih_formati = $tarih->format('d') . ' ' . strftime('%B', $tarih->getTimestamp());
+                      // strftime kullanımı PHP 8.1+ sürümlerinde deprecated olabilir
+                      $tarih_formati = $tarih->format('d') . ' ' . date('F', $tarih->getTimestamp()); 
+                      // Not: Türkçe ay isimleri için setlocale veya bir array kullanmak daha sağlıklı olabilir.
                       ?>
                       <div class="event-card">
                           <div class="event-date"><?= $tarih_formati ?></div>
