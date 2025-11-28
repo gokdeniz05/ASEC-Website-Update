@@ -1,20 +1,20 @@
 <?php
 // 1. DOCKER UYUMLU BAŞLANGIÇ
 ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
-// Corporate İlan Düzenle
+// 2. SESSION VE DB BAĞLANTISI (EN KRİTİK NOKTA)
+// 'corporate' klasöründe olduğumuz için bir üstteki db.php'ye '../' ile çıkıyoruz.
+// Bu satır EN ÜSTTE olmazsa session çalışmaz ve seni login'e atar.
+require_once '../db.php'; 
 require_once 'includes/config.php';
 
-// Oturum Kontrolü
+// 3. YETKİ KONTROLÜ
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION['user_type'] !== 'corporate'){
     header("location: ../login.php");
     exit;
 }
 
-// Ensure corporate_ilan_requests table exists
+// Ensure tables exist (Garanti olsun)
 $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     corporate_user_id INT NOT NULL,
@@ -37,35 +37,37 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
     INDEX idx_kategori (kategori)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
+// ID KONTROLÜ
 $id = intval($_GET['id'] ?? 0);
 if ($id <= 0) {
     header('Location: ilanlar-yonetim.php');
     exit;
 }
 
-// First try to get from requests table
+// VERİ ÇEKME (İLAN SAHİBİ KONTROLÜ)
+// Önce bekleyen isteklerde ara
 $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ?');
 $stmt->execute([$id, $_SESSION['user_id']]);
 $ilan = $stmt->fetch();
 
-// If not found in requests, try ilanlar table (for approved announcements)
+// Bulamazsa yayındaki ilanlarda ara
 if (!$ilan) {
     $stmt = $pdo->prepare('SELECT * FROM ilanlar WHERE id = ? AND corporate_user_id = ?');
     $stmt->execute([$id, $_SESSION['user_id']]);
     $ilan = $stmt->fetch();
     
     if ($ilan) {
-        // This is an approved announcement - editing creates a new request
         $is_approved = true;
     }
 }
 
+// İlan bulunamazsa listeye geri at
 if (!$ilan) {
     header('Location: ilanlar-yonetim.php');
     exit;
 }
 
-// Verify it's a staj or burs announcement
+// Kategori Kontrolü (Sadece Staj ve Burs)
 if (!in_array($ilan['kategori'], ['Staj İlanları', 'Burs İlanları'])) {
     header('Location: ilanlar-yonetim.php');
     exit;
@@ -76,12 +78,14 @@ $is_approved_announcement = isset($is_approved) && $is_approved;
 $msg = '';
 $error = '';
 
+// Durum Mesajları
 if ($is_approved_announcement) {
     $msg = 'Bu ilan onaylanmış ve yayında. Değişiklik yapmak için yeni bir ilan oluşturun.';
 } elseif (isset($ilan['status']) && $ilan['status'] !== 'pending') {
     $msg = 'Bu ilan ' . ($ilan['status'] === 'rejected' ? 'reddedilmiştir' : 'onaylanmıştır') . '. Sadece bekleyen ilanlar düzenlenebilir.';
 }
 
+// GÜNCELLEME İŞLEMİ
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_approved_announcement && (isset($ilan['status']) && $ilan['status'] === 'pending')) {
     try {
         $baslik = trim($_POST['baslik'] ?? '');
@@ -100,10 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_approved_announcement && (isse
             $error = 'İçerik alanı zorunludur!';
         } elseif (empty($kategori)) {
             $error = 'Kategori seçimi zorunludur!';
-        } elseif (!in_array($kategori, ['Staj İlanları', 'Burs İlanları'])) {
-            $error = 'Sadece Staj İlanları ve Burs İlanları düzenleyebilirsiniz!';
-        } elseif (empty($tarih)) {
-            $error = 'Tarih alanı zorunludur!';
         } else {
             // Update request
             $updateColumns = ['baslik = ?', 'icerik = ?', 'kategori = ?', 'tarih = ?', 'link = ?', 'sirket = ?', 'lokasyon = ?', 'son_basvuru = ?'];
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_approved_announcement && (isse
             
             if ($ok) {
                 $msg = 'İlan isteği güncellendi!';
-                // Refresh data
+                // Veriyi yenile
                 $stmt = $pdo->prepare('SELECT * FROM corporate_ilan_requests WHERE id = ? AND corporate_user_id = ?');
                 $stmt->execute([$id, $_SESSION['user_id']]);
                 $ilan = $stmt->fetch();
@@ -129,11 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_approved_announcement && (isse
         $error = 'Veritabanı hatası: ' . $e->getMessage();
     }
 }
-
-if (isset($_GET['success']) && $_GET['success'] == '1') {
-    $msg = 'İlan isteği güncellendi!';
-}
 ?>
+
 <?php include 'corporate-header.php'; ?>
 <div class="container-fluid">
   <div class="row">
@@ -237,33 +234,24 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                 </a>
             </div>
         </div>
-        </form>
+      </form>
     </main>
   </div>
 </div>
 
 <style>
-.admin-form-container {
-    max-width: 700px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(44,62,80,0.08);
-    padding: 32px 32px 24px 32px;
-    margin: 40px 0 40px 0;
-}
-.form-group {margin-bottom:1rem;}
-label {font-weight:600;}
-input, textarea, select {width:100%;padding:10px 14px;border:1px solid #d1d5db;border-radius:6px;background:#f8fafc;font-size:1rem;margin-bottom:8px;}
-input:focus, textarea:focus, select:focus {outline:none;border-color:#9370db;background:#fff;}
-.btn {padding:10px 28px;background:#9370db;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:1rem;transition:background 0.2s;}
-.btn:hover {background:#7a5fb8;}
-.msg {margin-bottom:1rem; color:green;}
-@media (max-width: 768px) {
-    .admin-form-container {
-        padding: 18px 4vw 18px 4vw;
-        max-width: 99vw;
-    }
-}
+/* Tasarım Kodları */
+.admin-form-container { max-width: 700px; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(44,62,80,0.08); padding: 32px 32px 24px 32px; margin: 40px 0 40px 0; }
+.form-group { margin-bottom: 1rem; }
+label { font-weight: 600; }
+input, textarea, select { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 6px; background: #f8fafc; font-size: 1rem; margin-bottom: 8px; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: #9370db; background: #fff; }
+.btn { padding: 10px 28px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: background 0.2s; }
+.btn-primary { background: #9370db; color: #fff; }
+.btn-primary:hover { background: #7a5fb8; }
+.btn-secondary { background: #6c757d; color: #fff; }
+.btn-secondary:hover { background: #5a6268; }
+@media (max-width: 768px) { .admin-form-container { padding: 18px 4vw 18px 4vw; max-width: 99vw; } }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
