@@ -1,6 +1,6 @@
 <?php
 // 1. Önce db.php'yi çağırıyoruz ki doğru session yolunu (sessions klasörünü) bulsun.
-require_once 'db.php';
+require_once '../db.php';
 
 // 2. Çıktı tamponlamayı başlat (Header hatası almamak için)
 ob_start();
