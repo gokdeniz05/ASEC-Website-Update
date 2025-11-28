@@ -1,8 +1,15 @@
 <?php
+// 1. DOCKER İÇİN KRİTİK BAŞLANGIÇ
+ob_start();
+
 require_once 'db.php';
 require_once 'includes/validation.php';
 require_once 'includes/lang.php';
-session_start();
+
+// Session kontrolü (db.php başlatmadıysa başlat)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Corporate users tablosunu oluştur (yoksa)
 $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_users (
@@ -19,7 +26,7 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_users (
     INDEX idx_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
-// Corporate requests tablosunu oluştur (yoksa) - Onay bekleyen kurumsal kullanıcı istekleri
+// Corporate requests tablosunu oluştur
 $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_name VARCHAR(255) NOT NULL,
@@ -59,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_type = $_POST['user_type'] ?? 'individual';
         
         if ($user_type === 'corporate') {
-            // Corporate registration
+            // --- KURUMSAL KAYIT ---
             $company_name = trim($_POST['company_name'] ?? '');
             $contact_person = trim($_POST['contact_person'] ?? '');
             $phone = trim($_POST['phone'] ?? '');
@@ -72,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!validateEmail($email)) {
                 $error = 'Geçersiz e-posta adresi!';
             } else if (!validatePhone($phone)) {
-                $error = 'Geçersiz telefon numarası! Lütfen geçerli bir Türkiye telefon numarası girin.';
+                $error = 'Geçersiz telefon numarası!';
             } else if ($password !== $password2) {
                 $error = 'Şifreler eşleşmiyor!';
             } else {
@@ -82,38 +89,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else if (!$company_name || !$contact_person || !$phone || !$email || !$password) {
                     $error = 'Lütfen zorunlu alanları doldurun!';
                 } else {
-                    $captcha_response = $_POST['g-recaptcha-response'] ?? '';
-                    if (!validateCaptcha($captcha_response)) {
-                        $error = 'Robot olmadığınızı doğrulayın!';
+                    // CAPTCHA KALDIRILDI - Direkt İşlem
+                    $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+                    $stmt->execute([$email]);
+                    if ($stmt->fetch()) {
+                        $error = 'Bu e-posta adresi zaten bireysel kullanıcı olarak kayıtlı!';
                     } else {
-                        $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+                        $stmt = $pdo->prepare('SELECT id FROM corporate_users WHERE email = ?');
                         $stmt->execute([$email]);
                         if ($stmt->fetch()) {
-                            $error = 'Bu e-posta adresi zaten bireysel kullanıcı olarak kayıtlı!';
+                            $error = 'Bu e-posta adresi zaten kurumsal kullanıcı olarak kayıtlı!';
                         } else {
-                            // Check if already exists in corporate_users
-                            $stmt = $pdo->prepare('SELECT id FROM corporate_users WHERE email = ?');
+                            $stmt = $pdo->prepare('SELECT id FROM corporate_requests WHERE email = ? AND status IN ("pending", "approved")');
                             $stmt->execute([$email]);
                             if ($stmt->fetch()) {
-                                $error = 'Bu e-posta adresi zaten kurumsal kullanıcı olarak kayıtlı!';
+                                $error = 'Bu e-posta adresi için zaten bekleyen bir istek var!';
                             } else {
-                                // Check if there's a pending or approved request (not rejected)
-                                $stmt = $pdo->prepare('SELECT id FROM corporate_requests WHERE email = ? AND status IN ("pending", "approved")');
-                                $stmt->execute([$email]);
-                                if ($stmt->fetch()) {
-                                    $error = 'Bu e-posta adresi için zaten bir onay bekleyen veya onaylanmış istek var!';
+                                $hashed = password_hash($password, PASSWORD_DEFAULT);
+                                $stmt = $pdo->prepare('INSERT INTO corporate_requests (company_name, contact_person, email, phone, address, tax_number, password, status) VALUES (?, ?, ?, ?, ?, ?, ?, "pending")');
+                                $ok = $stmt->execute([$company_name, $contact_person, $email, $phone, $address, $tax_number, $hashed]);
+                                if ($ok) {
+                                    $success = true;
+                                    $activeTab = 'corporate';
+                                    $success_message = 'Kayıt isteğiniz başarıyla oluşturuldu! Yönetici onayından sonra giriş yapabilirsiniz.';
                                 } else {
-                                    // Şifreyi hashle ve istek olarak kaydet
-                                    $hashed = password_hash($password, PASSWORD_DEFAULT);
-                                    $stmt = $pdo->prepare('INSERT INTO corporate_requests (company_name, contact_person, email, phone, address, tax_number, password, status) VALUES (?, ?, ?, ?, ?, ?, ?, "pending")');
-                                    $ok = $stmt->execute([$company_name, $contact_person, $email, $phone, $address, $tax_number, $hashed]);
-                                    if ($ok) {
-                                        $success = true;
-                                        $activeTab = 'corporate';
-                                        $success_message = 'Kayıt isteğiniz başarıyla oluşturuldu! Hesabınız yönetici onayından sonra aktif olacaktır.';
-                                    } else {
-                                        $error = 'Kayıt sırasında bir hata oluştu!';
-                                    }
+                                    $error = 'Kayıt sırasında bir hata oluştu!';
                                 }
                             }
                         }
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         } else {
-            // Individual registration
+            // --- BİREYSEL KAYIT ---
             $name = trim($_POST['name'] ?? '');
             $phone = trim($_POST['phone'] ?? '');
             $email = trim($_POST['email'] ?? '');
@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!validateEmail($email)) {
                 $error = 'Geçersiz e-posta adresi!';
             } else if (!validatePhone($phone)) {
-                $error = 'Geçersiz telefon numarası! Lütfen geçerli bir Türkiye telefon numarası girin.';
+                $error = 'Geçersiz telefon numarası!';
             } else if ($password !== $password2) {
                 $error = 'Şifreler eşleşmiyor!';
             } else {
@@ -144,24 +144,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else if (!$name || !$phone || !$email || !$university || !$department || !$class || !$password) {
                     $error = 'Lütfen tüm alanları doldurun!';
                 } else {
-                    $captcha_response = $_POST['g-recaptcha-response'] ?? '';
-                    if (!validateCaptcha($captcha_response)) {
-                        $error = 'Robot olmadığınızı doğrulayın!';
+                    // CAPTCHA KALDIRILDI - Direkt İşlem
+                    $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+                    $stmt->execute([$email]);
+                    if ($stmt->fetch()) {
+                        $error = 'Bu e-posta adresi zaten kayıtlı!';
                     } else {
-                        $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
-                        $stmt->execute([$email]);
-                        if ($stmt->fetch()) {
-                            $error = 'Bu e-posta adresi zaten kayıtlı!';
+                        $hashed = password_hash($password, PASSWORD_DEFAULT);
+                        $stmt = $pdo->prepare('INSERT INTO users (name, phone, email, university, department, class, password) VALUES (?, ?, ?, ?, ?, ?, ?)');
+                        $ok = $stmt->execute([$name, $phone, $email, $university, $department, $class, $hashed]);
+                        if ($ok) {
+                            $success = true;
+                            $activeTab = 'individual';
                         } else {
-                            $hashed = password_hash($password, PASSWORD_DEFAULT);
-                            $stmt = $pdo->prepare('INSERT INTO users (name, phone, email, university, department, class, password) VALUES (?, ?, ?, ?, ?, ?, ?)');
-                            $ok = $stmt->execute([$name, $phone, $email, $university, $department, $class, $hashed]);
-                            if ($ok) {
-                                $success = true;
-                                $activeTab = 'individual';
-                            } else {
-                                $error = 'Kayıt sırasında bir hata oluştu!';
-                            }
+                            $error = 'Kayıt sırasında bir hata oluştu!';
                         }
                     }
                 }
@@ -176,7 +172,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include 'includes/head-meta.php'; ?>
     <title><?php echo __t('register.title'); ?> - ASEC</title>
     <link rel="stylesheet" href="css/auth.css">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         .auth-tabs {
             display: flex;
@@ -237,6 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="hidden" name="user_type" value="individual">
                     <?php if (!empty($error) && $activeTab === 'individual') { echo '<div class="alert-error">'.$error.'</div>'; } ?>
                     <?php if (!empty($success) && $activeTab === 'individual') { echo '<div class="alert-success">'.__t('register.success').'</div>'; } ?>
+                    
                     <div class="form-group">
                         <label for="name"><?php echo __t('register.name'); ?></label>
                         <input type="text" id="name" name="name" required value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>">
@@ -281,9 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </ul>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="g-recaptcha" data-sitekey="6LeLMC8rAAAAAChTj8rlQ_zyjedV3VdnejoNAZy1"></div>
-                    </div>
+                    
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                     <button type="submit" class="cta-button"><?php echo __t('register.submit'); ?></button>
                 </form>
@@ -298,6 +292,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php if (!empty($success) && $activeTab === 'corporate') { 
                         echo '<div class="alert-success">'.($success_message ?? __t('register.corporate.success')).'</div>'; 
                     } ?>
+                    
                     <div class="form-group">
                         <label for="company_name"><?php echo __t('register.corporate.company_name'); ?> <span style="color: red;">*</span></label>
                         <input type="text" id="company_name" name="company_name" required value="<?php echo htmlspecialchars($_POST['company_name'] ?? ''); ?>">
@@ -342,9 +337,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </ul>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="g-recaptcha" data-sitekey="6LeLMC8rAAAAAChTj8rlQ_zyjedV3VdnejoNAZy1"></div>
-                    </div>
+                    
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                     <button type="submit" class="cta-button"><?php echo __t('register.corporate.submit'); ?></button>
                 </form>
@@ -358,31 +351,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="javascript/password-toggle.js"></script>
     <script>
         function switchTab(tab, event) {
-            // Update active tab button
             const buttons = document.querySelectorAll('.auth-tab');
             buttons.forEach(btn => {
                 btn.classList.remove('active');
             });
-            // Find the clicked button and activate it
             if (event && event.target) {
                 event.target.closest('.auth-tab')?.classList.add('active');
             } else {
-                // Fallback: find button by tab name
                 document.querySelector(`.auth-tab[onclick*="${tab}"]`)?.classList.add('active');
             }
             
-            // Update active form
             document.getElementById('individual-form').classList.remove('active');
             document.getElementById('corporate-form').classList.remove('active');
             document.getElementById(tab + '-form').classList.add('active');
             
-            // Update URL without reload (preserving language and other params)
             const url = new URL(window.location);
             url.searchParams.set('tab', tab);
             window.history.pushState({}, '', url);
         }
         
-        // Initialize password validator for corporate form
         document.addEventListener('DOMContentLoaded', function() {
             const corporatePassword = document.getElementById('corporate_password');
             if (corporatePassword) {
