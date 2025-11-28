@@ -1,14 +1,16 @@
 <?php
 // 1. DOCKER UYUMLU BAŞLANGIÇ
 ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
-// Corporate İlanlar Yönetim Paneli
+// 2. SESSION VE DB BAĞLANTISI (EN KRİTİK ADIM)
+// 'corporate' klasöründe olduğumuz için bir üstteki db.php'ye '../' ile çıkıyoruz.
+// Bu dosya session_save_path ayarını yaptığı için ZORUNLUDUR.
+require_once '../db.php'; 
+
+// Corporate İlanlar Yönetim Paneli için diğer config (Varsa kalsın, yoksa db.php yeterli)
 require_once 'includes/config.php';
 
-// 2. YETKİ KONTROLÜ (Güvenlik)
+// 3. YETKİ KONTROLÜ
 // Giriş yapmamışsa veya kurumsal değilse at
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION['user_type'] !== 'corporate'){
     header("location: ../login.php");
@@ -215,8 +217,8 @@ usort($ilanlar, function($a, $b) {
         </div>
       </div>
       
-      <div class="table-responsive">
-      <table class="table table-striped table-hover admin-table">
+      <div class="table-responsive shadow-sm rounded">
+      <table class="table table-striped table-hover admin-table mb-0">
         <thead class="thead-dark">
           <tr>
             <th class="d-none d-md-table-cell">ID</th>
@@ -269,9 +271,9 @@ usort($ilanlar, function($a, $b) {
                     <?php endif; ?>
                 </td>
                 <td>
-                    <div class="btn-group-vertical btn-group-sm d-md-inline-flex" role="group">
+                    <div class="btn-group btn-group-sm" role="group">
                         <?php if($is_request && $ilan['status'] === 'pending'): ?>
-                            <a href="ilan-duzenle.php?id=<?= $ilan['id'] ?>" class="btn btn-warning btn-sm mb-1 mb-md-0">
+                            <a href="ilan-duzenle.php?id=<?= $ilan['id'] ?>" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit d-md-none"></i>
                                 <span class="d-none d-md-inline"><i class="fas fa-edit mr-1"></i>Düzenle</span>
                             </a>
@@ -284,10 +286,10 @@ usort($ilanlar, function($a, $b) {
                                 <i class="fas fa-times mr-1"></i><span class="d-none d-md-inline">Reddedildi</span>
                             </button>
                         <?php elseif($is_approved || (isset($ilan['request_status']) && $ilan['request_status'] === 'approved')): ?>
-                            <a href="ilan-sil.php?id=<?= $ilan['id'] ?>&type=published" class="btn btn-danger btn-sm" onclick="return confirm('Yayındaki bu ilanı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')">
-                                <i class="fas fa-trash d-md-none"></i>
-                                <span class="d-none d-md-inline"><i class="fas fa-trash mr-1"></i>Sil</span>
-                            </a>
+                            <span class="badge badge-info p-2">
+                                <i class="fas fa-check-circle d-md-none"></i>
+                                <span class="d-none d-md-inline">Yayında</span>
+                            </span>
                         <?php endif; ?>
                     </div>
                 </td>
