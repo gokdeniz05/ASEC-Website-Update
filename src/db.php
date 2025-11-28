@@ -1,38 +1,49 @@
 <?php
-// db.php - EN BAŞTAN
-// Çıktı tamponlamayı başlat (Header hatalarını önler)
-if (ob_get_level() == 0) ob_start();
+// db.php – SON DÜZELTMELER VE ÇÖKÜŞ ENGELLEYİCİ
 
-// Oturum zaman aşımı ayarları (Opsiyonel ama önerilir - 1 saat)
-ini_set('session.gc_maxlifetime', 3600);
-session_set_cookie_params(3600);
+// 1. SESSION AYARLARI
+$sessionPath = __DIR__ . '/sessions';
 
-// Oturum daha önce başlatılmadıysa başlat
+if (!file_exists($sessionPath)) {
+    mkdir($sessionPath, 0777, true);
+}
+
+ob_start();
+
 if (session_status() === PHP_SESSION_NONE) {
+    session_save_path($sessionPath);
     session_start();
 }
 
-// Hata raporlamayı aç (Geliştirme aşamasında hataları görmek için)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-$host = 'db'; // Docker service name (docker-compose.yml dosyanızdaki db servis adı neyse o olmalı, genellikle 'db' veya 'mysql')
-$db   = 'asec_db'; // Veritabanı adınız
-$user = 'root'; // Kullanıcı adınız
-$pass = 'rootpassword'; // Şifreniz
+// 2. VERİTABANI BAĞLANTISI
 $charset = 'utf8mb4';
-
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
 ];
 
+// Ortam Kontrolü (Docker vs Localhost)
+if (getenv('IS_DOCKER') === 'true' || ($_SERVER['SERVER_NAME'] !== 'localhost' && $_SERVER['SERVER_NAME'] !== '127.0.0.1')) {
+    // BURASI ÇALIŞACAK! (IS_DOCKER=true veya dış IP'den geliyorsa)
+    $host = 'database'; // DOCKER HOSTU
+    $db   = 'db_asec';
+    $user = 'root';
+    $pass = 'root';
+} else {
+    // Sadece XAMPP/Localhost (Hata ayıklama için)
+    $host = 'localhost';
+    $db   = 'db_asec';
+    $user = 'root';
+    $pass = '';
+}
+
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (\PDOException $e) {
-    // Veritabanı hatası varsa ekrana bas ve durdur
-    die("Veritabanı Bağlantı Hatası: " . $e->getMessage());
+} catch (PDOException $e) {
+    // Hata çıktısında hangi host'a bağlanamadığını gösterelim
+    die('❌ Veritabanı Bağlantı Hatası:<br>Hedef Host: ' . $host . '<br>Hata Mesajı: ' . $e->getMessage());
 }
 ?>
