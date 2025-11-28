@@ -1,32 +1,32 @@
 <?php
-// 1. DOCKER UYUMLU BAŞLANGIÇ
+// 1. Output Buffering Başlat
 ob_start();
 
-// 2. SESSION VE DB BAĞLANTISI
-// 'corporate' klasöründe olduğumuz için bir üst dizindeki db.php'yi çağırıyoruz.
+// 2. SESSION KONTROLÜ VE BAŞLATMA
+// Hatanın çözümü burada: Eğer session zaten açıksa tekrar başlatma, değilse başlat.
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// 3. VERİTABANI BAĞLANTISI
+// db.php içinde de session_start varsa yukarıdaki kontrol çakışmayı önler.
 require_once '../db.php'; 
 
-// 3. YETKİ KONTROLÜ
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION['user_type'] !== 'corporate'){
-    header("location: ../login.php");
-    exit;
-}
-// Corporate config.php – Session management for corporate users
-session_start();
-
-// Check if user is logged in and is a corporate user
-if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'corporate'){
+// 4. YETKİ KONTROLÜ (Tek bir blok halinde birleştirdim)
+// Kullanıcı giriş yapmamışsa VEYA corporate (kurumsal) tipinde değilse login'e at.
+if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'corporate'){
     header("location: ../login.php");
     exit;
 }
 
-// Ensure user_id is set
+// Ensure user_id is set (Ekstra güvenlik)
 if(!isset($_SESSION['user_id'])){
     header("location: ../login.php");
     exit;
 }
 
-// Database connection using PDO
-// require_once '../db.php';
+// Hata raporlamayı development aşamasında açık tutabilirsiniz
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 ?>
-
