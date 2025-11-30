@@ -1,11 +1,14 @@
 <?php
 // Galeri Yönetim Paneli - Folder System with CRUD
-require_once '../db.php';
-session_start();
+session_start(); // 1. ÖNCE OTURUM BAŞLATILMALI
+
+// Oturum kontrolü
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
     exit;
 }
+
+require_once '../db.php'; // 2. SONRA VERİTABANI BAĞLANSIN
 
 // Ensure tables exist
 try {
