@@ -1,4 +1,9 @@
 <?php
+// Start output buffering to prevent headers already sent errors
+if (!ob_get_level()) {
+    ob_start();
+}
+
 require_once 'db.php';
 require_once 'includes/validation.php';
 require_once 'includes/lang.php';
@@ -157,8 +162,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $stmt = $pdo->prepare('INSERT INTO users (name, phone, email, university, department, class, password) VALUES (?, ?, ?, ?, ?, ?, ?)');
                             $ok = $stmt->execute([$name, $phone, $email, $university, $department, $class, $hashed]);
                             if ($ok) {
-                                $success = true;
-                                $activeTab = 'individual';
+                                // Set flash message for successful registration
+                                $_SESSION['success'] = __t('register.success');
+                                
+                                // Clean output buffer before redirect
+                                if (ob_get_level()) {
+                                    ob_end_clean();
+                                }
+                                
+                                // Redirect to login page
+                                header('Location: login.php');
+                                exit;
                             } else {
                                 $error = 'Kayıt sırasında bir hata oluştu!';
                             }

@@ -29,6 +29,13 @@ if (!in_array($activeTab, ['individual', 'corporate'])) {
 }
 
 $error = '';
+$success = '';
+
+// Check for flash success message from registration
+if (isset($_SESSION['success'])) {
+    $success = $_SESSION['success'];
+    unset($_SESSION['success']); // Clear the flash message after displaying
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF token doğrulama
@@ -156,6 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h2><?php echo __t('login.individual'); ?></h2>
                 <form method="post">
                     <input type="hidden" name="user_type" value="individual">
+                    <?php if (!empty($success) && $activeTab === 'individual') { echo '<div class="alert-success">'.$success.'</div>'; } ?>
                     <?php if (!empty($error) && $activeTab === 'individual') { echo '<div class="alert-error">'.$error.'</div>'; } ?>
                     <div class="form-group">
                         <label for="email"><?php echo __t('login.email'); ?></label>
