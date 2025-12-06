@@ -360,6 +360,12 @@ $existingCompanies = $cvProfile && $cvProfile['companies'] ? json_decode($cvProf
 <main class="profile-main">
     <div class="cv-form">
         <h2><?php echo __t('cv.upload.title'); ?></h2>
+        <?php if (isset($_SESSION['cv_required']) && $_SESSION['cv_required']): ?>
+            <div class="alert alert-error" style="background-color: rgba(255, 193, 7, 0.1); color: #856404; border-left: 4px solid #ffc107; margin-bottom: 1.5rem;">
+                <strong><i class="fas fa-exclamation-triangle"></i> <?php echo htmlspecialchars($_SESSION['cv_required_message'] ?? __t('cv.mandatory.message')); ?></strong>
+            </div>
+            <?php unset($_SESSION['cv_required'], $_SESSION['cv_required_message']); ?>
+        <?php endif; ?>
         <?php if (!empty($success)): ?><div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
         <?php if (!empty($errors)): ?>
             <div class="alert alert-error">

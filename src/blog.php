@@ -1,11 +1,17 @@
 <?php
-// db.php'yi kaldırdık çünkü config.php zaten bağlantıyı yapıyor.
+// Start main site session first (before admin config)
+require_once 'db.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once 'includes/lang.php';
+
 // Hata raporlama ayarları
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Veritabanı bağlantısı ve session başlatma burada yapılıyor
+// Veritabanı bağlantısı için admin config (mysqli connection for blog posts)
 require_once 'admin/includes/config.php';
 
 ob_start(); // Docker çıktı tamponlaması

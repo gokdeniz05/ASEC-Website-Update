@@ -148,11 +148,17 @@ try {
 
                 <!-- Bireysel İlanlar Tab -->
                 <div class="tab-content" id="bireysel">
+                    <?php 
+                    // Only show "Post Individual Ad" button for individual users or guests (not corporate users)
+                    $user_type = $_SESSION['user_type'] ?? 'individual';
+                    if ($user_type !== 'corporate'): 
+                    ?>
                     <div style="margin-bottom: 2rem; text-align: right;">
                         <a href="bireysel-ilan-ekle.php" class="btn-post-ad">
                             <i class="fas fa-plus-circle"></i> <?php echo $langCode === 'en' ? 'Post an Ad' : 'İlan Ver'; ?>
                         </a>
                     </div>
+                    <?php endif; ?>
                     <div class="announcements-grid">
                         <?php if (empty($bireyselIlanlar)): ?>
                             <div class="no-announcements">

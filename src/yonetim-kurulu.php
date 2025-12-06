@@ -1,4 +1,11 @@
-<?php require_once 'includes/lang.php'; ?>
+<?php
+// Start session and include necessary files
+require_once 'db.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once 'includes/lang.php';
+?>
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
 <head>
@@ -20,7 +27,7 @@
         <section class="board-members-page-section">
             <div class="container">
                 <?php
-                require_once 'db.php';
+                // db.php already included at top of file
                 try {
                     // Ensure table exists
                     $pdo->exec('CREATE TABLE IF NOT EXISTS board_members (

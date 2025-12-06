@@ -15,6 +15,104 @@ if (file_exists(__DIR__ . '/includes/lang.php')) {
 if (!function_exists('__t')) {
     function __t($key) { return $key; }
 }
+
+// MANDATORY CV ENFORCEMENT FOR INDIVIDUAL USERS
+// This check runs on all pages that include header.php
+if (isset($_SESSION['user']) && isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'individual') {
+    // Get current script name to prevent infinite loops
+    $currentScript = basename($_SERVER['PHP_SELF']);
+    
+    // Pages that should be excluded from CV check (to prevent infinite redirect loops)
+    $excludedPages = [
+        'load-cv.php',
+        'load_cv.php',
+        'cv-goruntule.php',
+        'cv-sil.php',
+        'login.php',
+        'register.php',
+        'logout.php',
+        'corporate-login.php',
+        'corporate-register.php',
+        'sifremi-unuttum.php',
+        'sifre-sifirla.php'
+    ];
+    
+    // Only check if not on excluded pages
+    if (!in_array($currentScript, $excludedPages)) {
+        // Check if we're in admin or corporate directories (exclude those)
+        $currentPath = $_SERVER['REQUEST_URI'] ?? '';
+        $isAdminPath = strpos($currentPath, '/admin/') !== false;
+        $isCorporatePath = strpos($currentPath, '/corporate/') !== false;
+        
+        if (!$isAdminPath && !$isCorporatePath) {
+            // Require database connection
+            if (!isset($pdo)) {
+                require_once __DIR__ . '/db.php';
+            }
+            
+            // Get user ID from session or fetch from database
+            $user_id = $_SESSION['user_id'] ?? null;
+            if (!$user_id) {
+                // Fetch user ID from database
+                $email = $_SESSION['user'];
+                $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+                $stmt->execute([$email]);
+                $user = $stmt->fetch();
+                if ($user) {
+                    $user_id = $user['id'];
+                    $_SESSION['user_id'] = $user_id; // Cache in session
+                }
+            }
+            
+            // Check if user has a CV
+            if ($user_id) {
+                // Ensure user_cv_profiles table exists
+                $pdo->exec('CREATE TABLE IF NOT EXISTS user_cv_profiles (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    major VARCHAR(255) DEFAULT NULL,
+                    languages TEXT DEFAULT NULL,
+                    software_fields TEXT DEFAULT NULL,
+                    companies TEXT DEFAULT NULL,
+                    cv_filename VARCHAR(255) DEFAULT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    UNIQUE KEY uniq_user (user_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+                
+                // Check if CV exists
+                $stmt = $pdo->prepare('SELECT cv_filename FROM user_cv_profiles WHERE user_id = ? LIMIT 1');
+                $stmt->execute([$user_id]);
+                $cvProfile = $stmt->fetch();
+                
+                $hasCv = false;
+                if ($cvProfile && !empty($cvProfile['cv_filename'])) {
+                    // Also verify file exists
+                    $cvFilePath = __DIR__ . '/uploads/cv/' . $cvProfile['cv_filename'];
+                    if (file_exists($cvFilePath)) {
+                        $hasCv = true;
+                    }
+                }
+                
+                // If no CV, redirect to upload page
+                if (!$hasCv) {
+                    // Clean output buffer before redirect
+                    if (ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    
+                    // Set flash message
+                    $_SESSION['cv_required'] = true;
+                    $_SESSION['cv_required_message'] = __t('cv.mandatory.message');
+                    
+                    // Redirect to CV upload page
+                    header('Location: load-cv.php');
+                    exit;
+                }
+            }
+        }
+    }
+}
 ?>
 <header>
     <div class="header-container">
