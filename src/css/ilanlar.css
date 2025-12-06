@@ -692,3 +692,22 @@
   }
 }
 
+/* Post Ad Button - Individual Listings */
+.btn-post-ad {
+  background-color: #6a0dad;
+  color: #fff;
+  padding: 0.875rem 1.75rem;
+  border-radius: 50px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-post-ad:hover {
+  background-color: #6a0dad;
+  color: #fff;
+}
+

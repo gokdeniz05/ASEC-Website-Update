@@ -198,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     
                     <div class="form-group">
-                        <label for="sirket"><?php echo $langCode === 'en' ? 'Company/Organization' : 'Şirket/Kurum'; ?></label>
+                        <label for="sirket"><?php echo $langCode === 'en' ? 'Ad Owner' : 'İlan Sahibi'; ?></label>
                         <input type="text" id="sirket" name="sirket" value="<?= htmlspecialchars($_POST['sirket'] ?? '') ?>">
                     </div>
                     
