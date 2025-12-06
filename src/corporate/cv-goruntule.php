@@ -60,11 +60,11 @@ if (!file_exists($cvPath)) {
                             </p>
                         </iframe>
                     </div>
-                    <div class="mt-3 d-flex flex-column flex-md-row gap-2">
-                        <a href="<?= htmlspecialchars($cvPath) ?>" download class="btn btn-primary btn-lg btn-block btn-md-block">
+                    <div class="mt-3 d-flex flex-column flex-md-row gap-3 justify-content-center justify-content-md-start">
+                        <a href="<?= htmlspecialchars($cvPath) ?>" download class="btn btn-primary btn-lg corporate-action-btn">
                             <i class="fas fa-download mr-2"></i>CV'yi İndir
                         </a>
-                        <a href="mailto:<?= htmlspecialchars($user['email']) ?>" class="btn btn-success btn-lg btn-block btn-md-block">
+                        <a href="mailto:<?= htmlspecialchars($user['email']) ?>" class="btn btn-success btn-lg corporate-action-btn">
                             <i class="fas fa-envelope mr-2"></i>E-posta Gönder
                         </a>
                     </div>
@@ -81,6 +81,26 @@ if (!file_exists($cvPath)) {
     border: 1px solid #ddd;
     border-radius: 4px;
 }
+
+/* Standardized Corporate Action Buttons */
+.corporate-action-btn {
+    min-width: 200px;
+    min-height: 50px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.corporate-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
 @media (max-width: 768px) {
     .cv-iframe {
         height: 400px;
@@ -88,6 +108,10 @@ if (!file_exists($cvPath)) {
     }
     .card-body {
         padding: 15px;
+    }
+    .corporate-action-btn {
+        width: 100%;
+        min-width: 100%;
     }
 }
 @media (max-width: 576px) {

@@ -208,24 +208,26 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
             </div>
           </div>
         </div>
-        <div class="form-group mb-4 d-flex flex-column flex-md-row gap-2">
+        <?php if($is_approved_announcement): ?>
+          <div class="alert alert-info w-100 mb-3">
+            <i class="fas fa-info-circle mr-2"></i>Bu ilan onaylanmış ve yayında. Değişiklik yapmak için yeni bir ilan oluşturun.
+          </div>
+        <?php elseif(isset($ilan['status']) && $ilan['status'] !== 'pending'): ?>
+          <div class="alert alert-<?= $ilan['status'] === 'rejected' ? 'danger' : 'info' ?> w-100 mb-3">
+            <i class="fas fa-info-circle mr-2"></i>Bu ilan <?= $ilan['status'] === 'rejected' ? 'reddedilmiştir' : 'onaylanmıştır' ?>. Sadece bekleyen ilanlar düzenlenebilir.
+          </div>
+        <?php endif; ?>
+        <div class="form-group mb-4 d-flex flex-column flex-md-row gap-3 justify-content-center justify-content-md-start">
           <?php if($is_approved_announcement): ?>
-            <div class="alert alert-info w-100 mb-3">
-              <i class="fas fa-info-circle mr-2"></i>Bu ilan onaylanmış ve yayında. Değişiklik yapmak için yeni bir ilan oluşturun.
-            </div>
-            <a href="ilan-ekle.php" class="btn btn-primary btn-lg btn-block btn-md-block px-4 mb-2">
+            <a href="ilan-ekle.php" class="btn btn-primary btn-lg corporate-action-btn">
               <i class="fas fa-plus mr-2"></i>Yeni İlan Oluştur
             </a>
-          <?php elseif(isset($ilan['status']) && $ilan['status'] !== 'pending'): ?>
-            <div class="alert alert-<?= $ilan['status'] === 'rejected' ? 'danger' : 'info' ?> w-100 mb-3">
-              <i class="fas fa-info-circle mr-2"></i>Bu ilan <?= $ilan['status'] === 'rejected' ? 'reddedilmiştir' : 'onaylanmıştır' ?>. Sadece bekleyen ilanlar düzenlenebilir.
-            </div>
           <?php else: ?>
-            <button class="btn btn-primary btn-lg btn-block btn-md-block px-4" type="submit">
+            <button class="btn btn-primary btn-lg corporate-action-btn" type="submit" <?= (isset($ilan['status']) && $ilan['status'] !== 'pending') ? 'disabled' : '' ?>>
               <i class="fas fa-save mr-2"></i>Kaydet
             </button>
           <?php endif; ?>
-          <a href="ilanlar-yonetim.php" class="btn btn-secondary btn-lg btn-block btn-md-block px-4">
+          <a href="ilanlar-yonetim.php" class="btn btn-secondary btn-lg corporate-action-btn">
             <i class="fas fa-times mr-2"></i>İptal
           </a>
         </div>
@@ -250,10 +252,39 @@ input:focus, textarea:focus, select:focus {outline:none;border-color:#9370db;bac
 .btn {padding:10px 28px;background:#9370db;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:1rem;transition:background 0.2s;}
 .btn:hover {background:#7a5fb8;}
 .msg {margin-bottom:1rem; color:green;}
+
+/* Standardized Corporate Action Buttons */
+.corporate-action-btn {
+    min-width: 200px;
+    min-height: 50px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.corporate-action-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.corporate-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
     .admin-form-container {
         padding: 18px 4vw 18px 4vw;
         max-width: 99vw;
+    }
+    .corporate-action-btn {
+        width: 100%;
+        min-width: 100%;
     }
 }
 </style>
