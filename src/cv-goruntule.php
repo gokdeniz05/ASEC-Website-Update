@@ -86,6 +86,8 @@ $companies = $cvProfile && $cvProfile['companies'] ? json_decode($cvProfile['com
     .cv-chip { padding:8px 14px; border-radius:20px; background: rgba(230,230,250,0.6); border:1px solid rgba(147,112,219,0.3); font-size:0.95rem; color:#1b1f3b; }
     .cv-pdf { margin-top: 20px; border:1px solid rgba(147,112,219,0.25); border-radius:8px; overflow:hidden; }
     .cv-actions { margin-top: 20px; display:flex; gap:12px; flex-wrap:wrap; }
+    .btn-danger { background: #dc3545; color: #fff; border: 1px solid #dc3545; }
+    .btn-danger:hover { background: #c82333; border-color: #bd2130; }
     .note { color:#555; font-size:0.9rem; margin-top:8px; }
     @media (max-width: 768px) { .cv-form { margin: 20px auto; padding: 25px 20px; } }
     </style>
@@ -152,10 +154,18 @@ $companies = $cvProfile && $cvProfile['companies'] ? json_decode($cvProfile['com
         <div class="cv-actions">
             <button class="cta-button" onclick="window.location.href='load-cv.php'"><?php echo __t('cv.edit'); ?></button>
             <button class="cta-button btn-small" onclick="window.location.href='profilim.php'"><?php echo __t('cv.view_profile'); ?></button>
+            <button class="cta-button btn-danger" onclick="deleteCV()"><?php echo __t('cv.delete'); ?></button>
         </div>
     </div>
 </main>
 <?php include 'footer.php'; ?>
+<script>
+function deleteCV() {
+    if (confirm(<?php echo json_encode(__t('cv.delete.confirm')); ?>)) {
+        window.location.href = 'cv-sil.php';
+    }
+}
+</script>
 </body>
 </html>
 

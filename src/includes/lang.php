@@ -260,6 +260,10 @@ if (!defined('IN_ADMIN')) {
             'cv.error.only_pdf' => 'Lütfen yalnızca PDF dosyası yükleyin.',
             'cv.error.upload_failed' => 'CV dosyası yüklenemedi.',
             'cv.error.upload_error' => 'CV dosyası yüklenirken bir hata oluştu.',
+            'cv.delete' => 'CV Sil',
+            'cv.delete.confirm' => 'CV\'nizi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
+            'cv.delete.success' => 'CV başarıyla silindi.',
+            'cv.delete.error' => 'CV silinirken bir hata oluştu.',
             // Announcements
             'announcements.page.title' => 'Duyurular',
             'announcements.read_more' => 'Detayları Gör',
@@ -506,6 +510,10 @@ if (!defined('IN_ADMIN')) {
             'cv.error.only_pdf' => 'Please upload PDF files only.',
             'cv.error.upload_failed' => 'CV file could not be uploaded.',
             'cv.error.upload_error' => 'An error occurred while uploading the CV file.',
+            'cv.delete' => 'Delete CV',
+            'cv.delete.confirm' => 'Are you sure you want to delete your CV? This action cannot be undone.',
+            'cv.delete.success' => 'CV deleted successfully.',
+            'cv.delete.error' => 'An error occurred while deleting the CV.',
             // Announcements
             'announcements.page.title' => 'Announcements',
             'announcements.read_more' => 'View Details',

@@ -265,6 +265,17 @@ $existingCompanies = $cvProfile && $cvProfile['companies'] ? json_decode($cvProf
         margin-top: 8px;
     }
     
+    .btn-danger { 
+        background: #dc3545; 
+        color: #fff; 
+        border: 1px solid #dc3545; 
+    }
+    
+    .btn-danger:hover { 
+        background: #c82333; 
+        border-color: #bd2130; 
+    }
+    
     /* Note Text */
     .note { 
         color: #555; 
@@ -408,6 +419,9 @@ $existingCompanies = $cvProfile && $cvProfile['companies'] ? json_decode($cvProf
             <div class="cv-group">
                 <button type="submit" class="cta-button"><?php echo __t('cv.form.save'); ?></button>
                 <button type="button" class="cta-button btn-small" onclick="window.location.href='profilim.php'"><?php echo __t('cv.view_profile'); ?></button>
+                <?php if (!empty($cvProfile['cv_filename']) && file_exists(__DIR__ . '/uploads/cv/' . $cvProfile['cv_filename'])): ?>
+                    <button type="button" class="cta-button btn-small btn-danger" onclick="deleteCV()"><?php echo __t('cv.delete'); ?></button>
+                <?php endif; ?>
             </div>
         </form>
     </div>
@@ -422,6 +436,12 @@ document.getElementById('add-company').addEventListener('click', function(){
     input.placeholder = <?php echo json_encode(__t('cv.form.companies.placeholder')); ?>;
     container.appendChild(input);
 });
+
+function deleteCV() {
+    if (confirm(<?php echo json_encode(__t('cv.delete.confirm')); ?>)) {
+        window.location.href = 'cv-sil.php';
+    }
+}
 </script>
 </body>
 </html>
