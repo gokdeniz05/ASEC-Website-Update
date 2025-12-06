@@ -220,53 +220,63 @@ if (!$user) {
         </div>
 
         <div class="profil-info-list">
-            <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.phone'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['phone']); ?></span></div>
-            <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.university'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['university']); ?></span></div>
-            <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.department'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['department']); ?></span></div>
-            <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.class'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['class']); ?></span></div>
-            <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.birthdate'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['birthdate'] ?? __t('profile.value.not_set')); ?></span></div>
-            <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.address'); ?></span><span class="profil-value"><?php echo isset($user['address']) && trim($user['address']) !== '' ? htmlspecialchars($user['address']) : __t('profile.value.not_set'); ?></span></div>
-            <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.bio'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['bio'] ?? __t('profile.value.not_set')); ?></span></div>
-            <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.instagram'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['instagram'] ?? __t('profile.value.not_set')); ?></span></div>
-            <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.linkedin'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['linkedin'] ?? __t('profile.value.not_set')); ?></span></div>
-            <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.achievements'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['achievements'] ?? __t('profile.value.not_set')); ?></span></div>
+            <?php if ($user_type === 'corporate'): ?>
+                <!-- Corporate User Fields -->
+                <div class="profil-info-item"><span class="profil-label">İletişim Kişisi</span><span class="profil-value"><?php echo htmlspecialchars($user['contact_person'] ?? __t('profile.value.not_set')); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.phone'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['phone'] ?? __t('profile.value.not_set')); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.address'); ?></span><span class="profil-value"><?php echo isset($user['address']) && trim($user['address']) !== '' ? htmlspecialchars($user['address']) : __t('profile.value.not_set'); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label">Vergi Numarası</span><span class="profil-value"><?php echo htmlspecialchars($user['tax_number'] ?? __t('profile.value.not_set')); ?></span></div>
+            <?php else: ?>
+                <!-- Individual User Fields -->
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.phone'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['phone']); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.university'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['university']); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.department'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['department']); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.class'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['class']); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.birthdate'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['birthdate'] ?? __t('profile.value.not_set')); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.address'); ?></span><span class="profil-value"><?php echo isset($user['address']) && trim($user['address']) !== '' ? htmlspecialchars($user['address']) : __t('profile.value.not_set'); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.bio'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['bio'] ?? __t('profile.value.not_set')); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.instagram'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['instagram'] ?? __t('profile.value.not_set')); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.linkedin'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['linkedin'] ?? __t('profile.value.not_set')); ?></span></div>
+                <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.achievements'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['achievements'] ?? __t('profile.value.not_set')); ?></span></div>
+            <?php endif; ?>
         </div>
 
         <?php
+        // CV section only for individual users
+        if ($user_type === 'individual'):
+            // ✅ CV KONTROLÜ
+            $cvProfileStmt = $pdo->prepare('SELECT cv_filename FROM user_cv_profiles WHERE user_id = ? LIMIT 1');
+            $cvProfileStmt->execute([$user['id']]);
+            $cvProfileRow = $cvProfileStmt->fetch(PDO::FETCH_ASSOC);
 
-// ✅ CV KONTROLÜ
-$cvProfileStmt = $pdo->prepare('SELECT cv_filename FROM user_cv_profiles WHERE user_id = ? LIMIT 1');
-$cvProfileStmt->execute([$user['id']]);
-$cvProfileRow = $cvProfileStmt->fetch(PDO::FETCH_ASSOC);
+            $hasCv = false;
+            $cvFilePath = '';
 
-$hasCv = false;
-$cvFilePath = '';
-
-// Yalnızca veritabanında bir kayıt varsa ve bu kayıttaki dosya adı boş değilse CV var demektir.
-// Ek olarak, güvenlik için dosyanın fiziksel olarak var olup olmadığını da kontrol edebiliriz.
-if ($cvProfileRow && !empty($cvProfileRow['cv_filename'])) {
-    $cvFilePath = 'uploads/cv/' . $cvProfileRow['cv_filename'];
-    
-    // Veritabanında kayıt var VE dosya sisteminde de mevcutsa
-    if (file_exists($cvFilePath)) {
-        $hasCv = true;
-    }
-    // NOT: Eğer dosya veritabanında kayıtlı olduğu halde silinmişse, $hasCv yine false kalır.
-    // Bu, daha doğru bir kontrol mantığıdır.
-}
-?>
-
-        <div class="profil-cv-section" style="margin-top:1rem;">
-            <?php if ($hasCv): ?>
-                <button class="cta-button" onclick="window.location.href='cv-goruntule.php'">
-                    <i class="fas fa-file-pdf"></i> <?php echo __t('profile.cv.view'); ?>
-                </button>
-            <?php else: ?>
-                <button class="cta-button" onclick="window.location.href='load-cv.php'">
-                    <i class="fas fa-file-upload"></i> <?php echo __t('profile.cv.add'); ?>
-                </button>
-            <?php endif; ?>
-        </div>
+            // Yalnızca veritabanında bir kayıt varsa ve bu kayıttaki dosya adı boş değilse CV var demektir.
+            // Ek olarak, güvenlik için dosyanın fiziksel olarak var olup olmadığını da kontrol edebiliriz.
+            if ($cvProfileRow && !empty($cvProfileRow['cv_filename'])) {
+                $cvFilePath = 'uploads/cv/' . $cvProfileRow['cv_filename'];
+                
+                // Veritabanında kayıt var VE dosya sisteminde de mevcutsa
+                if (file_exists($cvFilePath)) {
+                    $hasCv = true;
+                }
+                // NOT: Eğer dosya veritabanında kayıtlı olduğu halde silinmişse, $hasCv yine false kalır.
+                // Bu, daha doğru bir kontrol mantığıdır.
+            }
+        ?>
+            <div class="profil-cv-section" style="margin-top:1rem;">
+                <?php if ($hasCv): ?>
+                    <button class="cta-button" onclick="window.location.href='cv-goruntule.php'">
+                        <i class="fas fa-file-pdf"></i> <?php echo __t('profile.cv.view'); ?>
+                    </button>
+                <?php else: ?>
+                    <button class="cta-button" onclick="window.location.href='load-cv.php'">
+                        <i class="fas fa-file-upload"></i> <?php echo __t('profile.cv.add'); ?>
+                    </button>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </main>
 <?php include 'footer.php'; ?>

@@ -1,4 +1,9 @@
 <?php
+// Start output buffering to prevent headers already sent errors
+if (!ob_get_level()) {
+    ob_start();
+}
+
 require_once 'db.php';
 session_start();
 if (!isset($_SESSION['user'])) {
@@ -9,25 +14,25 @@ if (!isset($_SESSION['user'])) {
 $email = $_SESSION['user'];
 $user_type = $_SESSION['user_type'] ?? 'individual';
 
-// Check user type and fetch from appropriate table
+// Block corporate users from accessing CV pages
 if ($user_type === 'corporate') {
-    $stmt = $pdo->prepare('SELECT * FROM corporate_users WHERE email = ?');
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-    if (!$user) {
-        session_destroy();
-        header('Location: corporate-login.php');
-        exit;
+    // Clean output buffer before redirect
+    if (ob_get_level()) {
+        ob_end_clean();
     }
-} else {
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-    if (!$user) {
-        session_destroy();
-        header('Location: login.php');
-        exit;
-    }
+    $_SESSION['error'] = 'CV yükleme özelliği yalnızca bireysel kullanıcılar için kullanılabilir.';
+    header('Location: index.php');
+    exit;
+}
+
+// Fetch individual user data
+$stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
+$stmt->execute([$email]);
+$user = $stmt->fetch();
+if (!$user) {
+    session_destroy();
+    header('Location: login.php');
+    exit;
 }
 
 // CV profili tablosunu oluştur (yoksa)

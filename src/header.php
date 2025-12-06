@@ -73,9 +73,15 @@ if (!function_exists('__t')) {
 		</div>
         <?php
             if (session_status() === PHP_SESSION_NONE) session_start();
+            $user_type = $_SESSION['user_type'] ?? 'individual';
             if (isset($_SESSION['user'])) {
         ?>
             <div class="auth-buttons">
+                <?php if ($user_type === 'corporate'): ?>
+                    <a href="corporate/dashboard.php" class="btn-login" style="background: rgba(147, 112, 219, 0.2); border: 1px solid rgba(147, 112, 219, 0.5); border-radius: 5px; padding: 0.5rem 1rem; margin-right: 0.5rem;">
+                        <i class="fas fa-building"></i> Kurumsal Panel
+                    </a>
+                <?php endif; ?>
 				<a href="profilim" class="btn-login"><i class="fas fa-user"></i> <?php echo __t('auth.profile'); ?></a>
 				<a href="logout" class="btn-register"><i class="fas fa-sign-out-alt"></i> <?php echo __t('auth.logout'); ?></a>
             </div>

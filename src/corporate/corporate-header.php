@@ -309,6 +309,13 @@
                     <?php echo htmlspecialchars(mb_substr($_SESSION['user_name'] ?? 'Kurumsal Kullanıcı', 0, 20)); ?>
                 </span>
             </li>
+            <li class="nav-item text-nowrap mr-2">
+                <a class="nav-link" href="../index.php" title="Ana Siteye Git" style="background-color: rgba(147, 112, 219, 0.2); border: 1px solid rgba(147, 112, 219, 0.5); border-radius: 5px; padding: 0.5rem 1rem !important; font-weight: 600; transition: all 0.3s ease; color: #fff !important;" onmouseover="this.style.backgroundColor='rgba(147, 112, 219, 0.4)'; this.style.borderColor='rgba(147, 112, 219, 0.8)'; this.style.transform='scale(1.05)';" onmouseout="this.style.backgroundColor='rgba(147, 112, 219, 0.2)'; this.style.borderColor='rgba(147, 112, 219, 0.5)'; this.style.transform='scale(1)';">
+                    <i class="fas fa-globe mr-1"></i>
+                    <span class="d-none d-md-inline">Ana Siteye Git</span>
+                    <span class="d-md-none">Site</span>
+                </a>
+            </li>
             <li class="nav-item text-nowrap">
                 <a class="nav-link" href="logout.php" title="Çıkış Yap">
                     <i class="fas fa-sign-out-alt d-md-none"></i>

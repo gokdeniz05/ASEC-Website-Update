@@ -26,6 +26,17 @@ if (!isset($_SESSION['user'])) {
 $email = $_SESSION['user'];
 $user_type = $_SESSION['user_type'] ?? 'individual';
 
+// Block corporate users from accessing CV pages
+if ($user_type === 'corporate') {
+    // Clean output buffer before redirect
+    if (ob_get_level()) {
+        ob_end_clean();
+    }
+    $_SESSION['error'] = 'CV silme özelliği yalnızca bireysel kullanıcılar için kullanılabilir.';
+    header('Location: index.php');
+    exit;
+}
+
 // Check user type and fetch from appropriate table
 if ($user_type === 'corporate') {
     $stmt = $pdo->prepare('SELECT * FROM corporate_users WHERE email = ?');

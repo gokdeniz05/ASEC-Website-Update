@@ -7,6 +7,19 @@ if (!isset($_SESSION['user'])) {
 }
 
 $email = $_SESSION['user'];
+$user_type = $_SESSION['user_type'] ?? 'individual';
+
+// Block corporate users from accessing CV pages
+if ($user_type === 'corporate') {
+    // Clean output buffer before redirect
+    if (ob_get_level()) {
+        ob_end_clean();
+    }
+    $_SESSION['error'] = 'CV görüntüleme özelliği yalnızca bireysel kullanıcılar için kullanılabilir.';
+    header('Location: index.php');
+    exit;
+}
+
 $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
 $stmt->execute([$email]);
 $user = $stmt->fetch();
