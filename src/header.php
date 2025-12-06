@@ -176,8 +176,8 @@ if (isset($_SESSION['user']) && isset($_SESSION['user_type']) && $_SESSION['user
         ?>
             <div class="auth-buttons">
                 <?php if ($user_type === 'corporate'): ?>
-                    <a href="corporate/dashboard.php" class="btn-login" style="background: rgba(147, 112, 219, 0.2); border: 1px solid rgba(147, 112, 219, 0.5); border-radius: 5px; padding: 0.5rem 1rem; margin-right: 0.5rem;">
-                        <i class="fas fa-building"></i> Kurumsal Panel
+                    <a href="corporate/dashboard.php" class="btn-login corporate-panel-btn" style="background: rgba(147, 112, 219, 0.2); border: 1px solid rgba(147, 112, 219, 0.5); border-radius: 5px; padding: 0.45rem 0.8rem; font-size: 0.85rem;">
+                        <i class="fas fa-building"></i> <span class="corporate-panel-text">Kurumsal Panel</span>
                     </a>
                 <?php endif; ?>
 				<a href="profilim" class="btn-login"><i class="fas fa-user"></i> <?php echo __t('auth.profile'); ?></a>
