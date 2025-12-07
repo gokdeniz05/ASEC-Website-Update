@@ -21,12 +21,25 @@ if (!$blog) {
     header("Location: blog.php");
     exit;
 }
+
+// Determine language (use cookie from lang.php, fallback to 'tr')
+$currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
+
+// Select title and content based on language
+if ($currentLang == 'en' && !empty($blog['title_en']) && !empty($blog['content_en'])) {
+    $display_title = $blog['title_en'];
+    $display_content = $blog['content_en'];
+} else {
+    // Default to Turkish
+    $display_title = $blog['title'];
+    $display_content = $blog['content'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
 <head>
     <?php include 'includes/head-meta.php'; ?>
-    <title><?php echo htmlspecialchars($blog['title']); ?> - ASEC</title>
+    <title><?php echo htmlspecialchars($display_title); ?> - ASEC</title>
     <link rel="stylesheet" href="css/blog-detay.css">
 </head>
 <body>
@@ -36,13 +49,13 @@ if (!$blog) {
         <div class="blog-detail">
             <div class="blog-detail-header">
                 <?php if (!empty($blog['image_url'])): ?>
-                    <img src="admin/<?php echo !empty($blog['image_url']) ? htmlspecialchars($blog['image_url']) : 'fotograflar/default-blog.jpg'; ?>" alt="<?php echo htmlspecialchars($blog['title']); ?>">
+                    <img src="admin/<?php echo !empty($blog['image_url']) ? htmlspecialchars($blog['image_url']) : 'fotograflar/default-blog.jpg'; ?>" alt="<?php echo htmlspecialchars($display_title); ?>">
                 <?php endif; ?>
                 <div class="category"><?php echo htmlspecialchars(!empty($blog['category']) ? $blog['category'] : __t('blog.category.general')); ?></div>
             </div>
             
             <div class="blog-detail-content">
-                <h1 class="blog-detail-title"><?php echo htmlspecialchars($blog['title']); ?></h1>
+                <h1 class="blog-detail-title"><?php echo htmlspecialchars($display_title); ?></h1>
                 
                 <div class="blog-detail-meta">
                     <span><i class="far fa-calendar"></i> <?php echo date('d M Y', strtotime($blog['created_at'])); ?></span>
@@ -52,7 +65,7 @@ if (!$blog) {
                 <div class="blog-detail-text">
                     <?php 
                     // HTML stil etiketlerini temizle ve içeriği düzgün biçimlendir
-                    $content = $blog['content'];
+                    $content = $display_content;
                     $content = preg_replace('/<p style="[^"]*">/', '<p>', $content);
                     $content = strip_tags($content, '<p><br><h1><h2><h3><h4><h5><h6><ul><ol><li><blockquote><strong><em><a><img>');
                     echo $content;

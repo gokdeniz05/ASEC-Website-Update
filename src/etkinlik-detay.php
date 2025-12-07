@@ -11,6 +11,21 @@ $stmt = $pdo->prepare('SELECT * FROM etkinlikler WHERE id=?');
 $stmt->execute([$id]);
 $etkinlik = $stmt->fetch();
 if (!$etkinlik) die('Etkinlik bulunamadı!');
+
+// Determine language (use cookie from lang.php, fallback to 'tr')
+require_once 'includes/lang.php';
+$currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
+
+// Select title and description based on language
+if ($currentLang == 'en' && !empty($etkinlik['baslik_en']) && !empty($etkinlik['aciklama_en'])) {
+    $display_baslik = $etkinlik['baslik_en'];
+    $display_aciklama = $etkinlik['aciklama_en'];
+} else {
+    // Default to Turkish
+    $display_baslik = $etkinlik['baslik'];
+    $display_aciklama = $etkinlik['aciklama'];
+}
+
 $fotolar = $pdo->prepare('SELECT * FROM etkinlik_fotolar WHERE etkinlik_id=?');
 $fotolar->execute([$id]);
 ?>
@@ -18,7 +33,7 @@ $fotolar->execute([$id]);
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
 <head>
     <?php include 'includes/head-meta.php'; ?>
-    <title><?= htmlspecialchars($etkinlik['baslik']) ?> - ASEC</title>
+    <title><?= htmlspecialchars($display_baslik) ?> - ASEC</title>
     <link rel="stylesheet" href="css/etkinlik-detay.css">
 </head>
 <body>
@@ -28,7 +43,7 @@ $fotolar->execute([$id]);
     <div class="event-detail-container">
         <div class="event-detail-card">
             <div class="event-header">
-                <h1><?= htmlspecialchars($etkinlik['baslik']) ?></h1>
+                <h1><?= htmlspecialchars($display_baslik) ?></h1>
                 <?php 
                 $bugun = date('Y-m-d');
                 if($etkinlik['tarih'] >= $bugun): 
@@ -74,7 +89,7 @@ $fotolar->execute([$id]);
                 
                 <div class="event-description">
                     <h2><?php echo __t('event.description'); ?></h2>
-                    <p><?= nl2br(htmlspecialchars($etkinlik['aciklama'])) ?></p>
+                    <p><?= nl2br(htmlspecialchars($display_aciklama)) ?></p>
                 </div>
                 
                 <?php if (!empty($etkinlik['kayit_link'])): ?>

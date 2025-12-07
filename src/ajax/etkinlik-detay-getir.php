@@ -1,6 +1,12 @@
 <?php
 // Veritabanı bağlantısı
 require_once '../db.php';
+require_once '../includes/lang.php';
+
+// Determine language from GET parameter, cookie, or default to 'tr'
+$currentLang = isset($_GET['lang']) && in_array($_GET['lang'], ['tr', 'en']) 
+    ? $_GET['lang'] 
+    : (isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr'));
 
 // AJAX isteğinden etkinlik ID'sini al
 $etkinlik_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -21,6 +27,16 @@ try {
         exit;
     }
 
+    // Select title and description based on language
+    if ($currentLang == 'en' && !empty($etkinlik['baslik_en']) && !empty($etkinlik['aciklama_en'])) {
+        $display_baslik = $etkinlik['baslik_en'];
+        $display_aciklama = $etkinlik['aciklama_en'];
+    } else {
+        // Default to Turkish
+        $display_baslik = $etkinlik['baslik'];
+        $display_aciklama = $etkinlik['aciklama'];
+    }
+
     // Tarih ve saat formatını düzenle
     $tarih = new DateTime($etkinlik['tarih']);
     $tarih_formati = $tarih->format('d.m.Y');
@@ -28,7 +44,7 @@ try {
     // HTML çıktısı oluştur
     ?>
     <div class="etkinlik-detay-modal">
-        <h2><?= htmlspecialchars($etkinlik['baslik']) ?></h2>
+        <h2><?= htmlspecialchars($display_baslik) ?></h2>
         
         <div class="etkinlik-meta">
             <div class="meta-item">
@@ -46,7 +62,7 @@ try {
         </div>
         
         <div class="etkinlik-aciklama">
-            <p><?= nl2br(htmlspecialchars($etkinlik['aciklama'])) ?></p>
+            <p><?= nl2br(htmlspecialchars($display_aciklama)) ?></p>
         </div>
         
         <?php if (!empty($etkinlik['kayit_link'])): ?>

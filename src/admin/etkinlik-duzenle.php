@@ -6,6 +6,21 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     exit;
 }
 require_once '../db.php';
+
+// Ensure English columns exist
+try {
+    $columns = $pdo->query("SHOW COLUMNS FROM etkinlikler LIKE 'baslik_en'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE etkinlikler ADD COLUMN baslik_en VARCHAR(255) NULL AFTER baslik");
+    }
+    $columns = $pdo->query("SHOW COLUMNS FROM etkinlikler LIKE 'aciklama_en'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE etkinlikler ADD COLUMN aciklama_en LONGTEXT NULL AFTER aciklama");
+    }
+} catch (Exception $e) {
+    // Columns might already exist
+}
+
 $id = intval($_GET['id'] ?? 0);
 if ($id <= 0) die('Geçersiz ID!');
 $msg = '';
@@ -15,13 +30,15 @@ $etkinlik = $stmt->fetch();
 if (!$etkinlik) die('Etkinlik bulunamadı!');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $baslik = $_POST['baslik'] ?? '';
+    $baslik_en = $_POST['baslik_en'] ?? '';
     $aciklama = $_POST['aciklama'] ?? '';
+    $aciklama_en = $_POST['aciklama_en'] ?? '';
     $tarih = $_POST['tarih'] ?? '';
     $saat = $_POST['saat'] ?? '';
     $yer = $_POST['yer'] ?? '';
     $kayit_link = $_POST['kayit_link'] ?? '';
-    $stmt2 = $pdo->prepare('UPDATE etkinlikler SET baslik=?, aciklama=?, tarih=?, saat=?, yer=?, kayit_link=?, foto_link=NULL WHERE id=?');
-    $ok = $stmt2->execute([$baslik, $aciklama, $tarih, $saat, $yer, $kayit_link, $id]);
+    $stmt2 = $pdo->prepare('UPDATE etkinlikler SET baslik=?, baslik_en=?, aciklama=?, aciklama_en=?, tarih=?, saat=?, yer=?, kayit_link=?, foto_link=NULL WHERE id=?');
+    $ok = $stmt2->execute([$baslik, $baslik_en, $aciklama, $aciklama_en, $tarih, $saat, $yer, $kayit_link, $id]);
     if ($ok) {
         // Fotoğraf yükleme işlemi
         $upload_dir = __DIR__ . '/../uploads/etkinlikler/' . $id . '/';
@@ -62,13 +79,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1>Etkinlik Düzenle</h1>
     <?php if($msg): ?><div class="alert alert-success"><?= $msg ?></div><?php endif; ?>
     <form method="post" enctype="multipart/form-data" class="mb-4">
-        <div class="form-group mb-3">
-            <label>Başlık</label>
-            <input type="text" name="baslik" class="form-control" value="<?= htmlspecialchars($etkinlik['baslik']) ?>" required>
-        </div>
-        <div class="form-group mb-3">
-            <label>Açıklama</label>
-            <textarea name="aciklama" rows="3" class="form-control" required><?= htmlspecialchars($etkinlik['aciklama']) ?></textarea>
+        <!-- Language Tabs -->
+        <ul class="nav nav-tabs mb-4" id="langTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="tr-tab" data-toggle="tab" href="#tr-content" role="tab" aria-controls="tr-content" aria-selected="true">
+                    <i class="fas fa-flag"></i> Türkçe
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="en-tab" data-toggle="tab" href="#en-content" role="tab" aria-controls="en-content" aria-selected="false">
+                    <i class="fas fa-flag"></i> English
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content mb-4" id="langTabContent">
+            <!-- Turkish Tab -->
+            <div class="tab-pane fade show active" id="tr-content" role="tabpanel" aria-labelledby="tr-tab">
+                <div class="form-group mb-3">
+                    <label>Başlık (Türkçe) *</label>
+                    <input type="text" name="baslik" class="form-control" value="<?= htmlspecialchars($etkinlik['baslik']) ?>" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Açıklama (Türkçe)</label>
+                    <textarea name="aciklama" rows="5" class="form-control"><?= htmlspecialchars($etkinlik['aciklama']) ?></textarea>
+                </div>
+            </div>
+
+            <!-- English Tab -->
+            <div class="tab-pane fade" id="en-content" role="tabpanel" aria-labelledby="en-tab">
+                <div class="form-group mb-3">
+                    <label>Title (English)</label>
+                    <input type="text" name="baslik_en" class="form-control" value="<?= htmlspecialchars($etkinlik['baslik_en'] ?? '') ?>" placeholder="Optional: English title">
+                </div>
+                <div class="form-group mb-3">
+                    <label>Description (English)</label>
+                    <textarea name="aciklama_en" rows="5" class="form-control" placeholder="Optional: English description"><?= htmlspecialchars($etkinlik['aciklama_en'] ?? '') ?></textarea>
+                </div>
+            </div>
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
@@ -193,3 +242,5 @@ hr {
     }
 }
 </style>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>

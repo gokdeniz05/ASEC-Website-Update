@@ -19,6 +19,11 @@ if (session_status() === PHP_SESSION_NONE) {
             <h2 class="page-title"><?php echo __t('events.page.title'); ?></h2>
             <?php
             require_once 'db.php';
+            require_once 'includes/lang.php';
+            
+            // Determine language (use cookie from lang.php, fallback to 'tr')
+            $currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
+            
             $today = date('Y-m-d');
             $stmt = $pdo->prepare("SELECT * FROM etkinlikler ORDER BY tarih DESC");
             $stmt->execute();
@@ -29,7 +34,17 @@ if (session_status() === PHP_SESSION_NONE) {
                 <h3 class="section-title"><?php echo __t('events.upcoming.title'); ?></h3>
                 <div class="events-grid">
                 <?php foreach ($etkinlikler as $etkinlik):
-                    if ($etkinlik['tarih'] >= $today): ?>
+                    if ($etkinlik['tarih'] >= $today): 
+                        // Select title and description based on language
+                        if ($currentLang == 'en' && !empty($etkinlik['baslik_en']) && !empty($etkinlik['aciklama_en'])) {
+                            $display_baslik = $etkinlik['baslik_en'];
+                            $display_aciklama = $etkinlik['aciklama_en'];
+                        } else {
+                            // Default to Turkish
+                            $display_baslik = $etkinlik['baslik'];
+                            $display_aciklama = $etkinlik['aciklama'];
+                        }
+                    ?>
                     <div class="event-card upcoming">
                         <div class="event-date">
                             <?php $t = strtotime($etkinlik['tarih']); ?>
@@ -37,8 +52,8 @@ if (session_status() === PHP_SESSION_NONE) {
                             <span class="month"><?= strftime('%B', $t) ?></span>
                         </div>
                         <div class="event-details">
-                            <h4><?= htmlspecialchars($etkinlik['baslik']) ?></h4>
-                            <p class="event-description"><?= htmlspecialchars(mb_substr($etkinlik['aciklama'], 0, 120)) . (mb_strlen($etkinlik['aciklama']) > 120 ? '...' : '') ?></p>
+                            <h4><?= htmlspecialchars($display_baslik) ?></h4>
+                            <p class="event-description"><?= htmlspecialchars(mb_substr($display_aciklama, 0, 120)) . (mb_strlen($display_aciklama) > 120 ? '...' : '') ?></p>
                             <div class="event-info">
                                 <span><i class="fas fa-clock"></i> <?= htmlspecialchars($etkinlik['saat']) ?></span>
                                 <span><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($etkinlik['yer']) ?></span>
@@ -60,7 +75,17 @@ if (session_status() === PHP_SESSION_NONE) {
                 <h3 class="section-title"><?php echo __t('events.past.title'); ?></h3>
                 <div class="events-grid">
                 <?php foreach ($etkinlikler as $etkinlik):
-                    if ($etkinlik['tarih'] < $today): ?>
+                    if ($etkinlik['tarih'] < $today): 
+                        // Select title and description based on language
+                        if ($currentLang == 'en' && !empty($etkinlik['baslik_en']) && !empty($etkinlik['aciklama_en'])) {
+                            $display_baslik = $etkinlik['baslik_en'];
+                            $display_aciklama = $etkinlik['aciklama_en'];
+                        } else {
+                            // Default to Turkish
+                            $display_baslik = $etkinlik['baslik'];
+                            $display_aciklama = $etkinlik['aciklama'];
+                        }
+                    ?>
                     <div class="event-card past">
                         <div class="event-date">
                             <?php $t = strtotime($etkinlik['tarih']); ?>
@@ -68,8 +93,8 @@ if (session_status() === PHP_SESSION_NONE) {
                             <span class="month"><?= strftime('%B', $t) ?></span>
                         </div>
                         <div class="event-details">
-                            <h4><?= htmlspecialchars($etkinlik['baslik']) ?></h4>
-                            <p class="event-description"><?= htmlspecialchars(mb_substr($etkinlik['aciklama'], 0, 120)) . (mb_strlen($etkinlik['aciklama']) > 120 ? '...' : '') ?></p>
+                            <h4><?= htmlspecialchars($display_baslik) ?></h4>
+                            <p class="event-description"><?= htmlspecialchars(mb_substr($display_aciklama, 0, 120)) . (mb_strlen($display_aciklama) > 120 ? '...' : '') ?></p>
                             <div class="event-info">
                                 <span><i class="fas fa-clock"></i> <?= htmlspecialchars($etkinlik['saat']) ?></span>
                                 <span><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($etkinlik['yer']) ?></span>
@@ -122,8 +147,11 @@ if (session_status() === PHP_SESSION_NONE) {
                 modal.style.display = 'block';
                         modalContent.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> ' + <?php echo json_encode(__t('events.loading')); ?> + '</div>';
                 
-                // AJAX ile etkinlik detaylarını getir
-                fetch('ajax/etkinlik-detay-getir.php?id=' + etkinlikId)
+                // Get current language from cookie or default to 'tr'
+                const currentLang = document.cookie.match(/lang=([^;]+)/) ? document.cookie.match(/lang=([^;]+)/)[1] : 'tr';
+                
+                // AJAX ile etkinlik detaylarını getir (pass language parameter)
+                fetch('ajax/etkinlik-detay-getir.php?id=' + etkinlikId + '&lang=' + currentLang)
                     .then(response => response.text())
                     .then(data => {
                         modalContent.innerHTML = data;

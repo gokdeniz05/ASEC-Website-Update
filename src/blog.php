@@ -1,20 +1,14 @@
 <?php
-// Start main site session first (before admin config)
-require_once 'db.php';
+ob_start(); // Docker'da hata almamak için tamponlama
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    session_start(); // Oturumu başlat
 }
-require_once 'includes/lang.php';
-
-// Hata raporlama ayarları
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Veritabanı bağlantısı için admin config (mysqli connection for blog posts)
 require_once 'admin/includes/config.php';
 
-ob_start(); // Docker çıktı tamponlaması
+// Determine language (use cookie from lang.php, fallback to 'tr')
+// Note: lang.php will be included by header.php, but we need to ensure it's available
+require_once 'includes/lang.php';
+$currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
 
 // Blog yazılarını çek
 // Hata oluşursa betiği durdurmamak için try-catch eklenebilir veya basitçe sorgu çalıştırılır
@@ -40,6 +34,16 @@ $result = mysqli_query($conn, $sql);
                 <?php
                 if ($result && mysqli_num_rows($result) > 0) {
                     while($row = mysqli_fetch_assoc($result)) {
+                        // Select title and content based on language
+                        if ($currentLang == 'en' && !empty($row['title_en']) && !empty($row['content_en'])) {
+                            $display_title = $row['title_en'];
+                            $display_content = $row['content_en'];
+                        } else {
+                            // Default to Turkish
+                            $display_title = $row['title'];
+                            $display_content = $row['content'];
+                        }
+                        
                         $image_url = !empty($row['image_url']) ? $row['image_url'] : 'fotograflar/default-blog.jpg';
                         
                         // Resim yolunun başında / olup olmadığını kontrol edip düzeltme yapabiliriz
@@ -48,12 +52,12 @@ $result = mysqli_query($conn, $sql);
                         ?>
                         <article class="blog-card">
                             <div class="blog-image">
-                                <img src="<?php echo $display_img; ?>" alt="<?php echo htmlspecialchars($row['title']); ?>">
+                                <img src="<?php echo $display_img; ?>" alt="<?php echo htmlspecialchars($display_title); ?>">
                             </div>
                             <div class="category"><?php echo htmlspecialchars(!empty($row['category']) ? $row['category'] : (function_exists('__t') ? __t('blog.category.general') : 'Genel')); ?></div>
                             <div class="blog-content">
-                                <h3><?php echo htmlspecialchars($row['title']); ?></h3>
-                                <p class="blog-excerpt"><?php echo htmlspecialchars(substr(strip_tags($row['content']), 0, 150)) . '...'; ?></p>
+                                <h3><?php echo htmlspecialchars($display_title); ?></h3>
+                                <p class="blog-excerpt"><?php echo htmlspecialchars(substr(strip_tags($display_content), 0, 150)) . '...'; ?></p>
                                 <div class="blog-meta">
                                     <span class="date"><i class="far fa-calendar"></i> <?php echo date('d M Y', strtotime($row['created_at'])); ?></span>
                                     <span class="author"><i class="far fa-user"></i> <?php echo htmlspecialchars($row['author']); ?></span>

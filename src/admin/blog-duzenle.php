@@ -7,6 +7,20 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     exit;
 }
 
+// Ensure English columns exist
+try {
+    $columns = mysqli_query($conn, "SHOW COLUMNS FROM blog_posts LIKE 'title_en'");
+    if (mysqli_num_rows($columns) == 0) {
+        mysqli_query($conn, "ALTER TABLE blog_posts ADD COLUMN title_en VARCHAR(255) NULL AFTER title");
+    }
+    $columns = mysqli_query($conn, "SHOW COLUMNS FROM blog_posts LIKE 'content_en'");
+    if (mysqli_num_rows($columns) == 0) {
+        mysqli_query($conn, "ALTER TABLE blog_posts ADD COLUMN content_en LONGTEXT NULL AFTER content");
+    }
+} catch (Exception $e) {
+    // Columns might already exist
+}
+
 // ID kontrolü
 if(!isset($_GET["id"]) || empty(trim($_GET["id"]))){
     header("location: blog-yonetim.php");
@@ -14,7 +28,7 @@ if(!isset($_GET["id"]) || empty(trim($_GET["id"]))){
 }
 
 $id = trim($_GET["id"]);
-$title = $content = $image_url = $category = $author = "";
+$title = $content = $title_en = $content_en = $image_url = $category = $author = "";
 $title_err = $content_err = $image_err = "";
 
 // Blog yazısını getir
@@ -26,7 +40,9 @@ if($stmt = mysqli_prepare($conn, $sql)){
         if(mysqli_num_rows($result) == 1){
             $row = mysqli_fetch_array($result);
             $title = $row['title'];
+            $title_en = isset($row['title_en']) ? $row['title_en'] : '';
             $content = $row['content'];
+            $content_en = isset($row['content_en']) ? $row['content_en'] : '';
             $image_url = $row['image_url'];
             $category = !empty($row['category']) ? $row['category'] : 'Genel';
             $author = !empty($row['author']) ? $row['author'] : $_SESSION["username"];
@@ -48,6 +64,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $title = trim($_POST["title"]);
     }
     
+    // English title (optional)
+    $title_en = !empty($_POST["title_en"]) ? trim($_POST["title_en"]) : "";
+    
     // Kategori kontrolü
     $category = !empty($_POST["category"]) ? trim($_POST["category"]) : "Genel";
     
@@ -60,6 +79,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     } else {
         $content = trim($_POST["content"]);
     }
+    
+    // English content (optional)
+    $content_en = !empty($_POST["content_en"]) ? trim($_POST["content_en"]) : "";
     
     // Resim yükleme işlemi
     if(isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
@@ -100,10 +122,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     
     // Hata yoksa güncelle
     if(empty($title_err) && empty($content_err)){
-        $sql = "UPDATE blog_posts SET title=?, category=?, author=?, content=?, image_url=? WHERE id=?";
+        $sql = "UPDATE blog_posts SET title=?, title_en=?, category=?, author=?, content=?, content_en=?, image_url=? WHERE id=?";
         
         if($stmt = mysqli_prepare($conn, $sql)){
-            mysqli_stmt_bind_param($stmt, "sssssi", $title, $category, $author, $content, $image_url, $id);
+            mysqli_stmt_bind_param($stmt, "sssssssi", $title, $title_en, $category, $author, $content, $content_en, $image_url, $id);
             
             if(mysqli_stmt_execute($stmt)){
                 header("location: blog-yonetim.php?success=1");
@@ -192,42 +214,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     <div class="container-fluid">
         <div class="row">
-            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-                <div class="sidebar-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="dashboard.php">
-                                <i class="fas fa-home"></i>
-                                Ana Sayfa
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="blog-yonetim.php">
-                                <i class="fas fa-blog"></i>
-                                Blog
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="uyeler-yonetim.php">
-                                <i class="fas fa-users"></i>
-                                Üyeler
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="etkinlikler-yonetim.php">
-                                <i class="fas fa-calendar-alt"></i>
-                                Etkinlikler
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="duyurular-yonetim.php">
-                                <i class="fas fa-bullhorn"></i>
-                                Duyurular
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <?php include 'sidebar.php'; ?>
 
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -235,11 +222,54 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 </div>
 
                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>?id=<?php echo $id; ?>" method="post" class="blog-form" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label>Başlık</label>
-                        <input type="text" name="title" class="form-control <?php echo (!empty($title_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $title; ?>">
-                        <span class="invalid-feedback"><?php echo $title_err; ?></span>
+                    <!-- Language Tabs -->
+                    <ul class="nav nav-tabs mb-4" id="langTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" id="tr-tab" data-toggle="tab" href="#tr-content" role="tab" aria-controls="tr-content" aria-selected="true">
+                                <i class="fas fa-flag"></i> Türkçe
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="en-tab" data-toggle="tab" href="#en-content" role="tab" aria-controls="en-content" aria-selected="false">
+                                <i class="fas fa-flag"></i> English
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="langTabContent">
+                        <!-- Turkish Tab -->
+                        <div class="tab-pane fade show active" id="tr-content" role="tabpanel" aria-labelledby="tr-tab">
+                            <div class="form-group">
+                                <label>Başlık (Türkçe) *</label>
+                                <input type="text" name="title" class="form-control <?php echo (!empty($title_err)) ? 'is-invalid' : ''; ?>" value="<?php echo htmlspecialchars($title); ?>" required>
+                                <span class="invalid-feedback"><?php echo $title_err; ?></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>İçerik (Türkçe) *</label>
+                                <textarea name="content" id="summernote" class="form-control <?php echo (!empty($content_err)) ? 'is-invalid' : ''; ?>" required><?php echo htmlspecialchars($content); ?></textarea>
+                                <span class="invalid-feedback"><?php echo $content_err; ?></span>
+                            </div>
+                        </div>
+
+                        <!-- English Tab -->
+                        <div class="tab-pane fade" id="en-content" role="tabpanel" aria-labelledby="en-tab">
+                            <div class="form-group">
+                                <label>Title (English)</label>
+                                <input type="text" name="title_en" class="form-control" value="<?php echo htmlspecialchars($title_en); ?>" placeholder="Optional: English title">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Content (English)</label>
+                                <textarea name="content_en" id="summernote-en" class="form-control" placeholder="Optional: English content"><?php echo htmlspecialchars($content_en); ?></textarea>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Common Fields -->
+                    <hr class="my-4">
+                    <h5 class="mb-3">Genel Bilgiler</h5>
                     
                     <div class="form-group">
                         <label>Kategori</label>
@@ -256,7 +286,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     
                     <div class="form-group">
                         <label>Yazar</label>
-                        <input type="text" name="author" class="form-control" value="<?php echo $author; ?>" placeholder="Varsayılan: Giriş yapan kullanıcı">
+                        <input type="text" name="author" class="form-control" value="<?php echo htmlspecialchars($author); ?>" placeholder="Varsayılan: Giriş yapan kullanıcı">
                     </div>
                     
                     <div class="form-group">
@@ -272,12 +302,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                         <?php if(!empty($image_err)): ?>
                             <span class="text-danger"><?php echo $image_err; ?></span>
                         <?php endif; ?>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>İçerik</label>
-                        <textarea name="content" id="summernote" class="form-control <?php echo (!empty($content_err)) ? 'is-invalid' : ''; ?>"><?php echo $content; ?></textarea>
-                        <span class="invalid-feedback"><?php echo $content_err; ?></span>
                     </div>
                     
                     <div class="form-group">
@@ -298,6 +322,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Turkish editor
             $('#summernote').summernote({
                 height: 300,
                 toolbar: [
@@ -310,6 +335,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     ['view', ['fullscreen', 'codeview', 'help']]
                 ],
                 lang: 'tr-TR'
+            });
+            
+            // English editor
+            $('#summernote-en').summernote({
+                height: 300,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                lang: 'en-US'
             });
         });
     </script>

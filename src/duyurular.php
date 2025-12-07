@@ -20,6 +20,10 @@ require_once 'includes/lang.php';
             <h2 class="page-title"><?php echo __t('announcements.page.title'); ?></h2>
             <?php
             require_once 'db.php';
+            
+            // Determine language (use cookie from lang.php, fallback to 'tr')
+            $currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
+            
             $duyurular = $pdo->query('SELECT * FROM duyurular ORDER BY tarih DESC')->fetchAll();
             
             // Category translation mapping
@@ -47,6 +51,16 @@ require_once 'includes/lang.php';
             ?>
             <div class="announcements-grid">
                 <?php foreach($duyurular as $duyuru): 
+                    // Select title and content based on language
+                    if ($currentLang == 'en' && !empty($duyuru['baslik_en']) && !empty($duyuru['icerik_en'])) {
+                        $display_baslik = $duyuru['baslik_en'];
+                        $display_icerik = $duyuru['icerik_en'];
+                    } else {
+                        // Default to Turkish
+                        $display_baslik = $duyuru['baslik'];
+                        $display_icerik = $duyuru['icerik'];
+                    }
+                    
                     // Translate category name
                     $categoryDisplay = isset($categoryTranslations[$duyuru['kategori']]) 
                         ? $categoryTranslations[$duyuru['kategori']] 
@@ -65,8 +79,8 @@ require_once 'includes/lang.php';
                             <span class="badge"><?= $categoryDisplay ?></span>
                             <span class="date"><?= $formattedDate ?></span>
                         </div>
-                        <h3><?= htmlspecialchars($duyuru['baslik']) ?></h3>
-                        <p><?= htmlspecialchars($duyuru['icerik']) ?></p>
+                        <h3><?= htmlspecialchars($display_baslik) ?></h3>
+                        <p><?= htmlspecialchars($display_icerik) ?></p>
                         <?php if(!empty($duyuru['link'])): ?>
                             <a href="<?= htmlspecialchars($duyuru['link']) ?>" class="read-more" target="_blank"><?php echo __t('announcements.read_more'); ?> <i class="fas fa-arrow-right"></i></a>
                         <?php endif; ?>

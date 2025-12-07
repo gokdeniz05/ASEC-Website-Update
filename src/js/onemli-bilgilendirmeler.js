@@ -55,14 +55,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Detail content'i doldur
                     let html = '';
                     
+                    // Use display fields (language-aware) if available, otherwise fallback to original
+                    const displayBaslik = data.bilgi.display_baslik || data.bilgi.baslik;
+                    const displayAciklama = data.bilgi.display_aciklama || data.bilgi.aciklama;
+                    const displayIcerik = data.bilgi.display_icerik || data.bilgi.icerik;
+                    
                     if (data.bilgi.resim) {
-                        html += `<img src="uploads/onemli-bilgiler/${data.bilgi.resim}" alt="${data.bilgi.baslik}" class="detail-header-image">`;
+                        html += `<img src="uploads/onemli-bilgiler/${data.bilgi.resim}" alt="${escapeHtml(displayBaslik)}" class="detail-header-image">`;
                     }
                     
-                    html += `<h1 class="detail-title">${escapeHtml(data.bilgi.baslik)}</h1>`;
+                    html += `<h1 class="detail-title">${escapeHtml(displayBaslik)}</h1>`;
                     html += `<div class="detail-date"><i class="fas fa-calendar-alt"></i> ${formatDate(data.bilgi.tarih)}</div>`;
-                    html += `<p class="detail-description">${escapeHtml(data.bilgi.aciklama)}</p>`;
-                    html += `<div class="detail-icerik">${escapeHtml(data.bilgi.icerik).replace(/\n/g, '<br>')}</div>`;
+                    html += `<p class="detail-description">${escapeHtml(displayAciklama)}</p>`;
+                    html += `<div class="detail-icerik">${escapeHtml(displayIcerik).replace(/\n/g, '<br>')}</div>`;
                     
                     detailContent.innerHTML = html;
                     

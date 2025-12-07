@@ -20,6 +20,10 @@ if (session_status() === PHP_SESSION_NONE) {
             <h2 class="page-title">Önemli Bilgilendirmeler</h2>
             <?php
             require_once 'db.php';
+            require_once 'includes/lang.php';
+            
+            // Determine language (use cookie from lang.php, fallback to 'tr')
+            $currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
             
             // Create table if not exists
             $pdo->exec('CREATE TABLE IF NOT EXISTS onemli_bilgiler (
@@ -46,11 +50,21 @@ if (session_status() === PHP_SESSION_NONE) {
                         <p>Yakında önemli bilgilendirmeler burada yer alacaktır.</p>
                     </div>
                 <?php else: ?>
-                    <?php foreach($bilgiler as $bilgi): ?>
+                    <?php foreach($bilgiler as $bilgi): 
+                        // Select title, description, and content based on language
+                        if ($currentLang == 'en' && !empty($bilgi['baslik_en']) && !empty($bilgi['aciklama_en'])) {
+                            $display_baslik = $bilgi['baslik_en'];
+                            $display_aciklama = $bilgi['aciklama_en'];
+                        } else {
+                            // Default to Turkish
+                            $display_baslik = $bilgi['baslik'];
+                            $display_aciklama = $bilgi['aciklama'];
+                        }
+                    ?>
                         <div class="bilgi-card" data-id="<?= $bilgi['id'] ?>">
                             <?php if(!empty($bilgi['resim'])): ?>
                                 <div class="card-header-image">
-                                    <img src="uploads/onemli-bilgiler/<?= htmlspecialchars($bilgi['resim']) ?>" alt="<?= htmlspecialchars($bilgi['baslik']) ?>">
+                                    <img src="uploads/onemli-bilgiler/<?= htmlspecialchars($bilgi['resim']) ?>" alt="<?= htmlspecialchars($display_baslik) ?>">
                                 </div>
                             <?php else: ?>
                                 <div class="card-header-image placeholder">
@@ -58,8 +72,8 @@ if (session_status() === PHP_SESSION_NONE) {
                                 </div>
                             <?php endif; ?>
                             <div class="card-content">
-                                <h3 class="card-title"><?= htmlspecialchars($bilgi['baslik']) ?></h3>
-                                <p class="card-description"><?= htmlspecialchars($bilgi['aciklama']) ?></p>
+                                <h3 class="card-title"><?= htmlspecialchars($display_baslik) ?></h3>
+                                <p class="card-description"><?= htmlspecialchars($display_aciklama) ?></p>
                                 <div class="card-footer">
                                     <span class="card-date">
                                         <i class="fas fa-calendar-alt"></i>

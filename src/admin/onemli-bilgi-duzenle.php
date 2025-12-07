@@ -20,6 +20,24 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS onemli_bilgiler (
     INDEX idx_tarih (tarih)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
+// Ensure English columns exist
+try {
+    $columns = $pdo->query("SHOW COLUMNS FROM onemli_bilgiler LIKE 'baslik_en'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE onemli_bilgiler ADD COLUMN baslik_en VARCHAR(255) NULL AFTER baslik");
+    }
+    $columns = $pdo->query("SHOW COLUMNS FROM onemli_bilgiler LIKE 'aciklama_en'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE onemli_bilgiler ADD COLUMN aciklama_en TEXT NULL AFTER aciklama");
+    }
+    $columns = $pdo->query("SHOW COLUMNS FROM onemli_bilgiler LIKE 'icerik_en'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE onemli_bilgiler ADD COLUMN icerik_en LONGTEXT NULL AFTER icerik");
+    }
+} catch (Exception $e) {
+    // Columns might already exist
+}
+
 $id = intval($_GET['id'] ?? 0);
 if ($id <= 0) die('Geçersiz ID!');
 $msg = '';
@@ -30,8 +48,11 @@ if (!$bilgi) die('Bilgi bulunamadı!');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $baslik = $_POST['baslik'] ?? '';
+    $baslik_en = $_POST['baslik_en'] ?? '';
     $aciklama = $_POST['aciklama'] ?? '';
+    $aciklama_en = $_POST['aciklama_en'] ?? '';
     $icerik = $_POST['icerik'] ?? '';
+    $icerik_en = $_POST['icerik_en'] ?? '';
     $tarih = $_POST['tarih'] ?? '';
     
     $resim = $bilgi['resim']; // Keep existing image
@@ -58,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    $stmt2 = $pdo->prepare('UPDATE onemli_bilgiler SET baslik=?, aciklama=?, icerik=?, resim=?, tarih=? WHERE id=?');
-    $ok = $stmt2->execute([$baslik, $aciklama, $icerik, $resim, $tarih, $id]);
+    $stmt2 = $pdo->prepare('UPDATE onemli_bilgiler SET baslik=?, baslik_en=?, aciklama=?, aciklama_en=?, icerik=?, icerik_en=?, resim=?, tarih=? WHERE id=?');
+    $ok = $stmt2->execute([$baslik, $baslik_en, $aciklama, $aciklama_en, $icerik, $icerik_en, $resim, $tarih, $id]);
     $msg = $ok ? 'Bilgi güncellendi!' : 'Hata oluştu!';
     if ($ok) {
         header('Location: onemli-bilgiler-yonetim.php');
@@ -77,17 +98,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <h1>Önemli Bilgi Düzenle</h1>
       <?php if($msg): ?><div class="alert alert-<?= strpos($msg, 'güncellendi') !== false ? 'success' : 'danger' ?>"><?= $msg ?></div><?php endif; ?>
       <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
-        <div class="form-group mb-3">
-          <label>Başlık</label>
-          <input type="text" name="baslik" class="form-control" value="<?= htmlspecialchars($bilgi['baslik']) ?>" required>
-        </div>
-        <div class="form-group mb-3">
-          <label>Kısa Açıklama (2-3 satır için)</label>
-          <textarea name="aciklama" rows="3" class="form-control" required><?= htmlspecialchars($bilgi['aciklama']) ?></textarea>
-        </div>
-        <div class="form-group mb-3">
-          <label>İçerik (Detaylı)</label>
-          <textarea name="icerik" rows="10" class="form-control" required><?= htmlspecialchars($bilgi['icerik']) ?></textarea>
+        <!-- Language Tabs -->
+        <ul class="nav nav-tabs mb-4" id="langTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="tr-tab" data-toggle="tab" href="#tr-content" role="tab" aria-controls="tr-content" aria-selected="true">
+                    <i class="fas fa-flag"></i> Türkçe
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="en-tab" data-toggle="tab" href="#en-content" role="tab" aria-controls="en-content" aria-selected="false">
+                    <i class="fas fa-flag"></i> English
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content mb-4" id="langTabContent">
+            <!-- Turkish Tab -->
+            <div class="tab-pane fade show active" id="tr-content" role="tabpanel" aria-labelledby="tr-tab">
+                <div class="form-group mb-3">
+                    <label>Başlık (Türkçe) *</label>
+                    <input type="text" name="baslik" class="form-control" value="<?= htmlspecialchars($bilgi['baslik']) ?>" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Kısa Açıklama (Türkçe) *</label>
+                    <textarea name="aciklama" rows="3" class="form-control" required><?= htmlspecialchars($bilgi['aciklama']) ?></textarea>
+                </div>
+                <div class="form-group mb-3">
+                    <label>İçerik (Detaylı - Türkçe) *</label>
+                    <textarea name="icerik" rows="10" class="form-control" required><?= htmlspecialchars($bilgi['icerik']) ?></textarea>
+                </div>
+            </div>
+
+            <!-- English Tab -->
+            <div class="tab-pane fade" id="en-content" role="tabpanel" aria-labelledby="en-tab">
+                <div class="form-group mb-3">
+                    <label>Title (English)</label>
+                    <input type="text" name="baslik_en" class="form-control" value="<?= htmlspecialchars($bilgi['baslik_en'] ?? '') ?>" placeholder="Optional: English title">
+                </div>
+                <div class="form-group mb-3">
+                    <label>Short Description (English)</label>
+                    <textarea name="aciklama_en" rows="3" class="form-control" placeholder="Optional: English short description"><?= htmlspecialchars($bilgi['aciklama_en'] ?? '') ?></textarea>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Content (Detailed - English)</label>
+                    <textarea name="icerik_en" rows="10" class="form-control" placeholder="Optional: English detailed content"><?= htmlspecialchars($bilgi['icerik_en'] ?? '') ?></textarea>
+                </div>
+            </div>
         </div>
         <div class="form-group mb-3">
           <label>Resim (Dikdörtgen header resmi)</label>
@@ -109,6 +166,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 </main>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
 .admin-form-container {

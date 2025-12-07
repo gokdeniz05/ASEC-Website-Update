@@ -6,17 +6,34 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     exit;
 }
 require_once '../db.php';
+
+// Ensure English columns exist
+try {
+    $columns = $pdo->query("SHOW COLUMNS FROM etkinlikler LIKE 'baslik_en'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE etkinlikler ADD COLUMN baslik_en VARCHAR(255) NULL AFTER baslik");
+    }
+    $columns = $pdo->query("SHOW COLUMNS FROM etkinlikler LIKE 'aciklama_en'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE etkinlikler ADD COLUMN aciklama_en LONGTEXT NULL AFTER aciklama");
+    }
+} catch (Exception $e) {
+    // Columns might already exist
+}
+
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $baslik = $_POST['baslik'] ?? '';
+    $baslik_en = $_POST['baslik_en'] ?? '';
     $aciklama = $_POST['aciklama'] ?? '';
+    $aciklama_en = $_POST['aciklama_en'] ?? '';
     $tarih = $_POST['tarih'] ?? '';
     $saat = $_POST['saat'] ?? '';
     $yer = $_POST['yer'] ?? '';
     $kayit_link = $_POST['kayit_link'] ?? '';
     // Etkinlik kaydı
-    $stmt = $pdo->prepare('INSERT INTO etkinlikler (baslik, aciklama, tarih, saat, yer, kayit_link, foto_link) VALUES (?, ?, ?, ?, ?, ?, NULL)');
-    $ok = $stmt->execute([$baslik, $aciklama, $tarih, $saat, $yer, $kayit_link]);
+    $stmt = $pdo->prepare('INSERT INTO etkinlikler (baslik, baslik_en, aciklama, aciklama_en, tarih, saat, yer, kayit_link, foto_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL)');
+    $ok = $stmt->execute([$baslik, $baslik_en, $aciklama, $aciklama_en, $tarih, $saat, $yer, $kayit_link]);
     if ($ok) {
         $etkinlik_id = $pdo->lastInsertId();
         $msg = 'Etkinlik başarıyla eklendi!';
@@ -58,13 +75,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <h1>Etkinlik Ekle</h1>
       <?php if($msg): ?><div class="alert alert-success"><?= $msg ?></div><?php endif; ?>
       <form method="post" enctype="multipart/form-data">
-        <div class="form-group">
-          <label>Başlık</label>
-          <input type="text" name="baslik" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label>Açıklama</label>
-            <textarea name="aciklama" rows="3" class="form-control"></textarea>
+        <!-- Language Tabs -->
+        <ul class="nav nav-tabs mb-4" id="langTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="tr-tab" data-toggle="tab" href="#tr-content" role="tab" aria-controls="tr-content" aria-selected="true">
+                    <i class="fas fa-flag"></i> Türkçe
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="en-tab" data-toggle="tab" href="#en-content" role="tab" aria-controls="en-content" aria-selected="false">
+                    <i class="fas fa-flag"></i> English
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content mb-4" id="langTabContent">
+            <!-- Turkish Tab -->
+            <div class="tab-pane fade show active" id="tr-content" role="tabpanel" aria-labelledby="tr-tab">
+                <div class="form-group">
+                    <label>Başlık (Türkçe) *</label>
+                    <input type="text" name="baslik" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Açıklama (Türkçe)</label>
+                    <textarea name="aciklama" rows="5" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <!-- English Tab -->
+            <div class="tab-pane fade" id="en-content" role="tabpanel" aria-labelledby="en-tab">
+                <div class="form-group">
+                    <label>Title (English)</label>
+                    <input type="text" name="baslik_en" class="form-control" placeholder="Optional: English title">
+                </div>
+                <div class="form-group">
+                    <label>Description (English)</label>
+                    <textarea name="aciklama_en" rows="5" class="form-control" placeholder="Optional: English description"></textarea>
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <label>Tarih</label>
@@ -90,5 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button class="btn btn-primary" type="submit">Kaydet</button>
     </form>
 </div>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
