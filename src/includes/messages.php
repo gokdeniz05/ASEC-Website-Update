@@ -55,6 +55,32 @@ function getSenderName($pdo, $sender_id, $sender_type) {
 }
 
 /**
+ * Get receiver name based on receiver type and ID
+ * @param PDO $pdo Database connection
+ * @param int $receiver_id Receiver ID
+ * @param string $receiver_type Receiver type ('individual' or 'corporate')
+ * @return string Receiver name
+ */
+function getReceiverName($pdo, $receiver_id, $receiver_type) {
+    try {
+        if ($receiver_type === 'corporate') {
+            $stmt = $pdo->prepare('SELECT company_name FROM corporate_users WHERE id = ?');
+            $stmt->execute([$receiver_id]);
+            $result = $stmt->fetch();
+            return $result ? htmlspecialchars($result['company_name']) : 'Unknown Corporate User';
+        } else {
+            $stmt = $pdo->prepare('SELECT name FROM users WHERE id = ?');
+            $stmt->execute([$receiver_id]);
+            $result = $stmt->fetch();
+            return $result ? htmlspecialchars($result['name']) : 'Unknown User';
+        }
+    } catch (PDOException $e) {
+        error_log("Error getting receiver name: " . $e->getMessage());
+        return 'Unknown User';
+    }
+}
+
+/**
  * Send a message
  * @param PDO $pdo Database connection
  * @param int $receiver_id Receiver ID
