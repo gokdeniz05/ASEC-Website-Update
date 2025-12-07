@@ -15,6 +15,38 @@ if (file_exists(__DIR__ . '/includes/lang.php')) {
 if (!function_exists('__t')) {
     function __t($key) { return $key; }
 }
+// Messages helper functions
+if (file_exists(__DIR__ . '/includes/messages.php')) {
+    require_once __DIR__ . '/includes/messages.php';
+}
+// Initialize unread count (only if user is logged in)
+$unread_count = 0;
+if (isset($_SESSION['user'])) {
+    // Ensure db connection exists
+    if (!isset($pdo)) {
+        require_once __DIR__ . '/db.php';
+    }
+    // Ensure messages table exists
+    try {
+        $pdo->exec('CREATE TABLE IF NOT EXISTS messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            sender_id INT NOT NULL,
+            sender_type ENUM(\'individual\', \'corporate\') NOT NULL,
+            receiver_id INT NOT NULL,
+            receiver_type ENUM(\'individual\', \'corporate\') NOT NULL,
+            subject VARCHAR(255) NOT NULL,
+            message_body TEXT NOT NULL,
+            is_read TINYINT(1) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_receiver (receiver_id, receiver_type, is_read),
+            INDEX idx_sender (sender_id, sender_type),
+            INDEX idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+    } catch (PDOException $e) {
+        error_log("Error creating messages table in header: " . $e->getMessage());
+    }
+    $unread_count = getUnreadMessageCount($pdo);
+}
 
 // MANDATORY CV ENFORCEMENT FOR INDIVIDUAL USERS
 // This check runs on all pages that include header.php
@@ -180,6 +212,12 @@ if (isset($_SESSION['user']) && isset($_SESSION['user_type']) && $_SESSION['user
                         <i class="fas fa-building"></i> <span class="corporate-panel-text">Kurumsal Panel</span>
                     </a>
                 <?php endif; ?>
+				<a href="mailbox.php" class="btn-login mailbox-icon-btn" style="position: relative;">
+					<i class="fas fa-envelope"></i>
+					<?php if ($unread_count > 0): ?>
+						<span class="mailbox-badge"><?php echo $unread_count > 99 ? '99+' : $unread_count; ?></span>
+					<?php endif; ?>
+				</a>
 				<a href="profilim" class="btn-login"><i class="fas fa-user"></i> <?php echo __t('auth.profile'); ?></a>
 				<a href="logout" class="btn-register"><i class="fas fa-sign-out-alt"></i> <?php echo __t('auth.logout'); ?></a>
             </div>

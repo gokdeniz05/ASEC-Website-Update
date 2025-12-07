@@ -1,0 +1,111 @@
+<?php
+/**
+ * Messages Helper Functions
+ * Functions for handling mailbox/messaging system
+ */
+
+/**
+ * Get unread message count for the currently logged-in user
+ * @param PDO $pdo Database connection
+ * @return int Number of unread messages
+ */
+function getUnreadMessageCount($pdo) {
+    if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type'])) {
+        return 0;
+    }
+    
+    $user_id = $_SESSION['user_id'];
+    $user_type = $_SESSION['user_type'];
+    
+    try {
+        $stmt = $pdo->prepare('SELECT COUNT(*) as count FROM messages WHERE receiver_id = ? AND receiver_type = ? AND is_read = 0');
+        $stmt->execute([$user_id, $user_type]);
+        $result = $stmt->fetch();
+        return (int)($result['count'] ?? 0);
+    } catch (PDOException $e) {
+        error_log("Error getting unread message count: " . $e->getMessage());
+        return 0;
+    }
+}
+
+/**
+ * Get sender name based on sender type and ID
+ * @param PDO $pdo Database connection
+ * @param int $sender_id Sender ID
+ * @param string $sender_type Sender type ('individual' or 'corporate')
+ * @return string Sender name
+ */
+function getSenderName($pdo, $sender_id, $sender_type) {
+    try {
+        if ($sender_type === 'corporate') {
+            $stmt = $pdo->prepare('SELECT company_name FROM corporate_users WHERE id = ?');
+            $stmt->execute([$sender_id]);
+            $result = $stmt->fetch();
+            return $result ? htmlspecialchars($result['company_name']) : 'Unknown Corporate User';
+        } else {
+            $stmt = $pdo->prepare('SELECT name FROM users WHERE id = ?');
+            $stmt->execute([$sender_id]);
+            $result = $stmt->fetch();
+            return $result ? htmlspecialchars($result['name']) : 'Unknown User';
+        }
+    } catch (PDOException $e) {
+        error_log("Error getting sender name: " . $e->getMessage());
+        return 'Unknown User';
+    }
+}
+
+/**
+ * Send a message
+ * @param PDO $pdo Database connection
+ * @param int $receiver_id Receiver ID
+ * @param string $receiver_type Receiver type ('individual' or 'corporate')
+ * @param string $subject Message subject
+ * @param string $message_body Message body
+ * @return bool Success status
+ */
+function sendMessage($pdo, $receiver_id, $receiver_type, $subject, $message_body) {
+    if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type'])) {
+        return false;
+    }
+    
+    $sender_id = $_SESSION['user_id'];
+    $sender_type = $_SESSION['user_type'];
+    
+    // Validate that sender and receiver are different
+    if ($sender_id == $receiver_id && $sender_type == $receiver_type) {
+        return false;
+    }
+    
+    try {
+        $stmt = $pdo->prepare('INSERT INTO messages (sender_id, sender_type, receiver_id, receiver_type, subject, message_body) VALUES (?, ?, ?, ?, ?, ?)');
+        return $stmt->execute([$sender_id, $sender_type, $receiver_id, $receiver_type, $subject, $message_body]);
+    } catch (PDOException $e) {
+        error_log("Error sending message: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Mark message as read
+ * @param PDO $pdo Database connection
+ * @param int $message_id Message ID
+ * @return bool Success status
+ */
+function markMessageAsRead($pdo, $message_id) {
+    if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type'])) {
+        return false;
+    }
+    
+    $user_id = $_SESSION['user_id'];
+    $user_type = $_SESSION['user_type'];
+    
+    try {
+        // Only mark as read if the current user is the receiver
+        $stmt = $pdo->prepare('UPDATE messages SET is_read = 1 WHERE id = ? AND receiver_id = ? AND receiver_type = ?');
+        return $stmt->execute([$message_id, $user_id, $user_type]);
+    } catch (PDOException $e) {
+        error_log("Error marking message as read: " . $e->getMessage());
+        return false;
+    }
+}
+

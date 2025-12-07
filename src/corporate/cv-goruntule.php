@@ -64,8 +64,8 @@ if (!file_exists($cvPath)) {
                         <a href="<?= htmlspecialchars($cvPath) ?>" download class="btn btn-primary btn-lg corporate-action-btn">
                             <i class="fas fa-download mr-2"></i>CV'yi İndir
                         </a>
-                        <a href="mailto:<?= htmlspecialchars($user['email']) ?>" class="btn btn-success btn-lg corporate-action-btn">
-                            <i class="fas fa-envelope mr-2"></i>E-posta Gönder
+                        <a href="../message-compose.php?receiver_id=<?= $user_id ?>&receiver_type=individual" class="btn btn-success btn-lg corporate-action-btn">
+                            <i class="fas fa-envelope mr-2"></i>Mesaj Gönder
                         </a>
                     </div>
                 </div>

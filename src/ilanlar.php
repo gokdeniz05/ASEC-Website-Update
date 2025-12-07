@@ -23,6 +23,20 @@ try {
     // Only show approved announcements
     // Admin-created announcements (corporate_user_id IS NULL) are automatically approved
     // Corporate-created announcements must be approved (exist in ilanlar table means approved)
+    // Ensure corporate_user_id and user_id columns exist
+    try {
+        $columns = $pdo->query("SHOW COLUMNS FROM ilanlar")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('corporate_user_id', $columns)) {
+            $pdo->exec("ALTER TABLE ilanlar ADD COLUMN corporate_user_id INT NULL AFTER id");
+            $pdo->exec("ALTER TABLE ilanlar ADD INDEX idx_corporate_user_id (corporate_user_id)");
+        }
+        if (!in_array('user_id', $columns)) {
+            $pdo->exec("ALTER TABLE ilanlar ADD COLUMN user_id INT NULL AFTER id");
+            $pdo->exec("ALTER TABLE ilanlar ADD INDEX idx_user_id (user_id)");
+        }
+    } catch (PDOException $e) {
+        // Columns might already exist, continue
+    }
     $stmt = $pdo->query('SELECT * FROM ilanlar ORDER BY tarih DESC');
     $allIlanlar = $stmt->fetchAll();
     
@@ -104,6 +118,38 @@ try {
                                     <?php if(!empty($ilan['link'])): ?>
                                         <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
+                                    <?php
+                                    // Determine receiver for message button
+                                    $receiver_id = null;
+                                    $receiver_type = null;
+                                    $show_message_button = false;
+                                    
+                                    if (!empty($ilan['corporate_user_id'])) {
+                                        $receiver_id = $ilan['corporate_user_id'];
+                                        $receiver_type = 'corporate';
+                                        // Don't show if current user is the corporate owner
+                                        if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $receiver_id || $_SESSION['user_type'] != 'corporate') {
+                                            $show_message_button = true;
+                                        }
+                                    } elseif (!empty($ilan['user_id'])) {
+                                        $receiver_id = $ilan['user_id'];
+                                        $receiver_type = 'individual';
+                                        // Don't show if current user is the individual owner
+                                        if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $receiver_id || $_SESSION['user_type'] != 'individual') {
+                                            $show_message_button = true;
+                                        }
+                                    }
+                                    
+                                    if ($show_message_button):
+                                        $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
+                                        if (!empty($ilan['baslik'])) {
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
+                                        }
+                                    ?>
+                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
+                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                        </a>
+                                    <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -139,6 +185,38 @@ try {
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
                                         <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
+                                    <?php endif; ?>
+                                    <?php
+                                    // Determine receiver for message button
+                                    $receiver_id = null;
+                                    $receiver_type = null;
+                                    $show_message_button = false;
+                                    
+                                    if (!empty($ilan['corporate_user_id'])) {
+                                        $receiver_id = $ilan['corporate_user_id'];
+                                        $receiver_type = 'corporate';
+                                        // Don't show if current user is the corporate owner
+                                        if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $receiver_id || $_SESSION['user_type'] != 'corporate') {
+                                            $show_message_button = true;
+                                        }
+                                    } elseif (!empty($ilan['user_id'])) {
+                                        $receiver_id = $ilan['user_id'];
+                                        $receiver_type = 'individual';
+                                        // Don't show if current user is the individual owner
+                                        if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $receiver_id || $_SESSION['user_type'] != 'individual') {
+                                            $show_message_button = true;
+                                        }
+                                    }
+                                    
+                                    if ($show_message_button):
+                                        $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
+                                        if (!empty($ilan['baslik'])) {
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
+                                        }
+                                    ?>
+                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
+                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                        </a>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -206,6 +284,38 @@ try {
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
                                         <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
+                                    <?php endif; ?>
+                                    <?php
+                                    // Determine receiver for message button
+                                    $receiver_id = null;
+                                    $receiver_type = null;
+                                    $show_message_button = false;
+                                    
+                                    if (!empty($ilan['corporate_user_id'])) {
+                                        $receiver_id = $ilan['corporate_user_id'];
+                                        $receiver_type = 'corporate';
+                                        // Don't show if current user is the corporate owner
+                                        if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $receiver_id || $_SESSION['user_type'] != 'corporate') {
+                                            $show_message_button = true;
+                                        }
+                                    } elseif (!empty($ilan['user_id'])) {
+                                        $receiver_id = $ilan['user_id'];
+                                        $receiver_type = 'individual';
+                                        // Don't show if current user is the individual owner
+                                        if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $receiver_id || $_SESSION['user_type'] != 'individual') {
+                                            $show_message_button = true;
+                                        }
+                                    }
+                                    
+                                    if ($show_message_button):
+                                        $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
+                                        if (!empty($ilan['baslik'])) {
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
+                                        }
+                                    ?>
+                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
+                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                        </a>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
