@@ -22,6 +22,34 @@ $uye = $result->fetch_assoc();
 if (!$uye) {
     die('Üye bulunamadı.');
 }
+
+// CV bilgisini ayrı tablodan çek (tüm profil verileri ile)
+$cv_sql = "SELECT major, languages, software_fields, companies, cv_filename FROM user_cv_profiles WHERE user_id = ?";
+$cv_stmt = $conn->prepare($cv_sql);
+$cv_stmt->bind_param('i', $id);
+$cv_stmt->execute();
+$cv_result = $cv_stmt->get_result();
+$cv_data = $cv_result->fetch_assoc();
+
+// JSON verilerini decode et
+$languages = [];
+$software_fields = [];
+$companies = [];
+
+if ($cv_data) {
+    if (!empty($cv_data['languages'])) {
+        $decoded = json_decode($cv_data['languages'], true);
+        $languages = is_array($decoded) ? $decoded : [];
+    }
+    if (!empty($cv_data['software_fields'])) {
+        $decoded = json_decode($cv_data['software_fields'], true);
+        $software_fields = is_array($decoded) ? $decoded : [];
+    }
+    if (!empty($cv_data['companies'])) {
+        $decoded = json_decode($cv_data['companies'], true);
+        $companies = is_array($decoded) ? $decoded : [];
+    }
+}
 ?>
 <main class="container-fluid">
     <div class="row">
@@ -62,18 +90,86 @@ if (!$uye) {
             <li class="list-group-item px-0 py-1"><strong>LinkedIn:</strong> <?php echo htmlspecialchars($uye['linkedin']); ?></li>
             <li class="list-group-item px-0 py-1"><strong>Başarılar:</strong> <?php echo nl2br(htmlspecialchars($uye['achievements'])); ?></li>
             <li class="list-group-item px-0 py-1"><strong>CV:</strong> <?php
-                $cv_path = '../uploads/cv/' . htmlspecialchars($uye['cv']);
-                if ($uye['cv'] && file_exists($cv_path)) {
-                    echo '<a href="' . $cv_path . '" target="_blank" class="btn btn-sm btn-outline-primary ml-2"><i class="fas fa-file-alt"></i> CV Görüntüle</a>';
-                } elseif ($uye['cv']) {
-                    echo '<span class="text-danger ml-2">CV dosyası bulunamadı!</span>';
+                if ($cv_data && !empty($cv_data['cv_filename'])) {
+                    $cv_path = '../uploads/cv/' . htmlspecialchars($cv_data['cv_filename']);
+                    if (file_exists($cv_path)) {
+                        echo '<a href="' . $cv_path . '" target="_blank" class="btn btn-sm btn-outline-primary ml-2"><i class="fas fa-file-alt"></i> CV Görüntüle</a>';
+                    } else {
+                        echo '<span class="text-danger ml-2">CV dosyası bulunamadı!</span>';
+                    }
                 } else {
-                    echo '<span class="text-muted ml-2">-</span>';
+                    echo '<span class="text-muted ml-2">CV Yok</span>';
                 }
             ?></li>
         </ul>
     </div>
 </div>
+
+            <!-- Professional Profile Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-briefcase"></i> Profesyonel Profil</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Major/Field of Study -->
+                    <?php if (!empty($cv_data) && !empty($cv_data['major'])): ?>
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2"><i class="fas fa-graduation-cap"></i> Uzmanlık Alanı</h6>
+                        <p class="mb-0"><?php echo htmlspecialchars($cv_data['major']); ?></p>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Programming Languages -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2"><i class="fas fa-code"></i> Programlama Dilleri</h6>
+                        <?php if (!empty($languages)): ?>
+                            <div class="d-flex flex-wrap">
+                                <?php foreach ($languages as $lang): ?>
+                                    <span class="badge badge-primary mr-2 mb-2" style="background-color: #2d3a8c; padding: 8px 12px; font-size: 0.9rem;">
+                                        <?php echo htmlspecialchars($lang); ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-muted mb-0"><em>Programlama dili bilgisi girilmemiş</em></p>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Software/Interest Areas -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2"><i class="fas fa-laptop-code"></i> Yazılım/İlgi Alanları</h6>
+                        <?php if (!empty($software_fields)): ?>
+                            <div class="d-flex flex-wrap">
+                                <?php foreach ($software_fields as $field): ?>
+                                    <span class="badge badge-info mr-2 mb-2" style="background-color: #17a2b8; padding: 8px 12px; font-size: 0.9rem;">
+                                        <?php echo htmlspecialchars($field); ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-muted mb-0"><em>Yazılım alanı bilgisi girilmemiş</em></p>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Work Experience / Companies -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2"><i class="fas fa-building"></i> Çalışma Deneyimi</h6>
+                        <?php if (!empty($companies)): ?>
+                            <ul class="list-unstyled mb-0">
+                                <?php foreach ($companies as $company): ?>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success mr-2"></i>
+                                        <strong><?php echo htmlspecialchars($company); ?></strong>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p class="text-muted mb-0"><em>Çalışma deneyimi bilgisi girilmemiş</em></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
                 <a href="uyeler-yonetim.php" class="btn btn-secondary mt-4"><i class="fas fa-arrow-left"></i> Geri Dön</a>
             </div>
         </div>

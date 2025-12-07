@@ -8,18 +8,19 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="blog-yonetim.php">
-                    <i class="fas fa-blog"></i> Blog
+                <a class="nav-link" href="uyeler-yonetim.php">
+                    <i class="fas fa-users"></i> Üyeler
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="uyeler-yonetim.php">
-                    <i class="fas fa-users"></i> Üyeler
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'cv-filtrele.php' ? 'active' : ''; ?>" href="cv-filtrele.php">
+                    <i class="fas fa-search"></i> CV Filtreleme
                 </a>
             </li>
             <?php
             $current_page = basename($_SERVER['PHP_SELF']);
             $yonetim_pages = [
+                'blog-yonetim.php', 'blog-ekle.php', 'blog-duzenle.php',
                 'etkinlikler-yonetim.php', 'etkinlik-ekle.php', 'etkinlik-duzenle.php',
                 'duyurular-yonetim.php', 'duyuru-ekle.php', 'duyuru-duzenle.php',
                 'onemli-bilgiler-yonetim.php', 'onemli-bilgi-ekle.php', 'onemli-bilgi-duzenle.php',
@@ -36,28 +37,33 @@
                 </a>
                 <ul class="nav flex-column submenu yonetim-submenu <?php echo $is_yonetim_expanded; ?>" style="<?php echo $is_yonetim_expanded ? '' : 'display: none;'; ?>">
                     <li class="nav-item">
+                        <a class="nav-link <?php echo (in_array($current_page, ['blog-yonetim.php', 'blog-ekle.php', 'blog-duzenle.php'])) ? 'active' : ''; ?>" href="blog-yonetim.php">
+                            <i class="fas fa-blog"></i> Blog
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link <?php echo (in_array($current_page, ['etkinlikler-yonetim.php', 'etkinlik-ekle.php', 'etkinlik-duzenle.php'])) ? 'active' : ''; ?>" href="etkinlikler-yonetim.php">
-                            <i class="fas fa-calendar-alt"></i> Etkinlikler Yönetim
+                            <i class="fas fa-calendar-alt"></i> Etkinlikler
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo (in_array($current_page, ['duyurular-yonetim.php', 'duyuru-ekle.php', 'duyuru-duzenle.php'])) ? 'active' : ''; ?>" href="duyurular-yonetim.php">
-                            <i class="fas fa-bullhorn"></i> Duyurular Yönetim
+                            <i class="fas fa-bullhorn"></i> Duyurular
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo (in_array($current_page, ['onemli-bilgiler-yonetim.php', 'onemli-bilgi-ekle.php', 'onemli-bilgi-duzenle.php'])) ? 'active' : ''; ?>" href="onemli-bilgiler-yonetim.php">
-                            <i class="fas fa-info-circle"></i> Önemli Bilgiler Yönetimi
+                            <i class="fas fa-info-circle"></i> Önemli Bilgiler
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo (in_array($current_page, ['ilanlar-yonetim.php', 'ilan-ekle.php', 'ilan-duzenle.php'])) ? 'active' : ''; ?>" href="ilanlar-yonetim.php">
-                            <i class="fas fa-briefcase"></i> İlanlar Yönetim
+                            <i class="fas fa-briefcase"></i> İlanlar
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo (in_array($current_page, ['galeri-yonetim.php', 'galeri-duzenle.php'])) ? 'active' : ''; ?>" href="galeri-yonetim.php">
-                            <i class="fas fa-image"></i> Galeri Yönetim
+                            <i class="fas fa-image"></i> Galeri
                         </a>
                     </li>
                 </ul>
