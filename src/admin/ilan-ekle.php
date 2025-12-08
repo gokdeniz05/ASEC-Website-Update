@@ -36,6 +36,9 @@ try {
             'baslik' => ['type' => 'VARCHAR(255)', 'nullable' => false],
             'icerik' => ['type' => 'TEXT', 'nullable' => false],
             'kategori' => ['type' => 'VARCHAR(100)', 'nullable' => false],
+            'baslik_en' => ['type' => 'VARCHAR(255)', 'nullable' => true],
+            'icerik_en' => ['type' => 'TEXT', 'nullable' => true],
+            'nitelikler_en' => ['type' => 'TEXT', 'nullable' => true],
             'tarih' => ['type' => 'DATE', 'nullable' => false],
             'link' => ['type' => 'VARCHAR(500)', 'nullable' => true],
             'sirket' => ['type' => 'VARCHAR(255)', 'nullable' => true],
@@ -91,7 +94,10 @@ $success = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $baslik = trim($_POST['baslik'] ?? '');
+        $baslik_en = trim($_POST['baslik_en'] ?? '');
         $icerik = trim($_POST['icerik'] ?? '');
+        $icerik_en = trim($_POST['icerik_en'] ?? '');
+        $nitelikler_en = trim($_POST['nitelikler_en'] ?? '');
         $kategori = trim($_POST['kategori'] ?? '');
         $tarih = $_POST['tarih'] ?? date('Y-m-d');
         $link = trim($_POST['link'] ?? '');
@@ -126,6 +132,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (in_array('icerik', $columns)) {
                 $insertColumns[] = 'icerik';
                 $insertValues[] = $icerik;
+                $placeholders[] = '?';
+            }
+            if (in_array('baslik_en', $columns)) {
+                $insertColumns[] = 'baslik_en';
+                $insertValues[] = $baslik_en ?? null;
+                $placeholders[] = '?';
+            }
+            if (in_array('icerik_en', $columns)) {
+                $insertColumns[] = 'icerik_en';
+                $insertValues[] = $icerik_en ?? null;
+                $placeholders[] = '?';
+            }
+            if (in_array('nitelikler_en', $columns)) {
+                $insertColumns[] = 'nitelikler_en';
+                $insertValues[] = $nitelikler_en ?? null;
                 $placeholders[] = '?';
             }
             if (in_array('kategori', $columns)) {
@@ -195,25 +216,52 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
       <?php if($msg): ?><div class="alert alert-success alert-dismissible fade show" role="alert"><?= htmlspecialchars($msg) ?><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div><?php endif; ?>
       <?php if($error): ?><div class="alert alert-danger alert-dismissible fade show" role="alert"><?= htmlspecialchars($error) ?><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div><?php endif; ?>
       <form method="post" class="bg-white p-4 rounded shadow-sm">
-        <div class="row">
-          <div class="col-md-6">
+        <!-- Language Tabs -->
+        <ul class="nav nav-tabs mb-4" id="jobLangTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="job-tr-tab" data-toggle="tab" href="#content-tr" role="tab" aria-controls="content-tr" aria-selected="true">🇹🇷 Türkçe</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="job-en-tab" data-toggle="tab" href="#content-en" role="tab" aria-controls="content-en" aria-selected="false">🇬🇧 English</a>
+          </li>
+        </ul>
+
+        <div class="tab-content mb-4" id="jobLangTabContent">
+          <div class="tab-pane fade show active" id="content-tr" role="tabpanel" aria-labelledby="job-tr-tab">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label>Başlık <span class="text-danger">*</span></label>
+                  <input type="text" name="baslik" class="form-control" required value="<?= htmlspecialchars($_POST['baslik'] ?? '') ?>">
+                </div>
+              </div>
+            </div>
             <div class="form-group mb-3">
-              <label>Başlık <span class="text-danger">*</span></label>
-              <input type="text" name="baslik" class="form-control" required value="<?= htmlspecialchars($_POST['baslik'] ?? '') ?>">
+              <label>İçerik <span class="text-danger">*</span></label>
+              <textarea name="icerik" rows="5" class="form-control" required placeholder="İlan detaylarını buraya yazın..."><?= htmlspecialchars($_POST['icerik'] ?? '') ?></textarea>
             </div>
           </div>
-          <div class="col-md-6">
+
+          <div class="tab-pane fade" id="content-en" role="tabpanel" aria-labelledby="job-en-tab">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label>Başlık (EN)</label>
+                  <input type="text" name="baslik_en" class="form-control" value="<?= htmlspecialchars($_POST['baslik_en'] ?? '') ?>">
+                </div>
+              </div>
+            </div>
             <div class="form-group mb-3">
-              <label>Kategori <span class="text-danger">*</span></label>
-              <select name="kategori" class="form-control" required>
-                <option value="">Seçiniz...</option>
-                <option value="Staj İlanları" <?= (isset($_POST['kategori']) && $_POST['kategori'] == 'Staj İlanları') ? 'selected' : '' ?>>Staj İlanları</option>
-                <option value="Burs İlanları" <?= (isset($_POST['kategori']) && $_POST['kategori'] == 'Burs İlanları') ? 'selected' : '' ?>>Burs İlanları</option>
-                <option value="Bireysel İlanlar" <?= (isset($_POST['kategori']) && $_POST['kategori'] == 'Bireysel İlanlar') ? 'selected' : '' ?>>Bireysel İlanlar</option>
-              </select>
+              <label>İçerik (EN)</label>
+              <textarea name="icerik_en" rows="5" class="form-control" placeholder="Write job details in English..."><?= htmlspecialchars($_POST['icerik_en'] ?? '') ?></textarea>
+            </div>
+            <div class="form-group mb-3">
+              <label>Nitelikler / Requirements (EN)</label>
+              <textarea name="nitelikler_en" rows="4" class="form-control" placeholder="List requirements in English..."><?= htmlspecialchars($_POST['nitelikler_en'] ?? '') ?></textarea>
             </div>
           </div>
         </div>
+
         <div class="row">
           <div class="col-md-6">
             <div class="form-group mb-3">
@@ -228,9 +276,18 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
             </div>
           </div>
         </div>
-        <div class="form-group mb-3">
-          <label>İçerik <span class="text-danger">*</span></label>
-          <textarea name="icerik" rows="5" class="form-control" required placeholder="İlan detaylarını buraya yazın..."><?= htmlspecialchars($_POST['icerik'] ?? '') ?></textarea>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <label>Kategori <span class="text-danger">*</span></label>
+              <select name="kategori" class="form-control" required>
+                <option value="">Seçiniz...</option>
+                <option value="Staj İlanları" <?= (isset($_POST['kategori']) && $_POST['kategori'] == 'Staj İlanları') ? 'selected' : '' ?>>Staj İlanları</option>
+                <option value="Burs İlanları" <?= (isset($_POST['kategori']) && $_POST['kategori'] == 'Burs İlanları') ? 'selected' : '' ?>>Burs İlanları</option>
+                <option value="Bireysel İlanlar" <?= (isset($_POST['kategori']) && $_POST['kategori'] == 'Bireysel İlanlar') ? 'selected' : '' ?>>Bireysel İlanlar</option>
+              </select>
+            </div>
+          </div>
         </div>
         <div class="row">
           <div class="col-md-4">
@@ -260,6 +317,42 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
     </div>
   </div>
 </main>
+
+<script>
+  // Simple tab toggle for TR/EN blocks (Bootstrap tabs also work)
+  document.addEventListener('DOMContentLoaded', function() {
+    var trTab = document.getElementById('job-tr-tab');
+    var enTab = document.getElementById('job-en-tab');
+    var trContent = document.getElementById('content-tr');
+    var enContent = document.getElementById('content-en');
+
+    function showTR() {
+      trTab.classList.add('active');
+      enTab.classList.remove('active');
+      trContent.classList.add('show', 'active');
+      enContent.classList.remove('show', 'active');
+    }
+
+    function showEN() {
+      enTab.classList.add('active');
+      trTab.classList.remove('active');
+      enContent.classList.add('show', 'active');
+      trContent.classList.remove('show', 'active');
+    }
+
+    if (trTab && enTab && trContent && enContent) {
+      trTab.addEventListener('click', function(e) {
+        e.preventDefault();
+        showTR();
+      });
+      enTab.addEventListener('click', function(e) {
+        e.preventDefault();
+        showEN();
+      });
+      showTR(); // default
+    }
+  });
+</script>
 
 <style>
 .admin-form-container {
