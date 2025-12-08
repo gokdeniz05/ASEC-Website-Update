@@ -16,6 +16,7 @@ if (!isset($_SESSION['user'])) {
 
 // Determine current language (default to Turkish)
 $currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
+$lang = isset($translations[$currentLang]) ? $translations[$currentLang] : [];
 
 // Fetch all ilanlar from database
 $stajIlanlari = [];
@@ -120,10 +121,10 @@ try {
                                     <?php endif; ?>
                                     <p><?= htmlspecialchars($currentContent) ?></p>
                                     <?php if(!empty($ilan['son_basvuru'])): ?>
-                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> <?= $lang['label_deadline'] ?? 'Son Başvuru Tarihi' ?>: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank"><?= $lang['btn_view_details'] ?? 'Detayları Gör' ?> <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
                                     <?php
                                     // Determine receiver for message button
@@ -154,7 +155,7 @@ try {
                                         }
                                     ?>
                                         <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
-                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                            <i class="fas fa-envelope"></i> <?= $lang['btn_send_message'] ?? 'Mesaj Gönder' ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -192,10 +193,10 @@ try {
                                     <?php endif; ?>
                                     <p><?= htmlspecialchars($currentContent) ?></p>
                                     <?php if(!empty($ilan['son_basvuru'])): ?>
-                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> <?= $lang['label_deadline'] ?? 'Son Başvuru Tarihi' ?>: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank"><?= $lang['btn_view_details'] ?? 'Detayları Gör' ?> <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
                                     <?php
                                     // Determine receiver for message button
@@ -226,7 +227,7 @@ try {
                                         }
                                     ?>
                                         <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
-                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                            <i class="fas fa-envelope"></i> <?= $lang['btn_send_message'] ?? 'Mesaj Gönder' ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -295,10 +296,10 @@ try {
                                     <?php endif; ?>
                                     <p><?= htmlspecialchars($currentContent) ?></p>
                                     <?php if(!empty($ilan['son_basvuru'])): ?>
-                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> <?= $lang['label_deadline'] ?? 'Son Başvuru Tarihi' ?>: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank"><?= $lang['btn_view_details'] ?? 'Detayları Gör' ?> <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
                                     <?php
                                     // Determine receiver for message button
@@ -329,7 +330,7 @@ try {
                                         }
                                     ?>
                                         <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
-                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                            <i class="fas fa-envelope"></i> <?= $lang['btn_send_message'] ?? 'Mesaj Gönder' ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
