@@ -170,7 +170,6 @@ if (isset($_SESSION['user']) && isset($_SESSION['user_type']) && $_SESSION['user
 						<li><a href="galeri"><i class="fas fa-images"></i> <?php echo __t('nav.gallery'); ?></a></li>
                     </ul>
                 </li>
-                <?php if (isset($_SESSION['user'])): ?>
                 <li class="dropdown">
 					<a href="#"><i class="fas fa-bullhorn"></i> <?php echo __t('nav.announcements_jobs'); ?> <i class="fas fa-chevron-down"></i></a>
                     <ul class="dropdown-menu">
@@ -178,9 +177,6 @@ if (isset($_SESSION['user']) && isset($_SESSION['user_type']) && $_SESSION['user
 						<li><a href="ilanlar"><i class="fas fa-briefcase"></i> <?php echo __t('nav.jobs'); ?></a></li>
                     </ul>
                 </li>
-                <?php else: ?>
-                <li><a href="duyurular"><i class="fas fa-bullhorn"></i> <?php echo __t('nav.announcements'); ?></a></li>
-                <?php endif; ?>
 				<li><a href="etkinlikler"><i class="fas fa-calendar-alt"></i> <?php echo __t('nav.events'); ?></a></li>
 				<li><a href="blog"><i class="fas fa-blog"></i> <?php echo __t('nav.blog'); ?></a></li>
 				<li><a href="iletisim"><i class="fas fa-envelope"></i> <?php echo __t('nav.contact'); ?></a></li>
