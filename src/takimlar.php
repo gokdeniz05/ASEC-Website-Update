@@ -5,6 +5,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Oturumu başlat
 }
 
+// Determine language (use cookie from lang.php, fallback to 'tr')
+$currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
+
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
@@ -45,9 +48,9 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="team-card">
                     <div class="team-banner"></div>
                     <div class="team-content">
-                        <h3>Staj, İş ve Burs Departmanı</h3>
+                        <h3><?php echo __t('teams.dept.internship.title', "Staj, İş ve Burs Departmanı"); ?></h3>
                         <p class="team-description">
-                        Staj, İş ve Burs Departmanı; öğrencilerimizin mesleki gelişimlerini desteklemek, sektöre daha donanımlı bireyler olarak adım atmalarını sağlamak amacıyla faaliyet göstermektedir. Departman, staj olanakları, iş ilanları ve burs fırsatlarını araştırarak üyelerimize en güncel ve güvenilir bilgileri sunmayı hedefler. Aynı zamanda kariyer rehberliği, CV hazırlama desteği ve bilgilendirici etkinliklerle öğrencilere yol gösterici bir rol üstlenir. Emirkan Dağ başkanlığında yürütülen bu çalışmalar, kulüp üyelerimizin akademik bilginin ötesine geçerek gerçek dünya ile güçlü bağlar kurmalarını amaçlar.
+                        <?php echo __t('teams.dept.internship.desc', "Staj, İş ve Burs Departmanı; öğrencilerimizin mesleki gelişimlerini desteklemek, sektöre daha donanımlı bireyler olarak adım atmalarını sağlamak amacıyla faaliyet göstermektedir. Departman, staj olanakları, iş ilanları ve burs fırsatlarını araştırarak üyelerimize en güncel ve güvenilir bilgileri sunmayı hedefler. Aynı zamanda kariyer rehberliği, CV hazırlama desteği ve bilgilendirici etkinliklerle öğrencilere yol gösterici bir rol üstlenir. Emirkan Dağ başkanlığında yürütülen bu çalışmalar, kulüp üyelerimizin akademik bilginin ötesine geçerek gerçek dünya ile güçlü bağlar kurmalarını amaçlar."); ?>
                         </p>
                     </div>
                     <div class="team-members">
@@ -70,9 +73,9 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="team-card">
                     <div class="team-banner"></div>
                     <div class="team-content">
-                        <h3>Yurtdışı Komisyonu</h3>
+                        <h3><?php echo __t('teams.dept.abroad.title', "Yurtdışı Komisyonu"); ?></h3>
                         <p class="team-description">
-                        Yurtdışı Komisyonu, öğrencilerimizin mezun olmadan önce uluslararası deneyim kazanmalarını teşvik eden, vizyoner bir yaklaşımla faaliyet gösteren birimimizdir. Erasmus, staj, değişim programları ve çeşitli uluslararası fırsatlara erişim sağlamak amacıyla bilgilendirici içerikler ve yönlendirici etkinlikler düzenlenmektedir. Komisyonumuz, daha önce yurtdışı deneyimi yaşamış öğrencilerle iş birliği yaparak, üyelerimize gerçekçi ve yol gösterici bilgiler sunmayı hedefler. İlayda Akınet başkanlığında yürütülen çalışmalar; araştırma, yönlendirme ve mentorluk esaslarına dayanarak öğrencilerimizi global dünyaya hazır hale getirmeyi amaçlamaktadır.
+                        <?php echo __t('teams.dept.abroad.desc', "Yurtdışı Komisyonu, öğrencilerimizin mezun olmadan önce uluslararası deneyim kazanmalarını teşvik eden, vizyoner bir yaklaşımla faaliyet gösteren birimimizdir. Erasmus, staj, değişim programları ve çeşitli uluslararası fırsatlara erişim sağlamak amacıyla bilgilendirici içerikler ve yönlendirici etkinlikler düzenlenmektedir. Komisyonumuz, daha önce yurtdışı deneyimi yaşamış öğrencilerle iş birliği yaparak, üyelerimize gerçekçi ve yol gösterici bilgiler sunmayı hedefler. İlayda Akınet başkanlığında yürütülen çalışmalar; araştırma, yönlendirme ve mentorluk esaslarına dayanarak öğrencilerimizi global dünyaya hazır hale getirmeyi amaçlamaktadır."); ?>
                         </p>
                     </div>
                     <div class="team-members">
@@ -95,9 +98,9 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="team-card">
                     <div class="team-banner"></div>
                     <div class="team-content">
-                        <h3>Proje Komisyonu</h3>
+                        <h3><?php echo __t('teams.dept.project.title', "Proje Komisyonu"); ?></h3>
                         <p class="team-description">
-                        Proje Komisyonu, öğrencilerimizin kendi projelerini geliştirmelerine yardımcı olmanın yanı sıra, kulübümüzün yürüttüğü projeleri de üretir ve destekler. Komisyon, projelerin başlangıcından tamamlanmasına kadar tüm süreçlerde rehberlik sağlar, öğrencilerin fikirlerini sektöre kazandırmalarını ve hayata geçirmelerini amaçlar. Bu süreç, proje yönetimi, teknik destek ve mentorluk gibi çeşitli alanlarda yoğun bir çalışma gerektirir. Ali Baran Korkmaz başkanlığında yürütülen bu çalışmalar, yenilikçi ve sürdürülebilir projelerin ortaya çıkmasına ve sektörde değer kazanmasına olanak tanır.
+                        <?php echo __t('teams.dept.project.desc', "Proje Komisyonu, öğrencilerimizin kendi projelerini geliştirmelerine yardımcı olmanın yanı sıra, kulübümüzün yürüttüğü projeleri de üretir ve destekler. Komisyon, projelerin başlangıcından tamamlanmasına kadar tüm süreçlerde rehberlik sağlar, öğrencilerin fikirlerini sektöre kazandırmalarını ve hayata geçirmelerini amaçlar. Bu süreç, proje yönetimi, teknik destek ve mentorluk gibi çeşitli alanlarda yoğun bir çalışma gerektirir. Ali Baran Korkmaz başkanlığında yürütülen bu çalışmalar, yenilikçi ve sürdürülebilir projelerin ortaya çıkmasına ve sektörde değer kazanmasına olanak tanır."); ?>
                         </p>
                     </div>
                     <div class="team-members">
@@ -120,9 +123,9 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="team-card">
                     <div class="team-banner"></div>
                     <div class="team-content">
-                        <h3>Etkinlik Departmanı</h3>
+                        <h3><?php echo __t('teams.dept.events.title', "Etkinlik Departmanı"); ?></h3>
                         <p class="team-description">
-                        Etkinlik Departmanı, öğrencilerimizin mesleki gelişimlerine katkı sağlamak için sektörden uzmanlarla düzenlenen konferanslar, seminerler ve bilgilendirme etkinliklerine odaklanır. Bu etkinlikler, öğrencilerin yazılım ve inovasyon alanındaki en güncel gelişmeleri öğrenmelerini ve sektörle doğrudan bağlantı kurmalarını sağlar. Ayrıca, sosyal bağları güçlendirmek ve öğrencilerin moralini yükseltmek amacıyla piknikler, oyunlar ve yarışmalar gibi keyifli etkinlikler de düzenlenir. Beyzanur Arslan başkanlığında, profesyonel dünyaya dair derinlemesine bilgi edinme fırsatları sunulurken, aynı zamanda öğrencilerin eğlenceli ve dinlendirici aktivitelerle bir araya gelmesi sağlanır.
+                        <?php echo __t('teams.dept.events.desc', "Etkinlik Departmanı, öğrencilerimizin mesleki gelişimlerine katkı sağlamak için sektörden uzmanlarla düzenlenen konferanslar, seminerler ve bilgilendirme etkinliklerine odaklanır. Bu etkinlikler, öğrencilerin yazılım ve inovasyon alanındaki en güncel gelişmeleri öğrenmelerini ve sektörle doğrudan bağlantı kurmalarını sağlar. Ayrıca, sosyal bağları güçlendirmek ve öğrencilerin moralini yükseltmek amacıyla piknikler, oyunlar ve yarışmalar gibi keyifli etkinlikler de düzenlenir. Beyzanur Arslan başkanlığında, profesyonel dünyaya dair derinlemesine bilgi edinme fırsatları sunulurken, aynı zamanda öğrencilerin eğlenceli ve dinlendirici aktivitelerle bir araya gelmesi sağlanır."); ?>
                         </p>
                     </div>
                     <div class="team-members">
@@ -145,9 +148,9 @@ if (session_status() === PHP_SESSION_NONE) {
                     <div class="team-banner">
                     </div>
                     <div class="team-content">
-                        <h3>Teknik Gezi Komisyonu</h3>
+                        <h3><?php echo __t('teams.dept.techtrip.title', "Teknik Gezi Komisyonu"); ?></h3>
                         <p class="team-description">
-                        Teknik Gezi Komisyonu, yazılım sektörünü yerinde gözlemleyerek öğrencilerimizin mesleki farkındalıklarını artırmayı hedefleyen birimimizdir. Komisyonumuz, sektörün önde gelen firmalarına teknik geziler düzenleyerek katılımcıların iş ortamlarını doğrudan tanımasını sağlar; çalışma kültürü, proje süreçleri ve teknolojik altyapılar hakkında bilgi edinmelerine olanak tanır. Aynı zamanda bu geziler, öğrencilerin profesyonel çevrelerini genişletmeleri ve değerli bağlantılar kurmaları açısından önemli bir networking fırsatı sunar. Komisyonumuz, Sencer Eren Yavuz liderliğinde planlama, iletişim ve organizasyon süreçlerini titizlikle yürütmektedir.
+                        <?php echo __t('teams.dept.techtrip.desc', "Teknik Gezi Komisyonu, yazılım sektörünü yerinde gözlemleyerek öğrencilerimizin mesleki farkındalıklarını artırmayı hedefleyen birimimizdir. Komisyonumuz, sektörün önde gelen firmalarına teknik geziler düzenleyerek katılımcıların iş ortamlarını doğrudan tanımasını sağlar; çalışma kültürü, proje süreçleri ve teknolojik altyapılar hakkında bilgi edinmelerine olanak tanır. Aynı zamanda bu geziler, öğrencilerin profesyonel çevrelerini genişletmeleri ve değerli bağlantılar kurmaları açısından önemli bir networking fırsatı sunar. Komisyonumuz, Sencer Eren Yavuz liderliğinde planlama, iletişim ve organizasyon süreçlerini titizlikle yürütmektedir."); ?>
                         </p>
                     </div>
                     <div class="team-members">
@@ -171,9 +174,9 @@ if (session_status() === PHP_SESSION_NONE) {
                     <div class="team-banner">
                     </div>
                     <div class="team-content">
-                        <h3>Sponsorluk Departmanı</h3>
+                        <h3><?php echo __t('teams.dept.sponsorship.title', "Sponsorluk Departmanı"); ?></h3>
                         <p class="team-description">
-                        Sponsorluk Departmanı, ASEC’in dış paydaşlarla sürdürülebilir iş birlikleri kurmasını sağlayan stratejik birimidir. Etkinlik, proje ve organizasyonlarımız için gerekli kaynakları temin etmek amacıyla kurumsal markalarla iletişim kurar, sponsorluk anlaşmaları yürütür ve karşılıklı fayda esasına dayalı iş birlikleri geliştirir. Departman Başkanımız Tuğçe Kaya liderliğinde yürütülen çalışmalar; profesyonel iletişim, ikna becerisi ve iş geliştirme odaklı bir yaklaşımla yürütülmektedir. ASEC’in her etkinliğinde arkasında güçlü bir sponsorluk yapısı bulunmasını sağlamak bu birimin öncelikli hedefidir.
+                        <?php echo __t('teams.dept.sponsorship.desc', "Sponsorluk Departmanı, ASEC’in dış paydaşlarla sürdürülebilir iş birlikleri kurmasını sağlayan stratejik birimidir. Etkinlik, proje ve organizasyonlarımız için gerekli kaynakları temin etmek amacıyla kurumsal markalarla iletişim kurar, sponsorluk anlaşmaları yürütür ve karşılıklı fayda esasına dayalı iş birlikleri geliştirir. Departman Başkanımız Tuğçe Kaya liderliğinde yürütülen çalışmalar; profesyonel iletişim, ikna becerisi ve iş geliştirme odaklı bir yaklaşımla yürütülmektedir. ASEC’in her etkinliğinde arkasında güçlü bir sponsorluk yapısı bulunmasını sağlamak bu birimin öncelikli hedefidir."); ?>
                         </p>
                     </div>
                     <div class="team-members">
@@ -183,7 +186,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             </div>
                             <div class="member-info">
                                 <h4>Tuğçe Kaya</h4>
-                                <p class="member-role">Departman Başkanı</p>
+                                <p class="member-role"><?php echo __t('teams.role.lead', "Departman Başkanı"); ?></p>
                                 <div class="member-social">
                                     <a href="https://www.linkedin.com/in/tu%C4%9F%C3%A7e-kaya-8012b12b3/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank"><i class="fab fa-linkedin"></i></a>
                                 </div>
@@ -196,9 +199,9 @@ if (session_status() === PHP_SESSION_NONE) {
                     <div class="team-banner">
                     </div>
                     <div class="team-content">
-                        <h3>Sosyal Medya Departmanı</h3>
+                        <h3><?php echo __t('teams.dept.social.title', "Sosyal Medya Departmanı"); ?></h3>
                         <p class="team-description">
-                        Sosyal Medya Departmanı, ASEC'in dijital iletişim stratejilerini yürüten ve marka kimliğini dijital mecralarda temsil eden birimidir. Instagram, YouTube ve LinkedIn platformlarında aktif olarak yer alarak kulübümüzün etkinliklerini, projelerini ve duyurularını hedef kitleyle etkili bir şekilde buluşturur. Aynı zamanda kulüp içi motivasyonu artırmaya yönelik özgün ve yaratıcı içerikler üreterek dijital etkileşimi güçlendirir. Departman Başkanımız Azra Kuyucu liderliğinde; içerik planlaması, görsel tasarım, algoritma takibi ve medya yönetimi süreçleri titizlikle yürütülmektedir.
+                        <?php echo __t('teams.dept.social.desc', "Sosyal Medya Departmanı, ASEC'in dijital iletişim stratejilerini yürüten ve marka kimliğini dijital mecralarda temsil eden birimidir. Instagram, YouTube ve LinkedIn platformlarında aktif olarak yer alarak kulübümüzün etkinliklerini, projelerini ve duyurularını hedef kitleyle etkili bir şekilde buluşturur. Aynı zamanda kulüp içi motivasyonu artırmaya yönelik özgün ve yaratıcı içerikler üreterek dijital etkileşimi güçlendirir. Departman Başkanımız Azra Kuyucu liderliğinde; içerik planlaması, görsel tasarım, algoritma takibi ve medya yönetimi süreçleri titizlikle yürütülmektedir."); ?>
                         </p>
                     </div>
                     <div class="team-members">
@@ -208,7 +211,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             </div>
                             <div class="member-info">
                                 <h4>Azra Kuyucu</h4>
-                                <p class="member-role">Departman Başkanı</p>
+                                <p class="member-role"><?php echo __t('teams.role.lead', "Departman Başkanı"); ?></p>
                                 <div class="member-social">
                                     <a href="https://www.linkedin.com/in/azra-kuyucu-0867782b4?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank"><i class="fab fa-linkedin"></i></a>
                                 </div>
