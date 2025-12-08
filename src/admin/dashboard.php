@@ -105,8 +105,8 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                 
                 <div class="row">
                     <div class="col-md-3 mb-4">
-                        <div class="card text-white bg-primary">
-                            <div class="card-body">
+                        <div class="card text-white bg-primary h-100">
+                            <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">Blog Yazıları</h5>
                                 <?php
                                 $blog_count_sql = "SELECT COUNT(*) as count FROM blog_posts";
@@ -114,12 +114,13 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                                 $blog_count = mysqli_fetch_assoc($blog_count_result)['count'];
                                 ?>
                                 <p class="card-text h2"><?php echo $blog_count; ?></p>
+                                <a href="blog-yonetim.php" class="text-white mt-auto">Görüntüle <i class="fas fa-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 mb-4">
-                        <div class="card text-white bg-success">
-                            <div class="card-body">
+                        <div class="card text-white bg-success h-100">
+                            <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">Üyeler</h5>
                                 <?php
                                 $uye_count_sql = "SELECT COUNT(*) as count FROM users";
@@ -127,12 +128,13 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                                 $uye_count = mysqli_fetch_assoc($uye_count_result)['count'];
                                 ?>
                                 <p class="card-text h2"><?php echo $uye_count; ?></p>
+                                <a href="uyeler-yonetim.php" class="text-white mt-auto">Görüntüle <i class="fas fa-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 mb-4">
-                        <div class="card text-white bg-warning">
-                            <div class="card-body">
+                        <div class="card text-white bg-warning h-100">
+                            <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">Etkinlikler</h5>
                                 <?php
                                 $etkinlik_count_sql = "SELECT COUNT(*) as count FROM etkinlikler";
@@ -140,12 +142,13 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                                 $etkinlik_count = mysqli_fetch_assoc($etkinlik_count_result)['count'];
                                 ?>
                                 <p class="card-text h2"><?php echo $etkinlik_count; ?></p>
+                                <a href="etkinlikler-yonetim.php" class="text-white mt-auto">Görüntüle <i class="fas fa-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 mb-4">
-                        <div class="card text-white bg-info">
-                            <div class="card-body">
+                        <div class="card text-white bg-info h-100">
+                            <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">Duyurular</h5>
                                 <?php
                                 $duyuru_count_sql = "SELECT COUNT(*) as count FROM duyurular";
@@ -153,12 +156,13 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                                 $duyuru_count = mysqli_fetch_assoc($duyuru_count_result)['count'];
                                 ?>
                                 <p class="card-text h2"><?php echo $duyuru_count; ?></p>
+                                <a href="duyurular-yonetim.php" class="text-white mt-auto">Görüntüle <i class="fas fa-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 mb-4">
-                        <div class="card text-white bg-danger">
-                            <div class="card-body">
+                        <div class="card text-white bg-danger h-100">
+                            <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">İlanlar</h5>
                                 <?php
                                 $ilan_count_sql = "SELECT COUNT(*) as count FROM ilanlar";
@@ -166,12 +170,13 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                                 $ilan_count = mysqli_fetch_assoc($ilan_count_result)['count'];
                                 ?>
                                 <p class="card-text h2"><?php echo $ilan_count; ?></p>
+                                <a href="ilanlar-yonetim.php" class="text-white mt-auto">Görüntüle <i class="fas fa-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 mb-4">
-                        <div class="card text-white bg-warning">
-                            <div class="card-body">
+                        <div class="card text-white bg-warning h-100">
+                            <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">Kurumsal İstekler</h5>
                                 <?php
                                 // Use PDO for corporate_requests table
@@ -179,13 +184,13 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                                 $corporate_requests_count = $pdo->query("SELECT COUNT(*) FROM corporate_requests WHERE status = 'pending'")->fetchColumn();
                                 ?>
                                 <p class="card-text h2"><?php echo $corporate_requests_count; ?></p>
-                                <a href="kurumsal-istekler.php" class="text-white">Görüntüle <i class="fas fa-arrow-right"></i></a>
+                                <a href="kurumsal-istekler.php" class="text-white mt-auto">Görüntüle <i class="fas fa-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 mb-4">
-                        <div class="card text-white" style="background-color: #6c757d;">
-                            <div class="card-body">
+                        <div class="card text-white h-100" style="background-color: #6c757d;">
+                            <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">İlan İstekleri</h5>
                                 <?php
                                 // Use PDO for corporate_ilan_requests table
@@ -218,13 +223,13 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                                 }
                                 ?>
                                 <p class="card-text h2"><?php echo $ilan_requests_count; ?></p>
-                                <a href="ilan-istekleri.php" class="text-white">Görüntüle <i class="fas fa-arrow-right"></i></a>
+                                <a href="ilan-istekleri.php" class="text-white mt-auto">Görüntüle <i class="fas fa-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 mb-4">
-                        <div class="card text-white" style="background-color: #9370db;">
-                            <div class="card-body">
+                        <div class="card text-white h-100" style="background-color: #9370db;">
+                            <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">Yönetim Kurulu</h5>
                                 <?php
                                 // Use PDO for board_members table
@@ -246,7 +251,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                                 }
                                 ?>
                                 <p class="card-text h2"><?php echo $board_members_count; ?></p>
-                                <a href="board-yonetim.php" class="text-white">Görüntüle <i class="fas fa-arrow-right"></i></a>
+                                <a href="board-yonetim.php" class="text-white mt-auto">Görüntüle <i class="fas fa-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>

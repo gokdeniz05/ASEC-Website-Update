@@ -44,6 +44,60 @@ if ($filter === 'all' || $filter === 'corporate') {
 
 // Combine results for "all" view
 $all_users = array_merge($individual_users, $corporate_users);
+
+// Export to Excel (respect current filter)
+if (isset($_GET['export']) && $_GET['export'] === 'excel') {
+    $export_rows = [];
+
+    if ($filter === 'all' || $filter === 'individual') {
+        $all_individual_sql = "SELECT id, name, email, created_at FROM users ORDER BY created_at DESC";
+        $all_individual_result = mysqli_query($conn, $all_individual_sql);
+        if ($all_individual_result) {
+            while ($row = mysqli_fetch_assoc($all_individual_result)) {
+                $row['user_type'] = 'Bireysel';
+                $row['display_name'] = $row['name'];
+                $export_rows[] = $row;
+            }
+        }
+    }
+
+    if ($filter === 'all' || $filter === 'corporate') {
+        $all_corporate_sql = "SELECT id, company_name, email, created_at FROM corporate_users ORDER BY created_at DESC";
+        $all_corporate_stmt = $pdo->query($all_corporate_sql);
+        if ($all_corporate_stmt) {
+            $corporate_rows = $all_corporate_stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($corporate_rows as $row) {
+                $row['user_type'] = 'Kurumsal';
+                $row['display_name'] = $row['company_name'];
+                $export_rows[] = $row;
+            }
+        }
+    }
+
+    header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="uyeler.xls"');
+    // BOM for Turkish characters in Excel
+    echo "\xEF\xBB\xBF";
+
+    echo "<table border='1'>";
+    echo "<tr>";
+    echo "<th>ID</th><th>Ad / Şirket</th><th>Email</th><th>Üye Tipi</th><th>Kayıt Tarihi</th>";
+    echo "</tr>";
+
+    foreach ($export_rows as $row) {
+        $name = $row['display_name'] ?? ($row['company_name'] ?? ($row['name'] ?? ''));
+        echo "<tr>";
+        echo "<td>".htmlspecialchars($row['id'])."</td>";
+        echo "<td>".htmlspecialchars($name)."</td>";
+        echo "<td>".htmlspecialchars($row['email'])."</td>";
+        echo "<td>".htmlspecialchars($row['user_type'])."</td>";
+        echo "<td>".htmlspecialchars($row['created_at'])."</td>";
+        echo "</tr>";
+    }
+
+    echo "</table>";
+    exit;
+}
 ?>
 <?php include 'admin-header.php'; ?>
 <?php include 'sidebar.php'; ?>
@@ -52,8 +106,8 @@ $all_users = array_merge($individual_users, $corporate_users);
         <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <h1 class="mt-4 mb-4">Üyeler</h1>
             
-            <!-- Filter Buttons -->
-            <div class="mb-3">
+            <!-- Filter Buttons + Export -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="btn-group" role="group" aria-label="User type filter">
                     <a href="?filter=all" class="btn <?= $filter === 'all' ? 'btn-primary' : 'btn-outline-primary' ?>">
                         <i class="fas fa-users"></i> Tümü
@@ -65,6 +119,9 @@ $all_users = array_merge($individual_users, $corporate_users);
                         <i class="fas fa-building"></i> Kurumsal
                     </a>
                 </div>
+                <a href="?export=excel&filter=<?= urlencode($filter) ?>" class="btn btn-success">
+                    <i class="fas fa-file-excel"></i> Excel'e Aktar
+                </a>
             </div>
             
             <div class="table-responsive">
