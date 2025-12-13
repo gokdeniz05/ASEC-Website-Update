@@ -19,6 +19,11 @@ require_once 'includes/config.php';
         font-weight: 500;
     }
     
+    /* Gap utility for spacing */
+    .gap-2 {
+        gap: 0.5rem;
+    }
+    
     /* Ensure buttons in Quick Actions are centered and aligned */
     .card-body .d-flex.flex-column.flex-md-row {
         align-items: stretch;
@@ -52,7 +57,7 @@ require_once 'includes/config.php';
             
             <div class="alert alert-info">
                 <h5><i class="fas fa-info-circle"></i> Hoş Geldiniz!</h5>
-                <p>Bu panelden <strong>Staj İlanları</strong> ve <strong>Burs İlanları</strong> oluşturabilir ve yönetebilirsiniz.</p>
+                <p>Bu panelden <strong>Staj İlanları</strong>, <strong>Burs İlanları</strong> ve <strong>İş İlanları</strong> oluşturabilir ve yönetebilirsiniz.</p>
             </div>
             
             <div class="row">
@@ -142,12 +147,15 @@ require_once 'includes/config.php';
                             <h5 class="mb-0"><i class="fas fa-plus-circle mr-2"></i>Hızlı İşlemler</h5>
                         </div>
                         <div class="card-body">
-                            <div class="d-flex flex-column flex-md-row justify-content-center align-items-stretch" style="gap: 12px;">
-                                <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary" style="min-width: 200px;">
+                            <div class="d-flex flex-column gap-2">
+                                <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary w-100 text-center">
                                     <i class="fas fa-briefcase mr-2"></i>Staj İlanı Ekle
                                 </a>
-                                <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success" style="min-width: 200px;">
+                                <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success w-100 text-center">
                                     <i class="fas fa-graduation-cap mr-2"></i>Burs İlanı Ekle
+                                </a>
+                                <a href="ilan-ekle.php?kategori=İş İlanı" class="btn btn-info w-100 text-center">
+                                    <i class="fas fa-briefcase mr-2"></i>İş İlanı Ekle
                                 </a>
                             </div>
                         </div>
