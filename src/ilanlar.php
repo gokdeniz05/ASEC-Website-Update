@@ -8,6 +8,9 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once 'includes/lang.php';
 session_start();
 
+// Access language arrays globally
+global $translations, $langCode;
+
 // Check if user is logged in
 if (!isset($_SESSION['user'])) {
     header('Location: login.php');
@@ -106,11 +109,34 @@ try {
                                 <p><?php echo __t('jobs.empty.internship'); ?></p>
                             </div>
                         <?php else: ?>
-                            <?php foreach($stajIlanlari as $ilan): ?>
+                            <?php foreach($stajIlanlari as $ilan): 
+                                // Translate job type from DB value
+                                $jobTypeMap = [
+                                    'İş İlanı' => 'type_job',
+                                    'Staj' => 'type_intern',
+                                    'Staj İlanları' => 'type_intern',
+                                    'Burs' => 'type_scholarship',
+                                    'Burs İlanları' => 'type_scholarship',
+                                    'Bireysel' => 'type_individual',
+                                    'Bireysel İlanlar' => 'type_individual',
+                                ];
+                                $jobTypeKey = $jobTypeMap[$ilan['kategori']] ?? 'type_job';
+                                $translatedCategory = isset($translations[$langCode][$jobTypeKey]) 
+                                    ? $translations[$langCode][$jobTypeKey] 
+                                    : $ilan['kategori'];
+                                
+                                // Format date with short month name
+                                $tarihTimestamp = strtotime($ilan['tarih']);
+                                $monthNum = (int)date('n', $tarihTimestamp);
+                                $monthShort = isset($translations[$langCode]['months_short'][$monthNum]) 
+                                    ? $translations[$langCode]['months_short'][$monthNum] 
+                                    : date('M', $tarihTimestamp);
+                                $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
+                            ?>
                                 <div class="announcement-card" data-category="staj">
                                     <div class="announcement-header">
-                                        <span class="badge" data-category="staj"><?= htmlspecialchars($ilan['kategori']) ?></span>
-                                        <span class="date"><?= date('d M Y', strtotime($ilan['tarih'])) ?></span>
+                                        <span class="badge" data-category="staj"><?= htmlspecialchars($translatedCategory) ?></span>
+                                        <span class="date"><?= $formattedDate ?></span>
                                     </div>
                                     <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
                                     <?php if(!empty($ilan['sirket'])): ?>
@@ -120,11 +146,19 @@ try {
                                         <div class="ilan-meta"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($ilan['lokasyon']) ?></div>
                                     <?php endif; ?>
                                     <p><?= htmlspecialchars($ilan['icerik']) ?></p>
-                                    <?php if(!empty($ilan['son_basvuru'])): ?>
-                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                    <?php if(!empty($ilan['son_basvuru'])): 
+                                        // Format deadline date with short month name
+                                        $deadlineTimestamp = strtotime($ilan['son_basvuru']);
+                                        $deadlineMonthNum = (int)date('n', $deadlineTimestamp);
+                                        $deadlineMonthShort = isset($translations[$langCode]['months_short'][$deadlineMonthNum]) 
+                                            ? $translations[$langCode]['months_short'][$deadlineMonthNum] 
+                                            : date('M', $deadlineTimestamp);
+                                        $formattedDeadline = date('d', $deadlineTimestamp) . ' ' . $deadlineMonthShort . ' ' . date('Y', $deadlineTimestamp);
+                                    ?>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> <?php echo __t('label_deadline'); ?>: <?= $formattedDeadline ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank"><?php echo __t('btn_detay'); ?> <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
                                     <?php
                                     // Determine receiver for message button
@@ -154,8 +188,9 @@ try {
                                             $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
                                         }
                                     ?>
-                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
-                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more btn d-flex align-items-center justify-content-center" style="margin-top: 0.5rem;">
+                                            <i class="fas fa-envelope" style="margin-right: 15px !important;"></i>
+                                            <span><?php echo __t('btn_mesaj'); ?></span>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -174,11 +209,34 @@ try {
                                 <p><?php echo __t('jobs.empty.scholarship'); ?></p>
                             </div>
                         <?php else: ?>
-                            <?php foreach($bursIlanlari as $ilan): ?>
+                            <?php foreach($bursIlanlari as $ilan): 
+                                // Translate job type from DB value
+                                $jobTypeMap = [
+                                    'İş İlanı' => 'type_job',
+                                    'Staj' => 'type_intern',
+                                    'Staj İlanları' => 'type_intern',
+                                    'Burs' => 'type_scholarship',
+                                    'Burs İlanları' => 'type_scholarship',
+                                    'Bireysel' => 'type_individual',
+                                    'Bireysel İlanlar' => 'type_individual',
+                                ];
+                                $jobTypeKey = $jobTypeMap[$ilan['kategori']] ?? 'type_job';
+                                $translatedCategory = isset($translations[$langCode][$jobTypeKey]) 
+                                    ? $translations[$langCode][$jobTypeKey] 
+                                    : $ilan['kategori'];
+                                
+                                // Format date with short month name
+                                $tarihTimestamp = strtotime($ilan['tarih']);
+                                $monthNum = (int)date('n', $tarihTimestamp);
+                                $monthShort = isset($translations[$langCode]['months_short'][$monthNum]) 
+                                    ? $translations[$langCode]['months_short'][$monthNum] 
+                                    : date('M', $tarihTimestamp);
+                                $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
+                            ?>
                                 <div class="announcement-card" data-category="burs">
                                     <div class="announcement-header">
-                                        <span class="badge" data-category="burs"><?= htmlspecialchars($ilan['kategori']) ?></span>
-                                        <span class="date"><?= date('d M Y', strtotime($ilan['tarih'])) ?></span>
+                                        <span class="badge" data-category="burs"><?= htmlspecialchars($translatedCategory) ?></span>
+                                        <span class="date"><?= $formattedDate ?></span>
                                     </div>
                                     <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
                                     <?php if(!empty($ilan['sirket'])): ?>
@@ -188,11 +246,19 @@ try {
                                         <div class="ilan-meta"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($ilan['lokasyon']) ?></div>
                                     <?php endif; ?>
                                     <p><?= htmlspecialchars($ilan['icerik']) ?></p>
-                                    <?php if(!empty($ilan['son_basvuru'])): ?>
-                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                    <?php if(!empty($ilan['son_basvuru'])): 
+                                        // Format deadline date with short month name
+                                        $deadlineTimestamp = strtotime($ilan['son_basvuru']);
+                                        $deadlineMonthNum = (int)date('n', $deadlineTimestamp);
+                                        $deadlineMonthShort = isset($translations[$langCode]['months_short'][$deadlineMonthNum]) 
+                                            ? $translations[$langCode]['months_short'][$deadlineMonthNum] 
+                                            : date('M', $deadlineTimestamp);
+                                        $formattedDeadline = date('d', $deadlineTimestamp) . ' ' . $deadlineMonthShort . ' ' . date('Y', $deadlineTimestamp);
+                                    ?>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> <?php echo __t('label_deadline'); ?>: <?= $formattedDeadline ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank"><?php echo __t('btn_detay'); ?> <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
                                     <?php
                                     // Determine receiver for message button
@@ -222,8 +288,9 @@ try {
                                             $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
                                         }
                                     ?>
-                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
-                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more btn d-flex align-items-center justify-content-center" style="margin-top: 0.5rem;">
+                                            <i class="fas fa-envelope" style="margin-right: 15px !important;"></i>
+                                            <span><?php echo __t('btn_mesaj'); ?></span>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -242,11 +309,34 @@ try {
                                 <p><?php echo $langCode === 'en' ? 'There are currently no job listings. New listings will be added soon.' : 'Şu anda iş ilanı bulunmamaktadır. Yakında yeni ilanlar eklenecektir.'; ?></p>
                             </div>
                         <?php else: ?>
-                            <?php foreach($isIlanlari as $ilan): ?>
+                            <?php foreach($isIlanlari as $ilan): 
+                                // Translate job type from DB value
+                                $jobTypeMap = [
+                                    'İş İlanı' => 'type_job',
+                                    'Staj' => 'type_intern',
+                                    'Staj İlanları' => 'type_intern',
+                                    'Burs' => 'type_scholarship',
+                                    'Burs İlanları' => 'type_scholarship',
+                                    'Bireysel' => 'type_individual',
+                                    'Bireysel İlanlar' => 'type_individual',
+                                ];
+                                $jobTypeKey = $jobTypeMap[$ilan['kategori']] ?? 'type_job';
+                                $translatedCategory = isset($translations[$langCode][$jobTypeKey]) 
+                                    ? $translations[$langCode][$jobTypeKey] 
+                                    : $ilan['kategori'];
+                                
+                                // Format date with short month name
+                                $tarihTimestamp = strtotime($ilan['tarih']);
+                                $monthNum = (int)date('n', $tarihTimestamp);
+                                $monthShort = isset($translations[$langCode]['months_short'][$monthNum]) 
+                                    ? $translations[$langCode]['months_short'][$monthNum] 
+                                    : date('M', $tarihTimestamp);
+                                $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
+                            ?>
                                 <div class="announcement-card" data-category="is">
                                     <div class="announcement-header">
-                                        <span class="badge" data-category="is"><?= htmlspecialchars($ilan['kategori']) ?></span>
-                                        <span class="date"><?= date('d M Y', strtotime($ilan['tarih'])) ?></span>
+                                        <span class="badge" data-category="is"><?= htmlspecialchars($translatedCategory) ?></span>
+                                        <span class="date"><?= $formattedDate ?></span>
                                     </div>
                                     <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
                                     <?php if(!empty($ilan['sirket'])): ?>
@@ -256,11 +346,19 @@ try {
                                         <div class="ilan-meta"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($ilan['lokasyon']) ?></div>
                                     <?php endif; ?>
                                     <p><?= htmlspecialchars($ilan['icerik']) ?></p>
-                                    <?php if(!empty($ilan['son_basvuru'])): ?>
-                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                    <?php if(!empty($ilan['son_basvuru'])): 
+                                        // Format deadline date with short month name
+                                        $deadlineTimestamp = strtotime($ilan['son_basvuru']);
+                                        $deadlineMonthNum = (int)date('n', $deadlineTimestamp);
+                                        $deadlineMonthShort = isset($translations[$langCode]['months_short'][$deadlineMonthNum]) 
+                                            ? $translations[$langCode]['months_short'][$deadlineMonthNum] 
+                                            : date('M', $deadlineTimestamp);
+                                        $formattedDeadline = date('d', $deadlineTimestamp) . ' ' . $deadlineMonthShort . ' ' . date('Y', $deadlineTimestamp);
+                                    ?>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> <?php echo __t('label_deadline'); ?>: <?= $formattedDeadline ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank"><?php echo __t('btn_detay'); ?> <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
                                     <?php
                                     // Determine receiver for message button
@@ -290,8 +388,9 @@ try {
                                             $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
                                         }
                                     ?>
-                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
-                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more btn d-flex align-items-center justify-content-center" style="margin-top: 0.5rem;">
+                                            <i class="fas fa-envelope" style="margin-right: 15px !important;"></i>
+                                            <span><?php echo __t('btn_mesaj'); ?></span>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -331,12 +430,35 @@ try {
                                     && (int)$ilan['user_id'] === (int)$_SESSION['user_id']) {
                                     $canDelete = true;
                                 }
+                                
+                                // Translate job type from DB value
+                                $jobTypeMap = [
+                                    'İş İlanı' => 'type_job',
+                                    'Staj' => 'type_intern',
+                                    'Staj İlanları' => 'type_intern',
+                                    'Burs' => 'type_scholarship',
+                                    'Burs İlanları' => 'type_scholarship',
+                                    'Bireysel' => 'type_individual',
+                                    'Bireysel İlanlar' => 'type_individual',
+                                ];
+                                $jobTypeKey = $jobTypeMap[$ilan['kategori']] ?? 'type_job';
+                                $translatedCategory = isset($translations[$langCode][$jobTypeKey]) 
+                                    ? $translations[$langCode][$jobTypeKey] 
+                                    : $ilan['kategori'];
+                                
+                                // Format date with short month name
+                                $tarihTimestamp = strtotime($ilan['tarih']);
+                                $monthNum = (int)date('n', $tarihTimestamp);
+                                $monthShort = isset($translations[$langCode]['months_short'][$monthNum]) 
+                                    ? $translations[$langCode]['months_short'][$monthNum] 
+                                    : date('M', $tarihTimestamp);
+                                $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
                             ?>
                                 <div class="announcement-card" data-category="bireysel">
                                     <div class="announcement-header">
-                                        <span class="badge" data-category="bireysel"><?= htmlspecialchars($ilan['kategori']) ?></span>
+                                        <span class="badge" data-category="bireysel"><?= htmlspecialchars($translatedCategory) ?></span>
                                         <div style="display: flex; align-items: center; gap: 1rem;">
-                                            <span class="date"><?= date('d M Y', strtotime($ilan['tarih'])) ?></span>
+                                            <span class="date"><?= $formattedDate ?></span>
                                             <?php if ($canDelete): ?>
                                                 <a href="individual-ilan-sil.php?id=<?= $ilan['id'] ?>" 
                                                    class="btn-delete-ad" 
@@ -355,11 +477,19 @@ try {
                                         <div class="ilan-meta"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($ilan['lokasyon']) ?></div>
                                     <?php endif; ?>
                                     <p><?= htmlspecialchars($ilan['icerik']) ?></p>
-                                    <?php if(!empty($ilan['son_basvuru'])): ?>
-                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                    <?php if(!empty($ilan['son_basvuru'])): 
+                                        // Format deadline date with short month name
+                                        $deadlineTimestamp = strtotime($ilan['son_basvuru']);
+                                        $deadlineMonthNum = (int)date('n', $deadlineTimestamp);
+                                        $deadlineMonthShort = isset($translations[$langCode]['months_short'][$deadlineMonthNum]) 
+                                            ? $translations[$langCode]['months_short'][$deadlineMonthNum] 
+                                            : date('M', $deadlineTimestamp);
+                                        $formattedDeadline = date('d', $deadlineTimestamp) . ' ' . $deadlineMonthShort . ' ' . date('Y', $deadlineTimestamp);
+                                    ?>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> <?php echo __t('label_deadline'); ?>: <?= $formattedDeadline ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank"><?php echo __t('btn_detay'); ?> <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
                                     <?php
                                     // Determine receiver for message button
@@ -389,8 +519,9 @@ try {
                                             $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
                                         }
                                     ?>
-                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
-                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more btn d-flex align-items-center justify-content-center" style="margin-top: 0.5rem;">
+                                            <i class="fas fa-envelope" style="margin-right: 15px !important;"></i>
+                                            <span><?php echo __t('btn_mesaj'); ?></span>
                                         </a>
                                     <?php endif; ?>
                                 </div>

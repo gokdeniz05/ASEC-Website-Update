@@ -21,6 +21,9 @@ if (session_status() === PHP_SESSION_NONE) {
             require_once 'db.php';
             require_once 'includes/lang.php';
             
+            // Access language arrays globally
+            global $translations, $langCode;
+            
             // Determine language (use cookie from lang.php, fallback to 'tr')
             $currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
             
@@ -47,9 +50,15 @@ if (session_status() === PHP_SESSION_NONE) {
                     ?>
                     <div class="event-card upcoming">
                         <div class="event-date">
-                            <?php $t = strtotime($etkinlik['tarih']); ?>
+                            <?php 
+                            $t = strtotime($etkinlik['tarih']); 
+                            $monthNum = (int)date('n', $t);
+                            $monthLong = isset($translations[$langCode]['months_long'][$monthNum]) 
+                                ? $translations[$langCode]['months_long'][$monthNum] 
+                                : date('F', $t);
+                            ?>
                             <span class="day"><?= date('d', $t) ?></span>
-                            <span class="month"><?= strftime('%B', $t) ?></span>
+                            <span class="month"><?= $monthLong ?></span>
                         </div>
                         <div class="event-details">
                             <h4><?= htmlspecialchars($display_baslik) ?></h4>
@@ -88,9 +97,15 @@ if (session_status() === PHP_SESSION_NONE) {
                     ?>
                     <div class="event-card past">
                         <div class="event-date">
-                            <?php $t = strtotime($etkinlik['tarih']); ?>
+                            <?php 
+                            $t = strtotime($etkinlik['tarih']); 
+                            $monthNum = (int)date('n', $t);
+                            $monthLong = isset($translations[$langCode]['months_long'][$monthNum]) 
+                                ? $translations[$langCode]['months_long'][$monthNum] 
+                                : date('F', $t);
+                            ?>
                             <span class="day"><?= date('d', $t) ?></span>
-                            <span class="month"><?= strftime('%B', $t) ?></span>
+                            <span class="month"><?= $monthLong ?></span>
                         </div>
                         <div class="event-details">
                             <h4><?= htmlspecialchars($display_baslik) ?></h4>
