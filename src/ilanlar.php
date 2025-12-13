@@ -14,10 +14,6 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-// Determine current language (default to Turkish)
-$currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
-$lang = isset($translations[$currentLang]) ? $translations[$currentLang] : [];
-
 // Fetch all ilanlar from database
 $stajIlanlari = [];
 $bursIlanlari = [];
@@ -102,29 +98,25 @@ try {
                                 <p><?php echo __t('jobs.empty.internship'); ?></p>
                             </div>
                         <?php else: ?>
-                            <?php foreach($stajIlanlari as $ilan): 
-                                // Dynamic language-aware content selection
-                                $currentTitle = ($currentLang == 'en' && !empty($ilan['baslik_en'])) ? $ilan['baslik_en'] : $ilan['baslik'];
-                                $currentContent = ($currentLang == 'en' && !empty($ilan['icerik_en'])) ? $ilan['icerik_en'] : $ilan['icerik'];
-                            ?>
+                            <?php foreach($stajIlanlari as $ilan): ?>
                                 <div class="announcement-card" data-category="staj">
                                     <div class="announcement-header">
                                         <span class="badge" data-category="staj"><?= htmlspecialchars($ilan['kategori']) ?></span>
                                         <span class="date"><?= date('d M Y', strtotime($ilan['tarih'])) ?></span>
                                     </div>
-                                    <h3><?= htmlspecialchars($currentTitle) ?></h3>
+                                    <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
                                     <?php if(!empty($ilan['sirket'])): ?>
                                         <div class="ilan-meta"><i class="fas fa-building"></i> <?= htmlspecialchars($ilan['sirket']) ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['lokasyon'])): ?>
                                         <div class="ilan-meta"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($ilan['lokasyon']) ?></div>
                                     <?php endif; ?>
-                                    <p><?= htmlspecialchars($currentContent) ?></p>
+                                    <p><?= htmlspecialchars($ilan['icerik']) ?></p>
                                     <?php if(!empty($ilan['son_basvuru'])): ?>
-                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> <?= $lang['label_deadline'] ?? 'Son Başvuru Tarihi' ?>: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank"><?= $lang['btn_view_details'] ?? 'Detayları Gör' ?> <i class="fas fa-arrow-right"></i></a>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
                                     <?php
                                     // Determine receiver for message button
@@ -150,12 +142,12 @@ try {
                                     
                                     if ($show_message_button):
                                         $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
-                                        if (!empty($currentTitle)) {
-                                            $message_url .= '&subject=' . urlencode('Referans: ' . $currentTitle);
+                                        if (!empty($ilan['baslik'])) {
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
                                         }
                                     ?>
                                         <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
-                                            <i class="fas fa-envelope"></i> <?= $lang['btn_send_message'] ?? 'Mesaj Gönder' ?>
+                                            <i class="fas fa-envelope"></i> Mesaj Gönder
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -174,29 +166,25 @@ try {
                                 <p><?php echo __t('jobs.empty.scholarship'); ?></p>
                             </div>
                         <?php else: ?>
-                            <?php foreach($bursIlanlari as $ilan): 
-                                // Dynamic language-aware content selection
-                                $currentTitle = ($currentLang == 'en' && !empty($ilan['baslik_en'])) ? $ilan['baslik_en'] : $ilan['baslik'];
-                                $currentContent = ($currentLang == 'en' && !empty($ilan['icerik_en'])) ? $ilan['icerik_en'] : $ilan['icerik'];
-                            ?>
+                            <?php foreach($bursIlanlari as $ilan): ?>
                                 <div class="announcement-card" data-category="burs">
                                     <div class="announcement-header">
                                         <span class="badge" data-category="burs"><?= htmlspecialchars($ilan['kategori']) ?></span>
                                         <span class="date"><?= date('d M Y', strtotime($ilan['tarih'])) ?></span>
                                     </div>
-                                    <h3><?= htmlspecialchars($currentTitle) ?></h3>
+                                    <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
                                     <?php if(!empty($ilan['sirket'])): ?>
                                         <div class="ilan-meta"><i class="fas fa-building"></i> <?= htmlspecialchars($ilan['sirket']) ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['lokasyon'])): ?>
                                         <div class="ilan-meta"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($ilan['lokasyon']) ?></div>
                                     <?php endif; ?>
-                                    <p><?= htmlspecialchars($currentContent) ?></p>
+                                    <p><?= htmlspecialchars($ilan['icerik']) ?></p>
                                     <?php if(!empty($ilan['son_basvuru'])): ?>
-                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> <?= $lang['label_deadline'] ?? 'Son Başvuru Tarihi' ?>: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank"><?= $lang['btn_view_details'] ?? 'Detayları Gör' ?> <i class="fas fa-arrow-right"></i></a>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
                                     <?php
                                     // Determine receiver for message button
@@ -222,12 +210,12 @@ try {
                                     
                                     if ($show_message_button):
                                         $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
-                                        if (!empty($currentTitle)) {
-                                            $message_url .= '&subject=' . urlencode('Referans: ' . $currentTitle);
+                                        if (!empty($ilan['baslik'])) {
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
                                         }
                                     ?>
                                         <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
-                                            <i class="fas fa-envelope"></i> <?= $lang['btn_send_message'] ?? 'Mesaj Gönder' ?>
+                                            <i class="fas fa-envelope"></i> Mesaj Gönder
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -245,7 +233,7 @@ try {
                     ?>
                     <div style="margin-bottom: 2rem; text-align: right;">
                         <a href="bireysel-ilan-ekle.php" class="btn-post-ad">
-                            <i class="fas fa-plus-circle"></i> <?php echo $currentLang === 'en' ? 'Post an Ad' : 'İlan Ver'; ?>
+                            <i class="fas fa-plus-circle"></i> <?php echo $langCode === 'en' ? 'Post an Ad' : 'İlan Ver'; ?>
                         </a>
                     </div>
                     <?php endif; ?>
@@ -267,10 +255,6 @@ try {
                                     && (int)$ilan['user_id'] === (int)$_SESSION['user_id']) {
                                     $canDelete = true;
                                 }
-                                
-                                // Dynamic language-aware content selection
-                                $currentTitle = ($currentLang == 'en' && !empty($ilan['baslik_en'])) ? $ilan['baslik_en'] : $ilan['baslik'];
-                                $currentContent = ($currentLang == 'en' && !empty($ilan['icerik_en'])) ? $ilan['icerik_en'] : $ilan['icerik'];
                             ?>
                                 <div class="announcement-card" data-category="bireysel">
                                     <div class="announcement-header">
@@ -280,26 +264,26 @@ try {
                                             <?php if ($canDelete): ?>
                                                 <a href="individual-ilan-sil.php?id=<?= $ilan['id'] ?>" 
                                                    class="btn-delete-ad" 
-                                                   onclick="return confirm('<?php echo $currentLang === 'en' ? 'Are you sure you want to delete this ad?' : 'Bu ilanı silmek istediğinizden emin misiniz?'; ?>');"
-                                                   title="<?php echo $currentLang === 'en' ? 'Delete Ad' : 'İlanı Sil'; ?>">
+                                                   onclick="return confirm('<?php echo $langCode === 'en' ? 'Are you sure you want to delete this ad?' : 'Bu ilanı silmek istediğinizden emin misiniz?'; ?>');"
+                                                   title="<?php echo $langCode === 'en' ? 'Delete Ad' : 'İlanı Sil'; ?>">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </a>
                                             <?php endif; ?>
                                         </div>
                                     </div>
-                                    <h3><?= htmlspecialchars($currentTitle) ?></h3>
+                                    <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
                                     <?php if(!empty($ilan['sirket'])): ?>
                                         <div class="ilan-meta"><i class="fas fa-building"></i> <?= htmlspecialchars($ilan['sirket']) ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['lokasyon'])): ?>
                                         <div class="ilan-meta"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($ilan['lokasyon']) ?></div>
                                     <?php endif; ?>
-                                    <p><?= htmlspecialchars($currentContent) ?></p>
+                                    <p><?= htmlspecialchars($ilan['icerik']) ?></p>
                                     <?php if(!empty($ilan['son_basvuru'])): ?>
-                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> <?= $lang['label_deadline'] ?? 'Son Başvuru Tarihi' ?>: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
                                     <?php endif; ?>
                                     <?php if(!empty($ilan['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank"><?= $lang['btn_view_details'] ?? 'Detayları Gör' ?> <i class="fas fa-arrow-right"></i></a>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
                                     <?php endif; ?>
                                     <?php
                                     // Determine receiver for message button
@@ -325,12 +309,12 @@ try {
                                     
                                     if ($show_message_button):
                                         $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
-                                        if (!empty($currentTitle)) {
-                                            $message_url .= '&subject=' . urlencode('Referans: ' . $currentTitle);
+                                        if (!empty($ilan['baslik'])) {
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
                                         }
                                     ?>
                                         <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
-                                            <i class="fas fa-envelope"></i> <?= $lang['btn_send_message'] ?? 'Mesaj Gönder' ?>
+                                            <i class="fas fa-envelope"></i> Mesaj Gönder
                                         </a>
                                     <?php endif; ?>
                                 </div>

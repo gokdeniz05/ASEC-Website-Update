@@ -1,7 +1,7 @@
 <?php
 require_once 'includes/config.php';
 
-// GEÇİCİ KOD BLOĞU - Admin oluşturma
+// GEÇİCİ KOD BLOĞU - Admin şifre güncelleme
 $create_table_sql = "CREATE TABLE IF NOT EXISTS admin_users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -10,8 +10,8 @@ $create_table_sql = "CREATE TABLE IF NOT EXISTS admin_users (
 mysqli_query($conn, $create_table_sql);
 
 $username = "admin";
-$password = "admin123";
-$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+$new_password = "Adminasec145!";
+$new_hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
 
 // Mevcut admin kullanıcısını kontrol et
 $check_sql = "SELECT id FROM admin_users WHERE username = ?";
@@ -20,11 +20,19 @@ mysqli_stmt_bind_param($check_stmt, "s", $username);
 mysqli_stmt_execute($check_stmt);
 mysqli_stmt_store_result($check_stmt);
 
-// Eğer admin kullanıcısı yoksa oluştur
+// Eğer admin kullanıcısı yoksa oluştur, varsa şifreyi güncelle
 if(mysqli_stmt_num_rows($check_stmt) == 0) {
     $insert_sql = "INSERT INTO admin_users (username, password) VALUES (?, ?)";
     if($stmt = mysqli_prepare($conn, $insert_sql)){
-        mysqli_stmt_bind_param($stmt, "ss", $username, $hashed_password);
+        mysqli_stmt_bind_param($stmt, "ss", $username, $new_hashed_password);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    }
+} else {
+    // Mevcut admin kullanıcısının şifresini güncelle
+    $update_sql = "UPDATE admin_users SET password = ? WHERE username = ?";
+    if($stmt = mysqli_prepare($conn, $update_sql)){
+        mysqli_stmt_bind_param($stmt, "ss", $new_hashed_password, $username);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
     }

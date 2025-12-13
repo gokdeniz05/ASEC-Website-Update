@@ -4,11 +4,12 @@ services:
   # --- 1. Web Sunucusu ---
   website:
     build: .
-    container_name: asec_website
+    # container_name: KALDIRILDI (Otomatik isimlendirilecek)
     ports:
-      - "8083:80"
+      - "${APP_PORT}:80"
     volumes:
       - ./src:/var/www/html
+      - ./sessions:/tmp  # Session dosyaları burada tutulacak
       - ./config/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     environment:
       - IS_DOCKER=true
@@ -17,25 +18,24 @@ services:
       - database
 
   # --- 2. Veritabanı ---
-  # PHP Config dosyasında 'DB_SERVER' olarak bu servisin adı olan 'database' kullanılmalı.
   database:
     image: mysql:8.0
-    container_name: asec_mysql_db
+    # container_name: KALDIRILDI
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: root  # PHP Config dosyasında DB_PASSWORD 'root' olmalı
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: db_asec
       TZ: Europe/Istanbul
     volumes:
       - db_data:/var/lib/mysql
       - ./sql:/docker-entrypoint-initdb.d
 
-  # --- 3. Yönetim Paneli ---
+  # --- 3. Yönetim Paneli (PhpMyAdmin) ---
   pma:
     image: phpmyadmin/phpmyadmin
-    container_name: asec_pma
+    # container_name: KALDIRILDI
     ports:
-      - "45081:80"
+      - "${PMA_PORT}:80"
     environment:
       PMA_HOST: database
       MYSQL_ROOT_PASSWORD: root

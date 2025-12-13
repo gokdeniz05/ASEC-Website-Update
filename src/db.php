@@ -1,21 +1,15 @@
 <?php
-// db.php – SON DÜZELTMELER VE ÇÖKÜŞ ENGELLEYİCİ
-
-// 1. SESSION AYARLARI
-$sessionPath = __DIR__ . '/sessions';
-
-if (!file_exists($sessionPath)) {
-    mkdir($sessionPath, 0777, true);
-}
+// db.php – TEMİZ VE DOCKER UYUMLU SÜRÜM
 
 ob_start();
 
+// 1. SESSION AYARLARI (Docker'da varsayılan yol en iyisidir)
+// Özel klasör oluşturma kodlarını sildik, Docker'ın kendi /tmp klasörünü kullanacak.
 if (session_status() === PHP_SESSION_NONE) {
-    session_save_path($sessionPath);
     session_start();
 }
 
-// 2. VERİTABANI BAĞLANTISI
+// 2. VERİTABANI AYARLARI
 $charset = 'utf8mb4';
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -23,27 +17,24 @@ $options = [
     PDO::ATTR_EMULATE_PREPARES   => false,
 ];
 
-// Ortam Kontrolü (Docker vs Localhost)
-if (getenv('IS_DOCKER') === 'true' || ($_SERVER['SERVER_NAME'] !== 'localhost' && $_SERVER['SERVER_NAME'] !== '127.0.0.1')) {
-    // BURASI ÇALIŞACAK! (IS_DOCKER=true veya dış IP'den geliyorsa)
-    $host = 'database'; // DOCKER HOSTU
-    $db   = 'db_asec';
-    $user = 'root';
-    $pass = 'root';
-} else {
-    // Sadece XAMPP/Localhost (Hata ayıklama için)
-    $host = 'localhost';
-    $db   = 'db_asec';
-    $user = 'root';
-    $pass = '';
-}
+// Docker Environment Değişkenlerini Kullan (Yoksa varsayılanları al)
+// Bu sayede .env dosyasında ne yazıyorsa ona bağlanır.
+$host = getenv('DB_HOST') ?: 'database'; 
+$db   = getenv('DB_NAME') ?: 'db_asec';
+$user = getenv('DB_USER') ?: 'root';
+$pass = getenv('DB_PASS') ?: 'root';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (PDOException $e) {
-    // Hata çıktısında hangi host'a bağlanamadığını gösterelim
-    die('❌ Veritabanı Bağlantı Hatası:<br>Hedef Host: ' . $host . '<br>Hata Mesajı: ' . $e->getMessage());
+    // Hata detayını ekrana bas (Sorunu görmek için)
+    die('<div style="background-color: #f8d7da; color: #721c24; padding: 20px; border: 1px solid #f5c6cb; border-radius: 5px; font-family: sans-serif;">
+        <h3>❌ Veritabanı Bağlantı Hatası</h3>
+        <p><strong>Hedef Host:</strong> ' . $host . '</p>
+        <p><strong>Hedef DB:</strong> ' . $db . '</p>
+        <p><strong>Hata Mesajı:</strong> ' . $e->getMessage() . '</p>
+        </div>');
 }
 ?>

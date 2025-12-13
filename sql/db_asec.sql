@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Anamakine: 127.0.0.1
--- Üretim Zamanı: 23 Kas 2025, 14:59:42
+-- Üretim Zamanı: 11 Ara 2025, 09:16:29
 -- Sunucu sürümü: 10.4.32-MariaDB
 -- PHP Sürümü: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Veritabanı: `db_asec`
+-- Veritabanı: `livedatabase`
 --
 
 -- --------------------------------------------------------
@@ -54,7 +54,9 @@ INSERT INTO `admin_users` (`id`, `username`, `password`) VALUES
 CREATE TABLE `blog_posts` (
   `id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
+  `title_en` varchar(255) DEFAULT NULL,
   `content` text NOT NULL,
+  `content_en` longtext DEFAULT NULL,
   `image_url` varchar(255) DEFAULT NULL,
   `category` varchar(100) DEFAULT NULL,
   `author` varchar(100) DEFAULT NULL,
@@ -66,9 +68,9 @@ CREATE TABLE `blog_posts` (
 -- Tablo döküm verisi `blog_posts`
 --
 
-INSERT INTO `blog_posts` (`id`, `title`, `content`, `image_url`, `category`, `author`, `created_at`, `updated_at`) VALUES
-(2, 'Yapay Zekânın Siber Güvenlikteki Devrimi: Dost mu, Düşman mı?', '<p></p><h1><br></h1><p>Yapay zekâ (YZ), artık sadece bilim kurgu filmlerinde değil; hayatımızın, sistemlerimizin ve hatta güvenlik protokollerimizin merkezinde. Ancak bu teknolojinin siber güvenlik alanındaki yükselişi, beraberinde hem büyük fırsatları hem de tedirgin edici riskleri getiriyor. Peki, YZ siber güvenliğin kahramanı mı, yoksa yeni nesil siber tehditlerin en güçlü müttefiki mi?</p><h2>1. Yapay Zekâ: Yeni Nesil Güvenlik Duvarı</h2><p>Geleneksel güvenlik sistemleri genellikle imza tabanlıdır ve daha önce tanımlanmış tehditlere karşı çalışır. Fakat günümüzde her 39 saniyede bir siber saldırı gerçekleştiği gerçeği düşünüldüğünde, önceden tanımlanmış tehditlerle sınırlı kalmak artık yeterli değil.</p><p>İşte burada yapay zekâ devreye giriyor.</p><p>YZ, ağ trafiğini sürekli analiz ederek normalin dışına çıkan davranışları tespit edebilir. Anomali tespiti, tehdit istihbaratı, otomatik yanıt sistemleri… Bunlar, bir güvenlik uzmanının rüyasını süsleyen özellikler. Örneğin:</p><ul>\r\n<li>\r\n<p><strong>Makine öğrenmesi</strong>, zararlı yazılımları davranışlarına göre sınıflandırarak sıfır gün tehditlerini yakalayabilir.</p>\r\n</li>\r\n<li>\r\n<p><strong>Doğal dil işleme</strong>, dark web’deki tehditleri izleyerek potansiyel saldırılar hakkında önceden bilgi toplayabilir.</p>\r\n</li>\r\n<li>\r\n<p><strong>Otonom yanıt sistemleri</strong>, insan müdahalesine gerek kalmadan saldırıya anında yanıt verebilir.</p>\r\n</li>\r\n</ul><h2>2. “Yapay Hackerlar”: Tehdidin Yeni Adı</h2><p>Ama işler burada bitmiyor. Yapay zekânın bu yetenekleri sadece savunma amaçlı değil, saldırı tarafında da kullanılabiliyor.</p><p>Bugün tehdit aktörleri:</p><ul>\r\n<li>\r\n<p>YZ tabanlı <strong>otomatik kimlik avı e-postaları</strong> üretiyor,</p>\r\n</li>\r\n<li>\r\n<p><strong>Captcha geçebilen botlar</strong> kullanıyor,</p>\r\n</li>\r\n<li>\r\n<p>Ve hatta <strong>yapay ses klonlaması</strong> ile sosyal mühendislik saldırılarını güçlendiriyor.</p>\r\n</li>\r\n</ul><p>2024\'te yapılan bir saldırıda, bir CEO\'nun sesinin yapay zekâ ile klonlanarak muhasebe ekibine sahte ödeme talimatı gönderildi. Hasar? 243.000 dolar.</p><p>YZ artık sadece bir araç değil, aynı zamanda bir “aktör”.</p><h2>3. Savunma ve Saldırı Arasında Bir Satranç Oyunu</h2><p>Siber güvenlik artık bir satranç tahtası. İki taraf da yapay zekâdan güç alıyor ve sürekli birbirine karşı hamle yapıyor. Bir taraf tehditleri tespit etmek için modeli eğitirken, diğer taraf bu modeli “kandırmak” için adversarial örnekler oluşturuyor.</p><p>Bu durum, özellikle <strong>adversarial machine learning</strong> (karşıt makine öğrenmesi) gibi yeni alt alanların doğmasına neden oldu. Ve belki de siber güvenliğin geleceği, bu iki yapay zekâ modelinin “birbirine karşı eğitilmesi” ile şekillenecek.</p><h2>4. İnsan Faktörü: Yapay Zekânın En Zayıf Noktası</h2><p>Ne kadar otomasyon yapılırsa yapılsın, siber güvenlik hâlâ büyük ölçüde insan davranışlarına bağlı. Yapay zekâ, kullanıcı hatalarını sıfırlayamaz. Tam aksine, bazen onları daha da görünmez hale getirebilir.</p><p>Bu nedenle, “insan” faktörü eğitilmediği sürece, YZ tabanlı en gelişmiş sistemler bile kırılabilir. Tıpkı modern bir kale gibi: Ne kadar yüksek surlarınız olursa olsun, içeriden biri kapıyı açarsa tüm savunma boşa gider.</p><h2>5. Gelecek: Yapay Zekâ Güvenlik Danışmanınız mı Olacak?</h2><p>Yapay zekâ, SOC (Security Operations Center) ekiplerinde bir çalışan gibi görev alıyor. Alarm yorgunluğunu azaltıyor, önceliklendirme yapıyor, hatta bazı kararları tamamen kendi alıyor.</p><p>Yakın gelecekte her güvenlik ekibinin bir YZ asistanı olacak. Hatta belki de bu asistan, bir gün insan müdahalesine ihtiyaç duymadan sistemleri yönetecek kadar gelişecek.</p><p>Ama o zamana kadar, ona güvenmeyi <strong>değil</strong>, onu anlamayı öğrenmemiz gerekiyor.</p><hr><h2>Son Söz: “Yapay Zekâ Tarafsızdır, Kullanıcısı Değil”</h2><p>Yapay zekâ, bir çekiç gibidir. Onunla bir ev de inşa edebilirsin, bir cam da kırabilirsin. Siber güvenlik dünyasında bu denge, teknoloji kadar <strong>etik değerler</strong>, <strong>eğitim</strong>, ve <strong>denetim</strong> ile de korunmalıdır.</p><p>Bu savaşta kazanan taraf olmak istiyorsak, YZ’yi sadece kullanmakla kalmamalı, onu yöneten zihinler olarak kalmalıyız.</p>', 'uploads/2acf17f7-edce-4d03-ad03-7c8876748702.png', 'Yapay Zeka', 'Ali Kesik', '2025-05-12 09:00:52', '2025-05-12 09:00:52'),
-(3, 'Geleceği Kodlayan Kollar: Robotik Devrimin Eşiğindeyiz', '<p></p><h1><br></h1><p>Robotik, artık sadece fabrika hatlarında ürün taşıyan metal kolları ifade etmiyor. Bugün robotlar; hastanelerde ameliyat yapıyor, evlerimizde temizlik yapıyor, Mars’ta toprak analizi yapıyor ve çok yakın bir gelecekte sokakta yanımızdan yürüyüp geçecek.</p><p>Peki bu büyük dönüşüm sadece teknolojik mi? Yoksa insanlığın evriminin bir sonraki halkası mı?</p><h2>1. Robotik Nedir, Ne Değildir?</h2><p>Robotik; mekanik yapıların, elektronik bileşenlerin ve yapay zekânın birleşimiyle otonom veya yarı otonom sistemlerin geliştirilmesini konu alan bir bilim dalıdır. Ancak robotik sadece fiziksel makinelerle sınırlı değildir. Yazılım robotları (RPA), sosyal robotlar ve nano-robotlar gibi pek çok alt kolu mevcuttur.</p><p>Bugün bir robot:</p><ul>\r\n<li>\r\n<p><strong>Algılayabilir</strong> (kameralar, sensörler),</p>\r\n</li>\r\n<li>\r\n<p><strong>Düşünebilir</strong> (YZ ve karar algoritmaları),</p>\r\n</li>\r\n<li>\r\n<p><strong>Hareket edebilir</strong> (motorlar ve aktüatörler),</p>\r\n</li>\r\n<li>\r\n<p>Ve bazen <strong>hissedebilir</strong> (duyusal geri bildirim sistemleri).</p>\r\n</li>\r\n</ul><p>Kısacası; beyin, göz, kol ve sinir sistemi… Hepsi burada, tek bir gövdede birleşiyor.</p><h2>2. Robotik Nerelerde Hayatımıza Girdi?</h2><p>Robotik sistemler artık her yerdeler:</p><ul>\r\n<li>\r\n<p><strong>Sağlıkta:</strong> Da Vinci cerrahi robotu, milimetrik kesilerle açık ameliyat ihtiyacını ortadan kaldırıyor.</p>\r\n</li>\r\n<li>\r\n<p><strong>Tarımda:</strong> Tarım robotları, yapay zekâ destekli olarak bitki sağlığını analiz edip otomatik ilaçlama yapabiliyor.</p>\r\n</li>\r\n<li>\r\n<p><strong>Günlük Hayatta:</strong> Temizlik robotları, yapay zekâ ile evi haritalandırıp temizlik rotası çıkarıyor. Yeni nesil robot evcil hayvanlar ise yalnızlıkla mücadelede kullanılıyor.</p>\r\n</li>\r\n<li>\r\n<p><strong>Uzayda:</strong> Perseverance adlı Mars aracı, milyonlarca kilometre ötede insanlığı temsil ediyor.</p>\r\n</li>\r\n</ul><p>Ve elbette, <strong>endüstride</strong> robotlar hâlâ çok güçlü: üretim hızını artırıyor, hatayı azaltıyor ve insanları tehlikeli görevlerden kurtarıyor.</p><h2>3. İnsan–Robot İşbirliği: Rekabet Değil, Ortaklık</h2><p>Korkulanın aksine, robotlar iş gücünü tamamen ortadan kaldırmak yerine dönüştürüyor. Fiziksel işi robotlar yaparken, insanlar daha yaratıcı, denetleyici ve yönetici rollere geçiyor.</p><p>Yeni terimler doğuyor:<br>\r\n<strong>Cobots (collaborative robots)</strong> — insanlarla aynı ortamda, aynı hedef için çalışan robotlar. Artık robotlar insanı iten değil, insanla “el sıkışan” bir yapıda.</p><h2>4. Robotik Etiği: Makinelere Sınır Çizmek</h2><p>Robotik teknolojiler ilerledikçe bazı ciddi sorular da gündeme geliyor:</p><ul>\r\n<li>\r\n<p>Robotlar hangi kararları bağımsız almalı?</p>\r\n</li>\r\n<li>\r\n<p>Bir robot hata yaptığında kim sorumlu?</p>\r\n</li>\r\n<li>\r\n<p>İnsan gibi görünen robotlar, duygusal bağ kurmalı mı?</p>\r\n</li>\r\n</ul><p>Bu sorular sadece mühendisleri değil, filozofları, hukukçuları ve toplumun tamamını ilgilendiriyor. “Robot Hakları” bile bazı ülkelerde tartışma konusu hâline gelmiş durumda.</p><h2>5. Geleceğe Dair: İnsanlığın Yeni Uzantısı</h2><p>Çok uzak olmayan bir gelecekte, evimizdeki robot sadece yerleri süpürmeyecek. Çocuklarımızın ödevine yardım edecek, yaşlıların ilacını hatırlatacak, belki de duygusal destek sunacak.</p><p>Ayrıca robotlar artık <strong>beden dışı</strong> formlarda da var: Chatbot’lar, dijital asistanlar ve yazılım robotları, insan benzeri etkileşimler sunuyor.</p><hr><h2>Son Söz: Kodla Düşünen, Metalle Duygulanan Bir Gelecek</h2><p>Robotik, insanın doğaya karşı verdiği savaşta değil, doğayla birlikte sürdürülebilir bir yaşam kurma yolculuğunda en büyük müttefiki olabilir.</p><p>Eğer bu devrimi izlemek yerine yön vermek istiyorsak, robotları sadece kullanmayı değil, onları <strong>anlamayı</strong> ve <strong>sorumlulukla inşa etmeyi</strong> öğrenmeliyiz.</p><p>Çünkü robotlar geleceği inşa etmeyecek…<br>\r\n<strong>Onları inşa eden bizler, geleceği şekillendireceğiz.</strong></p>', 'uploads/1747041423_robotics.jpeg', 'Robotik', 'Ali Kesik', '2025-05-12 09:16:18', '2025-05-12 09:17:03');
+INSERT INTO `blog_posts` (`id`, `title`, `title_en`, `content`, `content_en`, `image_url`, `category`, `author`, `created_at`, `updated_at`) VALUES
+(2, 'Yapay Zekânın Siber Güvenlikteki Devrimi: Dost mu, Düşman mı?', NULL, '<p></p><h1><br></h1><p>Yapay zekâ (YZ), artık sadece bilim kurgu filmlerinde değil; hayatımızın, sistemlerimizin ve hatta güvenlik protokollerimizin merkezinde. Ancak bu teknolojinin siber güvenlik alanındaki yükselişi, beraberinde hem büyük fırsatları hem de tedirgin edici riskleri getiriyor. Peki, YZ siber güvenliğin kahramanı mı, yoksa yeni nesil siber tehditlerin en güçlü müttefiki mi?</p><h2>1. Yapay Zekâ: Yeni Nesil Güvenlik Duvarı</h2><p>Geleneksel güvenlik sistemleri genellikle imza tabanlıdır ve daha önce tanımlanmış tehditlere karşı çalışır. Fakat günümüzde her 39 saniyede bir siber saldırı gerçekleştiği gerçeği düşünüldüğünde, önceden tanımlanmış tehditlerle sınırlı kalmak artık yeterli değil.</p><p>İşte burada yapay zekâ devreye giriyor.</p><p>YZ, ağ trafiğini sürekli analiz ederek normalin dışına çıkan davranışları tespit edebilir. Anomali tespiti, tehdit istihbaratı, otomatik yanıt sistemleri… Bunlar, bir güvenlik uzmanının rüyasını süsleyen özellikler. Örneğin:</p><ul>\r\n<li>\r\n<p><strong>Makine öğrenmesi</strong>, zararlı yazılımları davranışlarına göre sınıflandırarak sıfır gün tehditlerini yakalayabilir.</p>\r\n</li>\r\n<li>\r\n<p><strong>Doğal dil işleme</strong>, dark web’deki tehditleri izleyerek potansiyel saldırılar hakkında önceden bilgi toplayabilir.</p>\r\n</li>\r\n<li>\r\n<p><strong>Otonom yanıt sistemleri</strong>, insan müdahalesine gerek kalmadan saldırıya anında yanıt verebilir.</p>\r\n</li>\r\n</ul><h2>2. “Yapay Hackerlar”: Tehdidin Yeni Adı</h2><p>Ama işler burada bitmiyor. Yapay zekânın bu yetenekleri sadece savunma amaçlı değil, saldırı tarafında da kullanılabiliyor.</p><p>Bugün tehdit aktörleri:</p><ul>\r\n<li>\r\n<p>YZ tabanlı <strong>otomatik kimlik avı e-postaları</strong> üretiyor,</p>\r\n</li>\r\n<li>\r\n<p><strong>Captcha geçebilen botlar</strong> kullanıyor,</p>\r\n</li>\r\n<li>\r\n<p>Ve hatta <strong>yapay ses klonlaması</strong> ile sosyal mühendislik saldırılarını güçlendiriyor.</p>\r\n</li>\r\n</ul><p>2024\'te yapılan bir saldırıda, bir CEO\'nun sesinin yapay zekâ ile klonlanarak muhasebe ekibine sahte ödeme talimatı gönderildi. Hasar? 243.000 dolar.</p><p>YZ artık sadece bir araç değil, aynı zamanda bir “aktör”.</p><h2>3. Savunma ve Saldırı Arasında Bir Satranç Oyunu</h2><p>Siber güvenlik artık bir satranç tahtası. İki taraf da yapay zekâdan güç alıyor ve sürekli birbirine karşı hamle yapıyor. Bir taraf tehditleri tespit etmek için modeli eğitirken, diğer taraf bu modeli “kandırmak” için adversarial örnekler oluşturuyor.</p><p>Bu durum, özellikle <strong>adversarial machine learning</strong> (karşıt makine öğrenmesi) gibi yeni alt alanların doğmasına neden oldu. Ve belki de siber güvenliğin geleceği, bu iki yapay zekâ modelinin “birbirine karşı eğitilmesi” ile şekillenecek.</p><h2>4. İnsan Faktörü: Yapay Zekânın En Zayıf Noktası</h2><p>Ne kadar otomasyon yapılırsa yapılsın, siber güvenlik hâlâ büyük ölçüde insan davranışlarına bağlı. Yapay zekâ, kullanıcı hatalarını sıfırlayamaz. Tam aksine, bazen onları daha da görünmez hale getirebilir.</p><p>Bu nedenle, “insan” faktörü eğitilmediği sürece, YZ tabanlı en gelişmiş sistemler bile kırılabilir. Tıpkı modern bir kale gibi: Ne kadar yüksek surlarınız olursa olsun, içeriden biri kapıyı açarsa tüm savunma boşa gider.</p><h2>5. Gelecek: Yapay Zekâ Güvenlik Danışmanınız mı Olacak?</h2><p>Yapay zekâ, SOC (Security Operations Center) ekiplerinde bir çalışan gibi görev alıyor. Alarm yorgunluğunu azaltıyor, önceliklendirme yapıyor, hatta bazı kararları tamamen kendi alıyor.</p><p>Yakın gelecekte her güvenlik ekibinin bir YZ asistanı olacak. Hatta belki de bu asistan, bir gün insan müdahalesine ihtiyaç duymadan sistemleri yönetecek kadar gelişecek.</p><p>Ama o zamana kadar, ona güvenmeyi <strong>değil</strong>, onu anlamayı öğrenmemiz gerekiyor.</p><hr><h2>Son Söz: “Yapay Zekâ Tarafsızdır, Kullanıcısı Değil”</h2><p>Yapay zekâ, bir çekiç gibidir. Onunla bir ev de inşa edebilirsin, bir cam da kırabilirsin. Siber güvenlik dünyasında bu denge, teknoloji kadar <strong>etik değerler</strong>, <strong>eğitim</strong>, ve <strong>denetim</strong> ile de korunmalıdır.</p><p>Bu savaşta kazanan taraf olmak istiyorsak, YZ’yi sadece kullanmakla kalmamalı, onu yöneten zihinler olarak kalmalıyız.</p>', NULL, 'uploads/2acf17f7-edce-4d03-ad03-7c8876748702.png', 'Yapay Zeka', 'Ali Kesik', '2025-05-12 09:00:52', '2025-05-12 09:00:52'),
+(3, 'Geleceği Kodlayan Kollar: Robotik Devrimin Eşiğindeyiz', 'Arms That Code the Future: On the Brink of the Robotics Revolution', '<p></p><h1><br></h1><p>Robotik, artık sadece fabrika hatlarında ürün taşıyan metal kolları ifade etmiyor. Bugün robotlar; hastanelerde ameliyat yapıyor, evlerimizde temizlik yapıyor, Mars’ta toprak analizi yapıyor ve çok yakın bir gelecekte sokakta yanımızdan yürüyüp geçecek.</p><p>Peki bu büyük dönüşüm sadece teknolojik mi? Yoksa insanlığın evriminin bir sonraki halkası mı?</p><h2>1. Robotik Nedir, Ne Değildir?</h2><p>Robotik; mekanik yapıların, elektronik bileşenlerin ve yapay zekânın birleşimiyle otonom veya yarı otonom sistemlerin geliştirilmesini konu alan bir bilim dalıdır. Ancak robotik sadece fiziksel makinelerle sınırlı değildir. Yazılım robotları (RPA), sosyal robotlar ve nano-robotlar gibi pek çok alt kolu mevcuttur.</p><p>Bugün bir robot:</p><ul>\r\n<li>\r\n<p><strong>Algılayabilir</strong> (kameralar, sensörler),</p>\r\n</li>\r\n<li>\r\n<p><strong>Düşünebilir</strong> (YZ ve karar algoritmaları),</p>\r\n</li>\r\n<li>\r\n<p><strong>Hareket edebilir</strong> (motorlar ve aktüatörler),</p>\r\n</li>\r\n<li>\r\n<p>Ve bazen <strong>hissedebilir</strong> (duyusal geri bildirim sistemleri).</p>\r\n</li>\r\n</ul><p>Kısacası; beyin, göz, kol ve sinir sistemi… Hepsi burada, tek bir gövdede birleşiyor.</p><h2>2. Robotik Nerelerde Hayatımıza Girdi?</h2><p>Robotik sistemler artık her yerdeler:</p><ul>\r\n<li>\r\n<p><strong>Sağlıkta:</strong> Da Vinci cerrahi robotu, milimetrik kesilerle açık ameliyat ihtiyacını ortadan kaldırıyor.</p>\r\n</li>\r\n<li>\r\n<p><strong>Tarımda:</strong> Tarım robotları, yapay zekâ destekli olarak bitki sağlığını analiz edip otomatik ilaçlama yapabiliyor.</p>\r\n</li>\r\n<li>\r\n<p><strong>Günlük Hayatta:</strong> Temizlik robotları, yapay zekâ ile evi haritalandırıp temizlik rotası çıkarıyor. Yeni nesil robot evcil hayvanlar ise yalnızlıkla mücadelede kullanılıyor.</p>\r\n</li>\r\n<li>\r\n<p><strong>Uzayda:</strong> Perseverance adlı Mars aracı, milyonlarca kilometre ötede insanlığı temsil ediyor.</p>\r\n</li>\r\n</ul><p>Ve elbette, <strong>endüstride</strong> robotlar hâlâ çok güçlü: üretim hızını artırıyor, hatayı azaltıyor ve insanları tehlikeli görevlerden kurtarıyor.</p><h2>3. İnsan–Robot İşbirliği: Rekabet Değil, Ortaklık</h2><p>Korkulanın aksine, robotlar iş gücünü tamamen ortadan kaldırmak yerine dönüştürüyor. Fiziksel işi robotlar yaparken, insanlar daha yaratıcı, denetleyici ve yönetici rollere geçiyor.</p><p>Yeni terimler doğuyor:<br>\r\n<strong>Cobots (collaborative robots)</strong> — insanlarla aynı ortamda, aynı hedef için çalışan robotlar. Artık robotlar insanı iten değil, insanla “el sıkışan” bir yapıda.</p><h2>4. Robotik Etiği: Makinelere Sınır Çizmek</h2><p>Robotik teknolojiler ilerledikçe bazı ciddi sorular da gündeme geliyor:</p><ul>\r\n<li>\r\n<p>Robotlar hangi kararları bağımsız almalı?</p>\r\n</li>\r\n<li>\r\n<p>Bir robot hata yaptığında kim sorumlu?</p>\r\n</li>\r\n<li>\r\n<p>İnsan gibi görünen robotlar, duygusal bağ kurmalı mı?</p>\r\n</li>\r\n</ul><p>Bu sorular sadece mühendisleri değil, filozofları, hukukçuları ve toplumun tamamını ilgilendiriyor. “Robot Hakları” bile bazı ülkelerde tartışma konusu hâline gelmiş durumda.</p><h2>5. Geleceğe Dair: İnsanlığın Yeni Uzantısı</h2><p>Çok uzak olmayan bir gelecekte, evimizdeki robot sadece yerleri süpürmeyecek. Çocuklarımızın ödevine yardım edecek, yaşlıların ilacını hatırlatacak, belki de duygusal destek sunacak.</p><p>Ayrıca robotlar artık <strong>beden dışı</strong> formlarda da var: Chatbot’lar, dijital asistanlar ve yazılım robotları, insan benzeri etkileşimler sunuyor.</p><hr><h2>Son Söz: Kodla Düşünen, Metalle Duygulanan Bir Gelecek</h2><p>Robotik, insanın doğaya karşı verdiği savaşta değil, doğayla birlikte sürdürülebilir bir yaşam kurma yolculuğunda en büyük müttefiki olabilir.</p><p>Eğer bu devrimi izlemek yerine yön vermek istiyorsak, robotları sadece kullanmayı değil, onları <strong>anlamayı</strong> ve <strong>sorumlulukla inşa etmeyi</strong> öğrenmeliyiz.</p><p>Çünkü robotlar geleceği inşa etmeyecek…<br>\r\n<strong>Onları inşa eden bizler, geleceği şekillendireceğiz.</strong></p>', '<p data-start=\"108\" data-end=\"334\">Robotics no longer refers only to the metal arms carrying products along factory lines. Today, robots perform surgeries in hospitals, clean our homes, analyze soil on Mars, and—very soon—may walk right past us on the street.</p><p data-start=\"336\" data-end=\"445\">So, is this great transformation merely technological?<br data-start=\"390\" data-end=\"393\">\r\nOr is it the next step in the evolution of humanity?</p><hr data-start=\"447\" data-end=\"450\"><h3 data-start=\"452\" data-end=\"497\"><strong data-start=\"456\" data-end=\"497\">1. What Robotics Is—and What It Isn’t</strong></h3><p data-start=\"498\" data-end=\"840\">Robotics is a scientific field that focuses on developing autonomous or semi-autonomous systems through the combination of mechanical structures, electronic components, and artificial intelligence. However, robotics is not limited to physical machines. It includes many subfields such as software robots (RPA), social robots, and nano-robots.</p><p data-start=\"842\" data-end=\"861\">Today, a robot can:</p><ul data-start=\"863\" data-end=\"1040\">\r\n<li data-start=\"863\" data-end=\"899\">\r\n<p data-start=\"865\" data-end=\"899\"><strong data-start=\"865\" data-end=\"877\">Perceive</strong> (cameras, sensors),</p>\r\n</li>\r\n<li data-start=\"900\" data-end=\"950\">\r\n<p data-start=\"902\" data-end=\"950\"><strong data-start=\"902\" data-end=\"911\">Think</strong> (AI and decision-making algorithms),</p>\r\n</li>\r\n<li data-start=\"951\" data-end=\"987\">\r\n<p data-start=\"953\" data-end=\"987\"><strong data-start=\"953\" data-end=\"961\">Move</strong> (motors and actuators),</p>\r\n</li>\r\n<li data-start=\"988\" data-end=\"1040\">\r\n<p data-start=\"990\" data-end=\"1040\">And sometimes <strong data-start=\"1004\" data-end=\"1012\">feel</strong> (sensory feedback systems).</p>\r\n</li>\r\n</ul><p data-start=\"1042\" data-end=\"1131\">In short: a brain, eyes, arms, and a nervous system—<br data-start=\"1094\" data-end=\"1097\">\r\nall integrated into a single body.</p><hr data-start=\"1133\" data-end=\"1136\"><h3 data-start=\"1138\" data-end=\"1185\"><strong data-start=\"1142\" data-end=\"1185\">2. Where Robotics Has Entered Our Lives</strong></h3><p data-start=\"1186\" data-end=\"1221\">Robotic systems are now everywhere:</p><p data-start=\"1223\" data-end=\"1331\"><strong data-start=\"1223\" data-end=\"1238\">Healthcare:</strong> The Da Vinci surgical robot eliminates the need for open surgery with millimetric precision.</p><p data-start=\"1333\" data-end=\"1437\"><strong data-start=\"1333\" data-end=\"1349\">Agriculture:</strong> AI-powered agricultural robots can analyze plant health and perform automated spraying.</p><p data-start=\"1439\" data-end=\"1593\"><strong data-start=\"1439\" data-end=\"1454\">Daily Life:</strong> Cleaning robots map your home using AI and plan optimized cleaning routes. New-generation robotic pets are even used to combat loneliness.</p><p data-start=\"1595\" data-end=\"1685\"><strong data-start=\"1595\" data-end=\"1605\">Space:</strong> The Perseverance rover on Mars represents humanity millions of kilometers away.</p><p data-start=\"1687\" data-end=\"1829\">And of course, robots remain dominant in industry—<br data-start=\"1737\" data-end=\"1740\">\r\nincreasing production speed, reducing errors, and protecting humans from dangerous tasks.</p><hr data-start=\"1831\" data-end=\"1834\"><h3 data-start=\"1836\" data-end=\"1906\"><strong data-start=\"1840\" data-end=\"1906\">3. Human–Robot Collaboration: Not Competition, but Partnership</strong></h3><p data-start=\"1907\" data-end=\"2109\">Contrary to common fears, robots are transforming the workforce rather than eliminating it. While robots handle physical labor, humans move into roles that are more creative, supervisory, and strategic.</p><p data-start=\"2111\" data-end=\"2345\">New terms are emerging:<br data-start=\"2134\" data-end=\"2137\">\r\n<strong data-start=\"2137\" data-end=\"2147\">Cobots</strong> (collaborative robots) — robots that work <em data-start=\"2190\" data-end=\"2196\">with</em> humans in the same environment toward a shared goal. Robots are no longer machines that push humans aside, but systems that “shake hands” with them.</p><hr data-start=\"2347\" data-end=\"2350\"><h3 data-start=\"2352\" data-end=\"2411\"><strong data-start=\"2356\" data-end=\"2411\">4. Robotics Ethics: Setting Boundaries for Machines</strong></h3><p data-start=\"2412\" data-end=\"2468\">As robotics advances, important ethical questions arise:</p><ul data-start=\"2470\" data-end=\"2640\">\r\n<li data-start=\"2470\" data-end=\"2537\">\r\n<p data-start=\"2472\" data-end=\"2537\">Which decisions should robots be allowed to make independently?</p>\r\n</li>\r\n<li data-start=\"2538\" data-end=\"2591\">\r\n<p data-start=\"2540\" data-end=\"2591\">When a robot makes a mistake, who is responsible?</p>\r\n</li>\r\n<li data-start=\"2592\" data-end=\"2640\">\r\n<p data-start=\"2594\" data-end=\"2640\">Should human-like robots form emotional bonds?</p>\r\n</li>\r\n</ul><p data-start=\"2642\" data-end=\"2809\">These questions concern not only engineers, but philosophers, lawmakers, and society as a whole.<br data-start=\"2738\" data-end=\"2741\">\r\nIn fact, “robot rights” are already being debated in some countries.</p><hr data-start=\"2811\" data-end=\"2814\"><h3 data-start=\"2816\" data-end=\"2866\"><strong data-start=\"2820\" data-end=\"2866\">5. Looking Ahead: Humanity’s New Extension</strong></h3><p data-start=\"2867\" data-end=\"3066\">In the near future, the robot in your home will do much more than vacuum the floor. It may help children with homework, remind the elderly to take their medication, or even provide emotional support.</p><p data-start=\"3068\" data-end=\"3219\">And robots no longer exist solely in physical bodies:<br data-start=\"3121\" data-end=\"3124\">\r\nChatbots, digital assistants, and software robots provide increasingly human-like interactions.</p><hr data-start=\"3221\" data-end=\"3224\"><h3 data-start=\"3226\" data-end=\"3294\"><strong data-start=\"3230\" data-end=\"3294\">Final Words: A Future That Thinks in Code and Feels in Metal</strong></h3><p data-start=\"3295\" data-end=\"3423\">Robotics may become humanity’s greatest ally—not in a struggle against nature, but in building a sustainable life <em data-start=\"3409\" data-end=\"3415\">with</em> nature.</p><p data-start=\"3425\" data-end=\"3576\">If we want to guide this revolution rather than just watch it, we must learn not only to use robots, but to understand them and build them responsibly.</p><p>\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n</p><p data-start=\"3578\" data-end=\"3657\">Because robots will not build the future…<br data-start=\"3619\" data-end=\"3622\">\r\n<strong data-start=\"3622\" data-end=\"3657\">The people who build them will.</strong></p>', 'uploads/1747041423_robotics.jpeg', 'Robotik', 'Ali Kesik', '2025-05-12 09:16:18', '2025-12-07 14:04:26');
 
 -- --------------------------------------------------------
 
@@ -211,7 +213,7 @@ INSERT INTO `cv_options` (`id`, `type`, `name`, `display_order`, `is_active`, `c
 (11, 'language', 'Kotlin', 10, 1, '2025-11-15 16:41:40', '2025-11-15 16:41:40'),
 (12, 'language', 'Swift', 11, 1, '2025-11-15 16:41:40', '2025-11-15 16:41:40'),
 (13, 'language', 'R', 12, 1, '2025-11-15 16:41:40', '2025-11-15 16:41:40'),
-(14, 'language', 'MATLAB', 13, 1, '2025-11-15 16:41:40', '2025-11-15 16:41:40'),
+(14, 'language', 'MATLAB', 13, 1, '2025-11-15 16:41:40', '2025-11-25 08:32:15'),
 (15, 'language', 'SQL', 14, 1, '2025-11-15 16:41:40', '2025-11-15 16:45:44'),
 (16, 'software_field', 'Web Geliştirme', 0, 1, '2025-11-15 16:41:40', '2025-11-15 16:41:40'),
 (17, 'software_field', 'Mobil Geliştirme', 1, 1, '2025-11-15 16:41:40', '2025-11-15 16:41:40'),
@@ -236,7 +238,9 @@ INSERT INTO `cv_options` (`id`, `type`, `name`, `display_order`, `is_active`, `c
 CREATE TABLE `duyurular` (
   `id` int(11) NOT NULL,
   `baslik` varchar(255) NOT NULL,
+  `baslik_en` varchar(255) DEFAULT NULL,
   `icerik` text DEFAULT NULL,
+  `icerik_en` longtext DEFAULT NULL,
   `kategori` varchar(50) DEFAULT NULL,
   `tarih` date NOT NULL,
   `link` varchar(255) DEFAULT NULL
@@ -246,8 +250,8 @@ CREATE TABLE `duyurular` (
 -- Tablo döküm verisi `duyurular`
 --
 
-INSERT INTO `duyurular` (`id`, `baslik`, `icerik`, `kategori`, `tarih`, `link`) VALUES
-(4, '📢 Sitemiz Yayında!', 'Merhaba!\r\n\r\nAnkara Yıldırım Beyazıt Üniversitesi Yazılım Mühendisliği Kulübü (AYBU ASEC) olarak uzun süredir üzerinde çalıştığımız resmi web sitemiz artık yayında!\r\n\r\n🔗 (https://aybuasec.org) adresinden bize ulaşabilir, kulüp etkinlikleri, duyurular, teknik yazılar hakkında güncel bilgilere ulaşabilirsiniz.\r\n\r\n💡 Web sitemiz; hem üyelerimizle daha etkili iletişim kurmak hem de yazılım dünyasında iz bırakan işlerimizi sergilemek amacıyla oluşturuldu.\r\n\r\nTakipte kalın, çünkü birbirinden heyecan verici içerikler ve etkinlikler yolda!\r\nGeri bildirimlerinizi bizimle paylaşmayı unutmayın. 💬\r\n\r\nSevgilerle,\r\nAYBU ASEC Ekibi\r\n\r\n', 'Önemli', '2025-05-12', '');
+INSERT INTO `duyurular` (`id`, `baslik`, `baslik_en`, `icerik`, `icerik_en`, `kategori`, `tarih`, `link`) VALUES
+(4, '📢 Sitemiz Yayında!', '📢 Our Website Is Live!', 'Merhaba!\r\n\r\nAnkara Yıldırım Beyazıt Üniversitesi Yazılım Mühendisliği Kulübü (AYBU ASEC) olarak uzun süredir üzerinde çalıştığımız resmi web sitemiz artık yayında!\r\n\r\n🔗 (https://aybuasec.org) adresinden bize ulaşabilir, kulüp etkinlikleri, duyurular, teknik yazılar hakkında güncel bilgilere ulaşabilirsiniz.\r\n\r\n💡 Web sitemiz; hem üyelerimizle daha etkili iletişim kurmak hem de yazılım dünyasında iz bırakan işlerimizi sergilemek amacıyla oluşturuldu.\r\n\r\nTakipte kalın, çünkü birbirinden heyecan verici içerikler ve etkinlikler yolda!\r\nGeri bildirimlerinizi bizimle paylaşmayı unutmayın. 💬\r\n\r\nSevgilerle,\r\nAYBU ASEC Ekibi\r\n\r\n', 'Hello!\r\n\r\nAs the Software Engineering Club of Ankara Yıldırım Beyazıt University (AYBU ASEC), we are excited to announce that our official website—on which we’ve been working for quite some time—is now live!\r\n\r\n🔗 You can visit us at aybuasec.org to access up-to-date information about our club events, announcements, and technical articles.\r\n\r\n💡 Our website was created to strengthen communication with our members and to showcase the impactful work we carry out in the world of software.\r\n\r\nStay tuned—many exciting events and content are on the way!\r\nAnd don’t forget to share your feedback with us. 💬\r\n\r\nWith love,\r\nAYBU ASEC Team', 'Önemli', '2025-05-12', '');
 
 -- --------------------------------------------------------
 
@@ -258,7 +262,9 @@ INSERT INTO `duyurular` (`id`, `baslik`, `icerik`, `kategori`, `tarih`, `link`) 
 CREATE TABLE `etkinlikler` (
   `id` int(11) NOT NULL,
   `baslik` varchar(255) NOT NULL,
+  `baslik_en` varchar(255) DEFAULT NULL,
   `aciklama` text DEFAULT NULL,
+  `aciklama_en` longtext DEFAULT NULL,
   `tarih` date NOT NULL,
   `saat` varchar(20) DEFAULT NULL,
   `yer` varchar(255) DEFAULT NULL,
@@ -270,11 +276,11 @@ CREATE TABLE `etkinlikler` (
 -- Tablo döküm verisi `etkinlikler`
 --
 
-INSERT INTO `etkinlikler` (`id`, `baslik`, `aciklama`, `tarih`, `saat`, `yer`, `kayit_link`, `foto_link`) VALUES
-(4, 'ÖĞRENCİLER ANLATIYOR: Yurtdışı Stajı Hayal mi, Gerçek mi?', 'Yurtdışında staj yapmak, eğitim hayatının en heyecan verici deneyimlerinden biri olabilir. Ancak bu süreç bazen öğrenciler için bir hayal gibi görünebilir.\r\nAYBU Software Engineering Club (ASEC) olarak düzenlediğimiz \"Öğrenciler Anlatıyor: Yurtdışı Stajı Hayal mi, Gerçek mi?\" etkinliği ile, bu hayalin nasıl gerçeğe dönüştürülebileceğini birebir deneyimlemiş öğrencilerimiz sizlerle buluşuyor.\r\nEtkinlikte, Erasmus öğrenim hareketliliği, Erasmus+ staj programları, Work and Travel deneyimleri, bitirme projeleri ve aday mühendislik süreçleri hakkında doğrudan bilgi alma fırsatı bulacaksınız.\r\nKonuşmacılar kendi başvuru süreçlerini, karşılaştıkları zorlukları, edindikleri tecrübeleri ve bu süreçlerin kariyerlerine nasıl katkı sağladığını paylaşacaklar.\r\nEtkinlik sonunda ise katılımcılar, merak ettikleri tüm soruları konuşmacılara doğrudan yöneltebilecekler.\r\n\r\nDetaylı Program Akışı:\r\n\r\n11.00–11.10 | Erasmus Öğrenim Hareketliliği (1/2) — 3.sınıf öğrencisi Can Kankılıç\r\n11.10–11.20 | Erasmus Öğrenim Hareketliliği (2/2) — 3.sınıf öğrencisi Furkan Aydos\r\n11.20–11.35 | Erasmus Staj Hareketliliği — 3.sınıf öğrencisi Rüveyda Akça\r\n11.35–11.45 | Work and Travel (1/2) — 3.sınıf öğrencisi İlayda Akınet\r\n11.45–11.55 | Work and Travel — 3.sınıf öğrencisi Sencer Yavuz\r\n12.00–12.10 | Bitirme Projeleri - Araştırma Görevlisi Kübranur Gümüşlü\r\n12.10–12.20 | Aday Mühendislik - Araştırma Görevlisi Kübranur Gümüşlü', '2025-05-06', '11:00 - 13:00', 'Etlik Batı Kampüsü A Blok, 2. Kat Konferans Salonu', '', NULL),
-(5, 'Going Beyond Code: ASEC Spring Picnic', 'In the software world, long hours spent in front of a screen often harm our health and weaken our social interactions. However, we know that success in our field comes not only from individuals who write good code but also from team players who can express themselves and communicate effectively. With this in mind, our ASEC Software Engineering Club organized a picnic on Sunday, May 4th, at Harikalar Diyarı. Throughout the picnic, various activities were held for our club members. Along with volleyball, nostalgic games such as dodgeball, tug of war, sack race, and jump rope took us on a journey to the past and brought lots of fun and joy.', '2025-05-04', '13:30 - 18:00', 'Harikalar Diyarı', '', NULL),
-(6, 'Dijital Çağa Kadın Dokunuşu Etkinliği Gerçekleştirildi', 'Üniversitemiz Yazılım Mühendisliği Kulübü (ASEC) tarafından, bilişim ve girişimcilik dünyasında kadınların artan rolünü vurgulamak amacıyla “Dijital Çağa Kadın Dokunuşu” adlı etkinlik gerçekleştirildi.\r\n\r\nEtkinliğin açılışı, Mühendislik ve Doğa Bilimleri Fakültesi Dekan Yardımcımız Prof. Dr.  Gülnihal Meral tarafından gerçekleştirildi.\r\n\r\nEtkinlikte teknoloji ve girişimcilik alanında önemli çalışmalara imza atan kadın liderler öğrencilerle buluşturuldu. Flexvision Tech Kurucusu Ceyda Süer, TSE Bilişim Teknolojileri Test ve Belgelendirme Daire Başkanı Merve Hatice Karataş, Ulaştırma ve Altyapı Bakanlığı Haberleşme Genel Müdür Yardımcısı ve AUS Türkiye Başkanı Esma Dilek etkinliğin konuşmacıları olarak yer aldı.\r\n\r\nDavetli konuşmacı Ceyda Süer, kurumsal iş hayatından girişimcilik serüvenine uzanan kariyer yolculuğunu ve bu süreçte edindiği tecrübeleri katılımcılara aktardı.\r\n\r\nYazılım Mühendisliği Bölüm Başkanı Doç. Dr. Hilal Arslan moderatörlüğündeki panelde davetli panelistler ile soru-cevap gerçekleştirildi. Panelde moderatörümüz Hilal Arslan’ın akademisyenliğe kadın penceresinden bir bakış sunumundan sonra Esma Dilek kamuda kadının rolü, üstlenilen sorumluluklar ve karşılaşılan zorluklar hakkında önemli bilgiler aktardı. Merve Hatice Karataş ise Türkiye’de geliştirilen katma değerli ürünlerin uluslararası sertifikalandırılması sürecinde yürütülen çalışmalar ve bu sürecin bir kadın yönetici gözüyle serüveninden bahsetti.\r\n\r\nKatılım sağlayan misafirlerimize, akademisyenlerimize, öğrencilerimize ve kulüp danışman hocamız Doç. Dr. Yenal Arslan’a teşekkür ederiz.', '2025-04-08', '13:30 - 18:00', 'Etlik Batı Kampüsü A Blok, 2. Kat Konferans Salonu', '', NULL),
-(7, 'Oyun Dünyasına Adım: Sektör Tanıtım ve Gelişim Günü', '“Oyun Dünyasına Adım” etkinliği, oyun sektörünü üniversitemize taşıyacak, tecrübe ile eğlenceyi bir araya getirecek iki günlük bir deneyim.\r\n\r\nGençlik ve Spor Bakanlığı ve UNIDES desteğiyle gerçekleşecek bu etkinlikte;\r\n•	📢 Oyun firmalarının sunumları\r\n•	🎯 FIFA Turnuvası\r\n•	🧠 Kodsuz Game Jam: Oyun Tasarımı Belgesi Yarışması\r\n•	🤝 Firma stantları ve networking alanları\r\n•	🏆 Sürpriz ödüller ve sertifikalar\r\nsizi bekliyor.\r\n🎤 Etkinlikte Kimler Var?\r\nEtkinliğimizde birbirinden değerli konuşmacılar ve sektör devleri yer alacak:\r\n•	🎙️ Taleworlds, Otto Games, Madduck Games gibi firmaların uzmanları\r\n•	👨🏫 Üniversitemizden kıymetli akademisyenler ve yıllardın sektörde olan geliştiriciler\r\n•	💼 Ankara Kalkınma Ajansı ve deneyimli girişimciler\r\n•	🏆 Altın sponsorlarımızın “oyun sektörü kariyeri” üzerine ilham veren sunumları\r\n\r\n🕹️ Oyunlar ve Yarışmalar\r\n🎮 FIFA Turnuvası – 25 Eylül\r\n64 kişilik büyük bir PlayStation FIFA turnuvası! Eleme sistemiyle ilerleyecek turnuvada ödüller sizi bekliyor.\r\n🎨 Kodsuz Game Jam – Oyun Tasarım Belgesi Yarışması – 25 Eylül\r\nKod yazmadan oyun geliştirmek istiyorsanı; \r\nTakım ya da bireysel olarak katılın, 5 saat içinde yaratıcılığınızı konuşturun. En iyi oyun fikirleri jüri tarafından seçilecek ve ödüllendirilecek. Önceden verilecek şablonla hazırlayacağınız taslaklarla siz de fikrinizi konuşturabilirsiniz.\r\n📝 Yarışma sonunda tüm katılımcılara geri bildirim ve sertifika, dereceye girenlere 10.000 TL ödül havuzu sunulacak.\r\n\r\n📬 Bize Ulaşın\r\n📧 yonetim@aybuasec.org\r\n🌐 aybuasec.org\r\n📸 @asecaybu – Instagram\r\n🔗 LinkedIn', '2025-09-24', '10:00 - 17:00', 'Ankara Yıldırım Beyazıt Üniversitesi – 15 Temmuz Batı Kampüsü', '', NULL);
+INSERT INTO `etkinlikler` (`id`, `baslik`, `baslik_en`, `aciklama`, `aciklama_en`, `tarih`, `saat`, `yer`, `kayit_link`, `foto_link`) VALUES
+(4, 'ÖĞRENCİLER ANLATIYOR: Yurtdışı Stajı Hayal mi, Gerçek mi?', 'STUDENTS SHARE: Is an Internship Abroad a Dream or Reality?', 'Yurtdışında staj yapmak, eğitim hayatının en heyecan verici deneyimlerinden biri olabilir. Ancak bu süreç bazen öğrenciler için bir hayal gibi görünebilir.\r\nAYBU Software Engineering Club (ASEC) olarak düzenlediğimiz \"Öğrenciler Anlatıyor: Yurtdışı Stajı Hayal mi, Gerçek mi?\" etkinliği ile, bu hayalin nasıl gerçeğe dönüştürülebileceğini birebir deneyimlemiş öğrencilerimiz sizlerle buluşuyor.\r\nEtkinlikte, Erasmus öğrenim hareketliliği, Erasmus+ staj programları, Work and Travel deneyimleri, bitirme projeleri ve aday mühendislik süreçleri hakkında doğrudan bilgi alma fırsatı bulacaksınız.\r\nKonuşmacılar kendi başvuru süreçlerini, karşılaştıkları zorlukları, edindikleri tecrübeleri ve bu süreçlerin kariyerlerine nasıl katkı sağladığını paylaşacaklar.\r\nEtkinlik sonunda ise katılımcılar, merak ettikleri tüm soruları konuşmacılara doğrudan yöneltebilecekler.\r\n\r\nDetaylı Program Akışı:\r\n\r\n11.00–11.10 | Erasmus Öğrenim Hareketliliği (1/2) — 3.sınıf öğrencisi Can Kankılıç\r\n11.10–11.20 | Erasmus Öğrenim Hareketliliği (2/2) — 3.sınıf öğrencisi Furkan Aydos\r\n11.20–11.35 | Erasmus Staj Hareketliliği — 3.sınıf öğrencisi Rüveyda Akça\r\n11.35–11.45 | Work and Travel (1/2) — 3.sınıf öğrencisi İlayda Akınet\r\n11.45–11.55 | Work and Travel — 3.sınıf öğrencisi Sencer Yavuz\r\n12.00–12.10 | Bitirme Projeleri - Araştırma Görevlisi Kübranur Gümüşlü\r\n12.10–12.20 | Aday Mühendislik - Araştırma Görevlisi Kübranur Gümüşlü', 'Studying abroad can be one of the most exciting experiences of your academic journey. However, this process may sometimes feel like nothing more than a dream for many students.\r\n\r\nWith the event “Students Share: Is an Internship Abroad a Dream or Reality?” organized by the AYBU Software Engineering Club (ASEC), we bring together students who have personally turned this dream into reality.\r\n\r\nDuring the event, you will have the opportunity to receive firsthand information about Erasmus study mobility, Erasmus+ internship programs, Work and Travel experiences, capstone projects, and candidate engineering processes.\r\n\r\nOur speakers will share their application journeys, the challenges they faced, the experiences they gained, and how these opportunities contributed to their careers.\r\n\r\nAt the end of the event, participants will be able to directly ask the speakers any questions they may have.\r\n\r\nDetailed Program Schedule\r\n\r\n11:00–11:10 | Erasmus Study Mobility (1/2) — 3rd-year student Can Kankılıç\r\n11:10–11:20 | Erasmus Study Mobility (2/2) — 3rd-year student Furkan Aydos\r\n11:20–11:35 | Erasmus Internship Mobility — 3rd-year student Rüveyda Akça\r\n11:35–11:45 | Work and Travel (1/2) — 3rd-year student İlayda Akınet\r\n11:45–11:55 | Work and Travel (2/2) — 3rd-year student Sencer Yavuz\r\n12:00–12:10 | Capstone Projects — Research Assistant Kübranur Gümüşlü\r\n12:10–12:20 | Candidate Engineering — Research Assistant Kübranur Gümüşlü', '2025-05-06', '11:00 - 13:00', 'Etlik Batı Kampüsü A Blok, 2. Kat Konferans Salonu', '', NULL),
+(5, 'Going Beyond Code: ASEC Spring Picnic', NULL, 'In the software world, long hours spent in front of a screen often harm our health and weaken our social interactions. However, we know that success in our field comes not only from individuals who write good code but also from team players who can express themselves and communicate effectively. With this in mind, our ASEC Software Engineering Club organized a picnic on Sunday, May 4th, at Harikalar Diyarı. Throughout the picnic, various activities were held for our club members. Along with volleyball, nostalgic games such as dodgeball, tug of war, sack race, and jump rope took us on a journey to the past and brought lots of fun and joy.', NULL, '2025-05-04', '13:30 - 18:00', 'Harikalar Diyarı', '', NULL),
+(6, 'Dijital Çağa Kadın Dokunuşu Etkinliği Gerçekleştirildi', NULL, 'Üniversitemiz Yazılım Mühendisliği Kulübü (ASEC) tarafından, bilişim ve girişimcilik dünyasında kadınların artan rolünü vurgulamak amacıyla “Dijital Çağa Kadın Dokunuşu” adlı etkinlik gerçekleştirildi.\r\n\r\nEtkinliğin açılışı, Mühendislik ve Doğa Bilimleri Fakültesi Dekan Yardımcımız Prof. Dr.  Gülnihal Meral tarafından gerçekleştirildi.\r\n\r\nEtkinlikte teknoloji ve girişimcilik alanında önemli çalışmalara imza atan kadın liderler öğrencilerle buluşturuldu. Flexvision Tech Kurucusu Ceyda Süer, TSE Bilişim Teknolojileri Test ve Belgelendirme Daire Başkanı Merve Hatice Karataş, Ulaştırma ve Altyapı Bakanlığı Haberleşme Genel Müdür Yardımcısı ve AUS Türkiye Başkanı Esma Dilek etkinliğin konuşmacıları olarak yer aldı.\r\n\r\nDavetli konuşmacı Ceyda Süer, kurumsal iş hayatından girişimcilik serüvenine uzanan kariyer yolculuğunu ve bu süreçte edindiği tecrübeleri katılımcılara aktardı.\r\n\r\nYazılım Mühendisliği Bölüm Başkanı Doç. Dr. Hilal Arslan moderatörlüğündeki panelde davetli panelistler ile soru-cevap gerçekleştirildi. Panelde moderatörümüz Hilal Arslan’ın akademisyenliğe kadın penceresinden bir bakış sunumundan sonra Esma Dilek kamuda kadının rolü, üstlenilen sorumluluklar ve karşılaşılan zorluklar hakkında önemli bilgiler aktardı. Merve Hatice Karataş ise Türkiye’de geliştirilen katma değerli ürünlerin uluslararası sertifikalandırılması sürecinde yürütülen çalışmalar ve bu sürecin bir kadın yönetici gözüyle serüveninden bahsetti.\r\n\r\nKatılım sağlayan misafirlerimize, akademisyenlerimize, öğrencilerimize ve kulüp danışman hocamız Doç. Dr. Yenal Arslan’a teşekkür ederiz.', NULL, '2025-04-08', '13:30 - 18:00', 'Etlik Batı Kampüsü A Blok, 2. Kat Konferans Salonu', '', NULL),
+(7, 'Oyun Dünyasına Adım: Sektör Tanıtım ve Gelişim Günü', 'Step Into the World of Gaming: Industry Introduction & Development Day', '“Oyun Dünyasına Adım” etkinliği, oyun sektörünü üniversitemize taşıyacak, tecrübe ile eğlenceyi bir araya getirecek iki günlük bir deneyim.\r\n\r\nGençlik ve Spor Bakanlığı ve UNIDES desteğiyle gerçekleşecek bu etkinlikte;\r\n•	📢 Oyun firmalarının sunumları\r\n•	🎯 FIFA Turnuvası\r\n•	🧠 Kodsuz Game Jam: Oyun Tasarımı Belgesi Yarışması\r\n•	🤝 Firma stantları ve networking alanları\r\n•	🏆 Sürpriz ödüller ve sertifikalar\r\nsizi bekliyor.\r\n🎤 Etkinlikte Kimler Var?\r\nEtkinliğimizde birbirinden değerli konuşmacılar ve sektör devleri yer alacak:\r\n•	🎙️ Taleworlds, Otto Games, Madduck Games gibi firmaların uzmanları\r\n•	👨🏫 Üniversitemizden kıymetli akademisyenler ve yıllardın sektörde olan geliştiriciler\r\n•	💼 Ankara Kalkınma Ajansı ve deneyimli girişimciler\r\n•	🏆 Altın sponsorlarımızın “oyun sektörü kariyeri” üzerine ilham veren sunumları\r\n\r\n🕹️ Oyunlar ve Yarışmalar\r\n🎮 FIFA Turnuvası – 25 Eylül\r\n64 kişilik büyük bir PlayStation FIFA turnuvası! Eleme sistemiyle ilerleyecek turnuvada ödüller sizi bekliyor.\r\n🎨 Kodsuz Game Jam – Oyun Tasarım Belgesi Yarışması – 25 Eylül\r\nKod yazmadan oyun geliştirmek istiyorsanı; \r\nTakım ya da bireysel olarak katılın, 5 saat içinde yaratıcılığınızı konuşturun. En iyi oyun fikirleri jüri tarafından seçilecek ve ödüllendirilecek. Önceden verilecek şablonla hazırlayacağınız taslaklarla siz de fikrinizi konuşturabilirsiniz.\r\n📝 Yarışma sonunda tüm katılımcılara geri bildirim ve sertifika, dereceye girenlere 10.000 TL ödül havuzu sunulacak.\r\n\r\n📬 Bize Ulaşın\r\n📧 yonetim@aybuasec.org\r\n🌐 aybuasec.org\r\n📸 @asecaybu – Instagram\r\n🔗 LinkedIn', '“Step Into the World of Gaming” is a two-day experience that will bring the gaming industry to our university, combining expertise with entertainment.\r\n\r\nWith the support of the Ministry of Youth and Sports and UNIDES, the event will feature:\r\n\r\n• 📢 Presentations by game companies\r\n• 🎯 FIFA Tournament\r\n• 🧠 No-Code Game Jam: Game Design Document Competition\r\n• 🤝 Company booths and networking areas\r\n• 🏆 Surprise prizes and certificates\r\n\r\n🎤 Who’s Joining the Event?\r\nOur event will host distinguished speakers and major industry players:\r\n• 🎙️ Experts from companies such as Taleworlds, Otto Games, and Madduck Games\r\n• 👨🏫 Esteemed academics from our university and developers with years of industry experience\r\n• 💼 Ankara Development Agency representatives and experienced entrepreneurs\r\n• 🏆 Inspirational talks on “careers in the gaming industry” from our gold sponsors\r\n\r\n🕹️ Games and Competitions\r\n\r\n🎮 FIFA Tournament – September 25\r\nA major PlayStation FIFA tournament with 64 participants! The elimination-based competition will offer exciting prizes.\r\n\r\n🎨 No-Code Game Jam – Game Design Document Competition – September 25\r\nIf you want to develop a game without coding:\r\nJoin individually or as a team and unleash your creativity in just 5 hours. The best game ideas will be selected and awarded by the jury. You can express your ideas using the template that will be provided beforehand.\r\n\r\n📝 All participants will receive feedback and certificates, and winners will share a 10,000 TL prize pool.\r\n\r\n📬 Contact Us\r\n📧 yonetim@aybuasec.org\r\n\r\n🌐 aybuasec.org\r\n📸 @asecaybu – Instagram\r\n🔗 LinkedIn', '2025-09-24', '10:00 - 17:00', 'Ankara Yıldırım Beyazıt Üniversitesi – 15 Temmuz Batı Kampüsü', '', NULL);
 
 -- --------------------------------------------------------
 
@@ -321,6 +327,7 @@ INSERT INTO `etkinlik_fotolar` (`id`, `etkinlik_id`, `dosya_yolu`) VALUES
 
 CREATE TABLE `galeri` (
   `id` int(10) UNSIGNED NOT NULL,
+  `folder_id` int(11) DEFAULT NULL,
   `baslik` varchar(255) NOT NULL,
   `aciklama` text DEFAULT NULL,
   `kategori` enum('events','workshops','teams','other') DEFAULT 'events',
@@ -333,10 +340,10 @@ CREATE TABLE `galeri` (
 -- Tablo döküm verisi `galeri`
 --
 
-INSERT INTO `galeri` (`id`, `baslik`, `aciklama`, `kategori`, `tarih`, `dosya_yolu`, `created_at`) VALUES
-(2, 'Piknik (1)', '', 'events', '2025-05-04', 'images/gallery/galeri_6821cd1f749576.68545737.jpg', '2025-05-12 10:27:43'),
-(3, 'Piknik (2)', '', 'events', '2025-05-04', 'images/gallery/galeri_6821cd1f756d98.62117700.jpg', '2025-05-12 10:27:43'),
-(4, 'Piknik (3)', '', 'events', '2025-05-04', 'images/gallery/galeri_6821cd1f764311.33979100.jpg', '2025-05-12 10:27:43');
+INSERT INTO `galeri` (`id`, `folder_id`, `baslik`, `aciklama`, `kategori`, `tarih`, `dosya_yolu`, `created_at`) VALUES
+(2, 13, 'Piknik (1)', '', 'events', '2025-05-04', 'images/gallery/galeri_6821cd1f749576.68545737.jpg', '2025-05-12 10:27:43'),
+(3, 13, 'Piknik (2)', '', 'events', '2025-05-04', 'images/gallery/galeri_6821cd1f756d98.62117700.jpg', '2025-05-12 10:27:43'),
+(4, 13, 'Piknik (3)', '', 'events', '2025-05-04', 'images/gallery/galeri_6821cd1f764311.33979100.jpg', '2025-05-12 10:27:43');
 
 -- --------------------------------------------------------
 
@@ -385,6 +392,13 @@ CREATE TABLE `gallery_folders` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Tablo döküm verisi `gallery_folders`
+--
+
+INSERT INTO `gallery_folders` (`id`, `baslik`, `aciklama`, `kategori`, `cover_photo_id`, `olusturma_tarihi`, `updated_at`) VALUES
+(13, 'Piknik', '', 'events', NULL, '2025-11-25 07:57:36', '2025-11-25 07:57:36');
+
 -- --------------------------------------------------------
 
 --
@@ -408,7 +422,10 @@ CREATE TABLE `ilanlar` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `lokasyon` varchar(255) DEFAULT NULL,
   `son_basvuru` date DEFAULT NULL,
-  `kategori` varchar(100) NOT NULL
+  `kategori` varchar(100) NOT NULL,
+  `baslik_en` varchar(255) DEFAULT NULL,
+  `icerik_en` text DEFAULT NULL,
+  `nitelikler_en` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -460,7 +477,9 @@ INSERT INTO `login_attempts` (`id`, `email`, `attempts`, `last_attempt`) VALUES
 (19, 'moonloversin@gmail.com', 1, 1752237812),
 (38, 'solihasultonovaa1@gmail.com', 1, 1758709108),
 (46, 'emircaglar0575@gmail.com', 1, 1760092127),
-(49, 'ferhat1425i@gmail.com', 1, 1760201266);
+(49, 'ferhat1425i@gmail.com', 1, 1760201266),
+(68, 'erenyoldas@gmail.com', 1, 1763913228),
+(69, 'erenyoldasresmi@gmail.com', 1, 1763913289);
 
 -- --------------------------------------------------------
 
@@ -1602,7 +1621,7 @@ INSERT INTO `mesajlar` (`id`, `ad`, `email`, `konu`, `mesaj`, `ip`, `tarih`, `ok
 (1136, 'ZAP', 'zj${8223*3663}zj', 'Zaproxy dolore alias impedit expedita quisquam.', 'Zaproxy alias impedit expedita quisquam pariatur exercitationem. Nemo rerum eveniet dolores rem quia dignissimos.', '31.223.43.71', '2025-05-17 12:20:59', 0, 0),
 (1137, 'ZAP', 'zj#{8528*8577}zj', 'Zaproxy dolore alias impedit expedita quisquam.', 'Zaproxy alias impedit expedita quisquam pariatur exercitationem. Nemo rerum eveniet dolores rem quia dignissimos.', '31.223.43.71', '2025-05-17 12:21:00', 0, 0),
 (1138, 'ZAP', 'zj{#9835*4881}zj', 'Zaproxy dolore alias impedit expedita quisquam.', 'Zaproxy alias impedit expedita quisquam pariatur exercitationem. Nemo rerum eveniet dolores rem quia dignissimos.', '31.223.43.71', '2025-05-17 12:21:00', 0, 0),
-(1139, 'Lesli Halcomb', 'lesli@leadboost.click', 'aybuasec.org\'s Free Customer Support Tool', 'Greetings,\r\n\r\nCongratulations on launching aybuasec.org! What a milestone toward expanding your digital brand.\r\n\r\nAs part of our mission to help new domain owners, I’m sharing a game-changing tool for aybuasec.org:\r\n\r\nMeet LiveAI Smart Chatbot — a no-cost AI tool that interacts with website visitors 24/7, resolves queries, and generates leads automatically.\r\n\r\nHere’s why it’s perfect for aybuasec.org:\r\n\r\nDeliver instant responses day and night\r\n\r\nConvert visitors into leads effortlessly\r\n\r\nCustomizable to match your brand\r\n\r\nQuick installation with no technical skills\r\n\r\nBoost conversions and engagement\r\n\r\n������ Claim your free chatbot here:\r\nhttps://livelead.online/ai-chat\r\n\r\nSimply install it to your site in minutes and see engagement soar.\r\n\r\nHere’s to success with aybuasec.org!\r\n\r\nBest regards,\r\nLesli Halcomb\r\nAI Solutions Expert', '117.5.2.105', '2025-05-23 18:41:45', 0, 0),
+(1139, 'Lesli Halcomb', 'lesli@leadboost.click', 'aybuasec.org\'s Free Customer Support Tool', 'Greetings,\r\n\r\nCongratulations on launching aybuasec.org! What a milestone toward expanding your digital brand.\r\n\r\nAs part of our mission to help new domain owners, I’m sharing a game-changing tool for aybuasec.org:\r\n\r\nMeet LiveAI Smart Chatbot — a no-cost AI tool that interacts with website visitors 24/7, resolves queries, and generates leads automatically.\r\n\r\nHere’s why it’s perfect for aybuasec.org:\r\n\r\nDeliver instant responses day and night\r\n\r\nConvert visitors into leads effortlessly\r\n\r\nCustomizable to match your brand\r\n\r\nQuick installation with no technical skills\r\n\r\nBoost conversions and engagement\r\n\r\n', '117.5.2.105', '2025-05-23 18:41:45', 0, 0),
 (1140, 'Search Engine Index', 'submissions@searchindex.site', 'Add aybuasec.org to Google Search Index!', 'Hello,\r\n\r\nfor your website do be displayed in searches your domain needs to be indexed in the Google Search Index.\r\n\r\nTo add your domain to Google Search Index now, please visit \r\n\r\nhttps://SearchRegister.info/', '98.159.109.140', '2025-05-24 12:49:39', 0, 0),
 (1141, 'Joanna Riggs', 'joannariggs278@gmail.com', 'Explainer Video for your website', 'Hi,\r\n\r\nI just visited aybuasec.org and wondered if you\'d ever thought about having an engaging video to explain what you do?\r\n\r\nA couple of samples to check out for a Service and a Product:\r\n\r\nhttps://www.youtube.com/watch?v=wrsNa_uRLGY\r\n\r\nhttps://www.youtube.com/watch?v=67neUK1vylc\r\n\r\nOur prices start from just $195 (USD).\r\n\r\nLet me know if you\'re interested in seeing more samples of our previous work or have any questions.\r\n\r\nRegards,\r\nJoanna', '196.245.154.26', '2025-05-24 13:13:20', 0, 0),
 (1142, 'Pete Faring', 'xj37.revolver901@passmail.com', 'Contact form broadcasting for aybuasec.org', 'Hey I can send a message (just like this one) to 15,000 website contact forms daily in your niche promoting your service, product, or website. I also do mass email. Reply for more information.', '146.70.199.195', '2025-05-29 00:15:28', 0, 0),
@@ -1647,14 +1666,35 @@ INSERT INTO `mesajlar` (`id`, `ad`, `email`, `konu`, `mesaj`, `ip`, `tarih`, `ok
 -- --------------------------------------------------------
 
 --
+-- Tablo için tablo yapısı `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(11) NOT NULL,
+  `sender_id` int(11) NOT NULL,
+  `sender_type` enum('individual','corporate') NOT NULL,
+  `receiver_id` int(11) NOT NULL,
+  `receiver_type` enum('individual','corporate') NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `message_body` text NOT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tablo için tablo yapısı `onemli_bilgiler`
 --
 
 CREATE TABLE `onemli_bilgiler` (
   `id` int(11) NOT NULL,
   `baslik` varchar(255) NOT NULL,
+  `baslik_en` varchar(255) DEFAULT NULL,
   `aciklama` text NOT NULL,
+  `aciklama_en` text DEFAULT NULL,
   `icerik` text NOT NULL,
+  `icerik_en` longtext DEFAULT NULL,
   `resim` varchar(255) DEFAULT NULL,
   `tarih` date NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -1852,7 +1892,8 @@ ALTER TABLE `etkinlik_fotolar`
 -- Tablo için indeksler `galeri`
 --
 ALTER TABLE `galeri`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_folder_id` (`folder_id`);
 
 --
 -- Tablo için indeksler `galeri_fotolar`
@@ -1907,6 +1948,15 @@ ALTER TABLE `login_attempts`
 --
 ALTER TABLE `mesajlar`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Tablo için indeksler `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_receiver` (`receiver_id`,`receiver_type`,`is_read`),
+  ADD KEY `idx_sender` (`sender_id`,`sender_type`),
+  ADD KEY `idx_created_at` (`created_at`);
 
 --
 -- Tablo için indeksler `onemli_bilgiler`
@@ -1968,19 +2018,19 @@ ALTER TABLE `board_of_directors`
 -- Tablo için AUTO_INCREMENT değeri `corporate_ilan_requests`
 --
 ALTER TABLE `corporate_ilan_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `corporate_requests`
 --
 ALTER TABLE `corporate_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `corporate_users`
 --
 ALTER TABLE `corporate_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `cv_options`
@@ -2010,7 +2060,7 @@ ALTER TABLE `etkinlik_fotolar`
 -- Tablo için AUTO_INCREMENT değeri `galeri`
 --
 ALTER TABLE `galeri`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `galeri_fotolar`
@@ -2028,31 +2078,37 @@ ALTER TABLE `galeri_klasorler`
 -- Tablo için AUTO_INCREMENT değeri `gallery_folders`
 --
 ALTER TABLE `gallery_folders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `ilanlar`
 --
 ALTER TABLE `ilanlar`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `individual_ilan_requests`
 --
 ALTER TABLE `individual_ilan_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `mesajlar`
 --
 ALTER TABLE `mesajlar`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1179;
+
+--
+-- Tablo için AUTO_INCREMENT değeri `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `onemli_bilgiler`
@@ -2070,13 +2126,13 @@ ALTER TABLE `password_resets`
 -- Tablo için AUTO_INCREMENT değeri `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `user_cv_profiles`
 --
 ALTER TABLE `user_cv_profiles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Dökümü yapılmış tablolar için kısıtlamalar

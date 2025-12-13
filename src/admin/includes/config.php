@@ -1,48 +1,41 @@
 <?php
-// config.php – Veritabanı bağlantı ayarları
+// src/admin/includes/config.php – TAM DOCKER UYUMLU (PDO + MySQLi)
 
-// Eğer oturum başlatılmamışsa başlat
+// Oturum başlatma kontrolü
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$serverName = $_SERVER['SERVER_NAME'] ?? '';
+// 1. Ayarları Docker Ortamından Al
+$db_host = getenv('DB_HOST') ?: 'database';
+$db_user = getenv('DB_USER') ?: 'root';
+$db_pass = getenv('DB_PASS') ?: 'root';
+$db_name = getenv('DB_NAME') ?: 'db_asec';
 
-// Docker ortamında olup olmadığımızı anlamak için basit kontrol
-// (localhost veya IP üzerinden geliyorsa yerel kabul edelim)
-$isLocal = ($serverName === 'localhost' || $serverName === '127.0.0.1' || $_SERVER['REMOTE_ADDR'] === '127.0.0.1');
+// 2. Sabitleri Tanımla
+if (!defined('DB_SERVER')) define('DB_SERVER', $db_host);
+if (!defined('DB_USERNAME')) define('DB_USERNAME', $db_user);
+if (!defined('DB_PASSWORD')) define('DB_PASSWORD', $db_pass);
+if (!defined('DB_NAME')) define('DB_NAME', $db_name);
 
-// Ayrıca docker-compose.yml içinde "IS_DOCKER=true" tanımlı, onu da kontrol edebiliriz
-$isRunningInDocker = getenv('IS_DOCKER') === 'true';
-
-// Ortama göre tanımlamalar
-if ($isLocal || $isRunningInDocker) {
-    // DİKKAT: Docker içinde host 'localhost' DEĞİL, servis adı olan 'database' olmalıdır.
-    define('DB_SERVER', 'database'); 
-    define('DB_USERNAME', 'root');
-    // DİKKAT: docker-compose.yml dosyasında şifreyi 'root' belirlediğin için buraya da 'root' yazıyoruz.
-    define('DB_PASSWORD', 'root'); 
-    define('DB_NAME', 'db_asec');
-} else {
-    // Canlı Sunucu Ayarları (Burası sunucudaki bilgilerine göre kalmalı)
-    define('DB_SERVER', 'localhost');
-    define('DB_USERNAME', 'alikesk222');
-    define('DB_PASSWORD', 'Aybu.asec*25##');
-    define('DB_NAME', 'db_asec');
-}
-
-// Hata raporlamayı aç (Geliştirme aşamasında görmek için)
+// 3. Hata Raporlama
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 try {
-    // Veritabanı bağlantısını kur
+    // A. PDO Bağlantısı (Admin Paneli Genelde Bunu Kullanır) - EKSİK OLAN BUYDU!
+    $dbh = new PDO("mysql:host=".DB_SERVER.";dbname=".DB_NAME, DB_USERNAME, DB_PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // B. MySQLi Bağlantısı (Eski Kodlar İçin Yedek)
     $conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-    
-    // Türkçe karakter desteği
     mysqli_set_charset($conn, "utf8");
 
-} catch (mysqli_sql_exception $e) {
-    // Hata durumunda kullanıcıya düzgün bir mesaj göster
-    die("❌ Veritabanı Bağlantı Hatası: " . $e->getMessage());
+} catch (Exception $e) {
+    // Hata durumunda ekrana net bilgi basalım
+    die('<div style="background-color: #f8d7da; color: #721c24; padding: 20px; border: 1px solid #f5c6cb;">
+        <h3>❌ Admin Paneli Veritabanı Hatası</h3>
+        <p><strong>Host:</strong> ' . DB_SERVER . '</p>
+        <p><strong>Hata Mesajı:</strong> ' . $e->getMessage() . '</p>
+        </div>');
 }
 ?>
