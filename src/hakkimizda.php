@@ -39,7 +39,7 @@ require_once 'includes/lang.php';
                             <span class="stat-label"><?php echo __t('about.stats.departments'); ?></span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">50+</span>
+                            <span class="stat-number">180+</span>
                             <span class="stat-label"><?php echo __t('about.stats.members'); ?></span>
                         </div>
                         <div class="stat-item">

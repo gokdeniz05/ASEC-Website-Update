@@ -29,7 +29,7 @@
                 <div class="contact-item">
                     <i class="fas fa-envelope"></i>
                     <div>
-                        <p>ASECAybu@outlook.com</p>
+                        <p>yonetim@aybuasec.org</p>
                     </div>
                 </div>
                 <div class="contact-item">

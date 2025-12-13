@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span><?php echo __t('contact.whatsapp.title'); ?></span>
                             </div>
                             <div class="wa-card-body"><?php echo __t('contact.whatsapp.desc'); ?></div>
-                            <a href="https://chat.whatsapp.com/E576sIWPLoAGueyWvYMmwX" target="_blank" class="wa-join-btn">
+                            <a href="https://chat.whatsapp.com/DuZcHLL1ybg63MHOQKrkav" target="_blank" class="wa-join-btn">
                                 <i class="fab fa-whatsapp"></i> <?php echo __t('contact.whatsapp.join'); ?>
                             </a>
                         </div>
