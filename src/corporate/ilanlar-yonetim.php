@@ -44,20 +44,20 @@ try {
 $kategori_filter = $_GET['kategori'] ?? '';
 $status_filter = $_GET['status'] ?? 'all';
 
-// Get requests
+// Get requests from corporate_ilan_requests table
 $where_clause = "WHERE corporate_user_id = ?";
 $params = [$_SESSION['user_id']];
 
-// Only allow Staj İlanları and Burs İlanları
-if ($kategori_filter && in_array($kategori_filter, ['Staj İlanları', 'Burs İlanları'])) {
+// Allow Staj İlanları, Burs İlanları, and İş İlanı
+if ($kategori_filter && in_array($kategori_filter, ['Staj İlanları', 'Burs İlanları', 'İş İlanı'])) {
     $where_clause .= " AND kategori = ?";
     $params[] = $kategori_filter;
 } else {
-    // Only show staj and burs announcements
-    $where_clause .= " AND (kategori = 'Staj İlanları' OR kategori = 'Burs İlanları')";
+    // Show staj, burs, and job announcements
+    $where_clause .= " AND (kategori = 'Staj İlanları' OR kategori = 'Burs İlanları' OR kategori = 'İş İlanı')";
 }
 
-// Status filter
+// Status filter for requests
 if ($status_filter !== 'all' && in_array($status_filter, ['pending', 'approved', 'rejected'])) {
     $where_clause .= " AND status = ?";
     $params[] = $status_filter;
@@ -68,23 +68,75 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $requests = $stmt->fetchAll();
 
-// Also get approved announcements that are already published
+// Get published announcements from ilanlar table
 $ilan_where = "WHERE corporate_user_id = ?";
 $ilan_params = [$_SESSION['user_id']];
-if ($kategori_filter && in_array($kategori_filter, ['Staj İlanları', 'Burs İlanları'])) {
+if ($kategori_filter && in_array($kategori_filter, ['Staj İlanları', 'Burs İlanları', 'İş İlanı'])) {
     $ilan_where .= " AND kategori = ?";
     $ilan_params[] = $kategori_filter;
 } else {
-    $ilan_where .= " AND (kategori = 'Staj İlanları' OR kategori = 'Burs İlanları')";
+    $ilan_where .= " AND (kategori = 'Staj İlanları' OR kategori = 'Burs İlanları' OR kategori = 'İş İlanı')";
 }
 
-$ilan_sql = "SELECT *, 'approved' as request_status FROM ilanlar $ilan_where ORDER BY tarih DESC";
+// Check if columns exist for filtering
+try {
+    $ilan_columns = $pdo->query("SHOW COLUMNS FROM ilanlar")->fetchAll(PDO::FETCH_COLUMN);
+    
+    // Add filter for "Yayında" (Published) - must be active and not expired
+    if ($status_filter === 'yayinda') {
+        // Check if durum column exists (for active/inactive status)
+        if (in_array('durum', $ilan_columns)) {
+            $ilan_where .= " AND durum = 1";
+        }
+        // Check if bitis_tarihi column exists (for expiration date)
+        if (in_array('bitis_tarihi', $ilan_columns)) {
+            $ilan_where .= " AND (bitis_tarihi IS NULL OR bitis_tarihi >= CURDATE())";
+        } elseif (in_array('son_basvuru', $ilan_columns)) {
+            // Use son_basvuru as fallback if bitis_tarihi doesn't exist
+            $ilan_where .= " AND (son_basvuru IS NULL OR son_basvuru >= CURDATE())";
+        }
+    }
+    
+    // Filter for "Onaylanan" (Approved) - all approved items regardless of status
+    if ($status_filter === 'approved') {
+        // Include all items from ilanlar table (they are approved and published)
+        // Also include approved requests that may not be published yet
+    }
+} catch (PDOException $e) {
+    // Columns might not exist, continue without those filters
+}
+
+$ilan_sql = "SELECT *, 'approved' as request_status, 'published' as is_published FROM ilanlar $ilan_where ORDER BY tarih DESC";
 $ilan_stmt = $pdo->prepare($ilan_sql);
 $ilan_stmt->execute($ilan_params);
-$approved_ilanlar = $ilan_stmt->fetchAll();
+$published_ilanlar = $ilan_stmt->fetchAll();
 
-// Combine requests and approved announcements
-$ilanlar = array_merge($requests, $approved_ilanlar);
+// Combine requests and published announcements based on filter
+$ilanlar = [];
+
+if ($status_filter === 'all') {
+    // Show all: requests + published
+    $ilanlar = array_merge($requests, $published_ilanlar);
+} elseif ($status_filter === 'pending') {
+    // Only pending requests
+    $ilanlar = $requests;
+} elseif ($status_filter === 'rejected') {
+    // Only rejected requests
+    $ilanlar = $requests;
+} elseif ($status_filter === 'approved') {
+    // All approved: approved requests + all published items
+    $approved_requests = array_filter($requests, function($r) {
+        return isset($r['status']) && $r['status'] === 'approved';
+    });
+    $ilanlar = array_merge($approved_requests, $published_ilanlar);
+} elseif ($status_filter === 'yayinda') {
+    // Only published and active items (from ilanlar table)
+    $ilanlar = $published_ilanlar;
+} else {
+    // Default: show all
+    $ilanlar = array_merge($requests, $published_ilanlar);
+}
+
 // Sort by date
 usort($ilanlar, function($a, $b) {
     $dateA = $a['created_at'] ?? $a['tarih'] ?? '';
@@ -94,84 +146,157 @@ usort($ilanlar, function($a, $b) {
 ?>
 <?php include 'corporate-header.php'; ?>
 <style>
-    /* Style for Add Internship/Scholarship buttons */
-    .mb-3.d-flex.flex-column.flex-md-row {
-        justify-content: center;
-        align-items: stretch;
-        gap: 12px;
+    /* Minimalist styling - remove heavy shadows and colors */
+    .table {
+        box-shadow: none;
+        border: 1px solid #e9ecef;
     }
     
-    .mb-3.d-flex.flex-column.flex-md-row .btn {
-        min-height: 60px;
-        padding: 16px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        font-weight: 500;
-        min-width: 280px;
+    .table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        color: #495057;
     }
     
-    /* Style for filter button groups */
-    .mb-3 .btn-group {
-        justify-content: center;
-        display: flex;
-        margin-bottom: 12px;
+    .table tbody tr {
+        transition: background-color 0.15s ease;
     }
     
-    .mb-3 .btn-group .btn {
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    /* Add button styling - outline variants */
+    .mb-4.d-flex.flex-column.flex-md-row .btn {
         min-height: 50px;
         padding: 12px 20px;
-        font-size: 1rem;
-        font-weight: 500;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex: 1;
-        max-width: 250px;
-        min-width: 180px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        min-width: 280px;
+        border-width: 1.5px;
+        transition: all 0.2s ease;
     }
     
-    /* Type filter buttons (Tümü, Staj, Burs) */
-    .btn-group[role="group"]:first-of-type {
-        margin-bottom: 12px;
+    .mb-4.d-flex.flex-column.flex-md-row .btn:hover {
+        transform: translateY(-1px);
     }
     
-    /* Status filter buttons (Tümü, Bekleyen, Onaylanan, Reddedilen) */
-    .btn-group[role="group"]:last-of-type {
-        margin-bottom: 0;
+    /* Filter button groups - clean tab bar look */
+    .btn-group[role="group"] {
+        box-shadow: none;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid #dee2e6;
     }
     
-    /* Ensure buttons in groups are aligned */
-    .btn-group .btn.flex-fill {
-        flex: 1;
-        min-width: 180px;
+    .btn-group[role="group"] .btn {
+        min-height: 44px;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: none;
+        border-right: 1px solid #dee2e6;
+        transition: all 0.2s ease;
     }
     
-    /* Style for action buttons in table */
-    .table .btn-group-sm .btn {
-        min-width: 90px;
-        padding: 8px 16px;
+    .btn-group[role="group"] .btn:last-child {
+        border-right: none;
+    }
+    
+    .btn-group[role="group"] .btn.btn-primary {
+        background-color: #007bff;
+        color: #fff;
+        font-weight: 600;
+        border-color: #007bff;
+    }
+    
+    .btn-group[role="group"] .btn.btn-outline-secondary {
+        background-color: #fff;
+        color: #6c757d;
+        border-color: #dee2e6;
+    }
+    
+    .btn-group[role="group"] .btn.btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+        color: #495057;
+        border-color: #adb5bd;
+    }
+    
+    /* Table action buttons - light with colored icons */
+    .table td .btn-light {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        padding: 6px 12px;
+        font-size: 0.875rem;
+        transition: all 0.15s ease;
+        box-shadow: none;
+    }
+    
+    .table td .btn-light:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+        transform: translateY(-1px);
+    }
+    
+    .table td .btn-light:active,
+    .table td .btn-light:focus {
+        box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.1);
+        outline: none;
+    }
+    
+    .table td .btn-light i {
+        font-size: 0.9rem;
+    }
+    
+    .table td .btn-light[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    /* Gap utility for spacing */
+    .gap-2 {
+        gap: 0.5rem;
+    }
+    
+    .gap-3 {
+        gap: 1rem;
     }
     
     /* Mobile responsive */
     @media (max-width: 767px) {
-        .mb-3.d-flex.flex-column .btn {
+        .mb-4.d-flex.flex-column .btn {
             width: 100%;
-            margin-bottom: 8px;
         }
         
-        .mb-3.d-flex.flex-column .btn:last-child {
-            margin-bottom: 0;
-        }
-        
-        .btn-group {
+        .btn-group[role="group"] {
             flex-wrap: wrap;
+            border: none;
         }
         
-        .btn-group .btn {
-            min-width: calc(50% - 4px);
+        .btn-group[role="group"] .btn {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
             margin: 2px;
+            flex: 1 1 calc(50% - 4px);
+            min-width: calc(50% - 4px);
+        }
+        
+        .btn-group[role="group"] .btn:last-child {
+            border-right: 1px solid #dee2e6;
+        }
+        
+        .table td .d-flex {
+            flex-direction: column;
+        }
+        
+        .table td .btn-light {
+            width: 100%;
+            margin-bottom: 4px;
         }
     }
 </style>
@@ -183,26 +308,31 @@ usort($ilanlar, function($a, $b) {
         <h1 class="h3 mb-3 mb-md-0">İlanlarım</h1>
       </div>
       
-      <div class="mb-3 d-flex flex-column flex-md-row justify-content-center align-items-stretch" style="gap: 12px;">
-        <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary" style="min-width: 280px;">
+      <div class="mb-4 d-flex flex-column flex-md-row justify-content-center align-items-stretch gap-2">
+        <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-outline-primary" style="min-width: 280px;">
           <i class="fas fa-plus mr-2"></i>Staj İlanı Ekle
         </a>
-        <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-success" style="min-width: 280px;">
+        <a href="ilan-ekle.php?kategori=Burs İlanları" class="btn btn-outline-success" style="min-width: 280px;">
           <i class="fas fa-plus mr-2"></i>Burs İlanı Ekle
+        </a>
+        <a href="ilan-ekle.php?kategori=İş İlanı" class="btn btn-outline-info" style="min-width: 280px;">
+          <i class="fas fa-plus mr-2"></i>İş İlanı Ekle
         </a>
       </div>
       
-      <div class="mb-3 d-flex flex-column align-items-center">
-        <div class="btn-group mb-2 d-flex justify-content-center" role="group" style="gap: 8px; width: 100%; max-width: 700px;">
-          <a href="ilanlar-yonetim.php" class="btn btn-outline-secondary flex-fill <?php echo $kategori_filter === '' ? 'active' : ''; ?>" style="min-width: 180px;">Tümü</a>
-          <a href="ilanlar-yonetim.php?kategori=Staj İlanları" class="btn btn-outline-primary flex-fill <?php echo $kategori_filter === 'Staj İlanları' ? 'active' : ''; ?>" style="min-width: 180px;">Staj</a>
-          <a href="ilanlar-yonetim.php?kategori=Burs İlanları" class="btn btn-outline-success flex-fill <?php echo $kategori_filter === 'Burs İlanları' ? 'active' : ''; ?>" style="min-width: 180px;">Burs</a>
+      <div class="mb-4 d-flex flex-column align-items-center gap-3">
+        <div class="btn-group d-flex justify-content-center" role="group" style="width: 100%; max-width: 900px;">
+          <a href="ilanlar-yonetim.php" class="btn <?php echo $kategori_filter === '' ? 'btn-primary' : 'btn-outline-secondary'; ?> flex-fill" style="min-width: 180px;">Tümü</a>
+          <a href="ilanlar-yonetim.php?kategori=Staj İlanları" class="btn <?php echo $kategori_filter === 'Staj İlanları' ? 'btn-primary' : 'btn-outline-secondary'; ?> flex-fill" style="min-width: 180px;">Staj</a>
+          <a href="ilanlar-yonetim.php?kategori=Burs İlanları" class="btn <?php echo $kategori_filter === 'Burs İlanları' ? 'btn-primary' : 'btn-outline-secondary'; ?> flex-fill" style="min-width: 180px;">Burs</a>
+          <a href="ilanlar-yonetim.php?kategori=İş İlanı" class="btn <?php echo $kategori_filter === 'İş İlanı' ? 'btn-primary' : 'btn-outline-secondary'; ?> flex-fill" style="min-width: 180px;">İş İlanı</a>
         </div>
-        <div class="btn-group d-flex justify-content-center" role="group" style="gap: 8px; width: 100%; max-width: 900px;">
-          <a href="ilanlar-yonetim.php<?php echo $kategori_filter ? '?kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-info flex-fill <?php echo $status_filter === 'all' ? 'active' : ''; ?>" style="min-width: 180px;">Tümü</a>
-          <a href="ilanlar-yonetim.php?status=pending<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-warning flex-fill <?php echo $status_filter === 'pending' ? 'active' : ''; ?>" style="min-width: 180px;">Bekleyen</a>
-          <a href="ilanlar-yonetim.php?status=approved<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-success flex-fill <?php echo $status_filter === 'approved' ? 'active' : ''; ?>" style="min-width: 180px;">Onaylanan</a>
-          <a href="ilanlar-yonetim.php?status=rejected<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn btn-outline-danger flex-fill <?php echo $status_filter === 'rejected' ? 'active' : ''; ?>" style="min-width: 180px;">Reddedilen</a>
+        <div class="btn-group d-flex justify-content-center" role="group" style="width: 100%; max-width: 1000px;">
+          <a href="ilanlar-yonetim.php<?php echo $kategori_filter ? '?kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn <?php echo $status_filter === 'all' ? 'btn-primary' : 'btn-outline-secondary'; ?> flex-fill" style="min-width: 150px;">Tümü</a>
+          <a href="ilanlar-yonetim.php?status=pending<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn <?php echo $status_filter === 'pending' ? 'btn-primary' : 'btn-outline-secondary'; ?> flex-fill" style="min-width: 150px;">Bekleyen</a>
+          <a href="ilanlar-yonetim.php?status=approved<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn <?php echo $status_filter === 'approved' ? 'btn-primary' : 'btn-outline-secondary'; ?> flex-fill" style="min-width: 150px;">Onaylanan</a>
+          <a href="ilanlar-yonetim.php?status=yayinda<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn <?php echo $status_filter === 'yayinda' ? 'btn-primary' : 'btn-outline-secondary'; ?> flex-fill" style="min-width: 150px;">Yayında</a>
+          <a href="ilanlar-yonetim.php?status=rejected<?php echo $kategori_filter ? '&kategori=' . urlencode($kategori_filter) : ''; ?>" class="btn <?php echo $status_filter === 'rejected' ? 'btn-primary' : 'btn-outline-secondary'; ?> flex-fill" style="min-width: 150px;">Reddedilen</a>
         </div>
       </div>
       
@@ -224,7 +354,7 @@ usort($ilanlar, function($a, $b) {
                 <td colspan="6" class="text-center py-5">
                     <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
                     <p class="text-muted">Henüz ilan eklenmemiş.</p>
-                    <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-primary mt-2">
+                    <a href="ilan-ekle.php?kategori=Staj İlanları" class="btn btn-outline-primary mt-2">
                         <i class="fas fa-plus mr-2"></i>İlan Ekle
                     </a>
                 </td>
@@ -242,7 +372,23 @@ usort($ilanlar, function($a, $b) {
                     <small class="d-block d-lg-none text-muted"><?= htmlspecialchars(date('d.m.Y', strtotime($display_date))) ?></small>
                 </td>
                 <td class="d-none d-lg-table-cell"><?= htmlspecialchars($display_date) ?></td>
-                <td><span class="badge badge-<?= $ilan['kategori'] == 'Staj İlanları' ? 'primary' : 'success' ?>"><?= htmlspecialchars($ilan['kategori'] == 'Staj İlanları' ? 'Staj' : 'Burs') ?></span></td>
+                <td>
+                    <?php
+                    $badge_class = 'secondary';
+                    $badge_text = htmlspecialchars($ilan['kategori']);
+                    if ($ilan['kategori'] == 'Staj İlanları') {
+                        $badge_class = 'primary';
+                        $badge_text = 'Staj';
+                    } elseif ($ilan['kategori'] == 'Burs İlanları') {
+                        $badge_class = 'success';
+                        $badge_text = 'Burs';
+                    } elseif ($ilan['kategori'] == 'İş İlanı') {
+                        $badge_class = 'info';
+                        $badge_text = 'İş İlanı';
+                    }
+                    ?>
+                    <span class="badge badge-<?= $badge_class ?>"><?= $badge_text ?></span>
+                </td>
                 <td>
                     <?php if($is_request): ?>
                         <?php if($ilan['status'] === 'pending'): ?>
@@ -260,24 +406,25 @@ usort($ilanlar, function($a, $b) {
                     <?php endif; ?>
                 </td>
                 <td>
-                    <div class="btn-group-vertical btn-group-sm d-md-inline-flex" role="group">
+                    <div class="d-flex gap-2 flex-wrap">
                         <?php if($is_request && $ilan['status'] === 'pending'): ?>
-                            <a href="ilan-duzenle.php?id=<?= $ilan['id'] ?>" class="btn btn-warning btn-sm mb-1 mb-md-0">
-                                <i class="fas fa-edit d-md-none"></i>
-                                <span class="d-none d-md-inline"><i class="fas fa-edit mr-1"></i>Düzenle</span>
+                            <a href="ilan-duzenle.php?id=<?= $ilan['id'] ?>" class="btn btn-light btn-sm" title="Düzenle">
+                                <i class="fas fa-edit text-warning"></i>
+                                <span class="d-none d-md-inline ml-1">Düzenle</span>
                             </a>
-                            <a href="ilan-sil.php?id=<?= $ilan['id'] ?>&type=request" class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')">
-                                <i class="fas fa-trash d-md-none"></i>
-                                <span class="d-none d-md-inline"><i class="fas fa-trash mr-1"></i>Sil</span>
+                            <a href="ilan-sil.php?id=<?= $ilan['id'] ?>&type=request" class="btn btn-light btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')" title="Sil">
+                                <i class="fas fa-trash text-danger"></i>
+                                <span class="d-none d-md-inline ml-1">Sil</span>
                             </a>
                         <?php elseif($is_request && $ilan['status'] === 'rejected'): ?>
-                            <button class="btn btn-secondary btn-sm" disabled>
-                                <i class="fas fa-times mr-1"></i><span class="d-none d-md-inline">Reddedildi</span>
+                            <button class="btn btn-light btn-sm" disabled title="Reddedildi">
+                                <i class="fas fa-times text-muted"></i>
+                                <span class="d-none d-md-inline ml-1">Reddedildi</span>
                             </button>
                         <?php elseif($is_approved || (isset($ilan['request_status']) && $ilan['request_status'] === 'approved')): ?>
-                            <a href="ilan-sil.php?id=<?= $ilan['id'] ?>&type=published" class="btn btn-danger btn-sm" onclick="return confirm('Yayındaki bu ilanı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')">
-                                <i class="fas fa-trash d-md-none"></i>
-                                <span class="d-none d-md-inline"><i class="fas fa-trash mr-1"></i>Sil</span>
+                            <a href="ilan-sil.php?id=<?= $ilan['id'] ?>&type=published" class="btn btn-light btn-sm" onclick="return confirm('Yayındaki bu ilanı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')" title="Sil">
+                                <i class="fas fa-trash text-danger"></i>
+                                <span class="d-none d-md-inline ml-1">Sil</span>
                             </a>
                         <?php endif; ?>
                     </div>

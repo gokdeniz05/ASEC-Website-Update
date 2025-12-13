@@ -1,3 +1,17 @@
+<?php
+// Load messages helper for unread count
+if (file_exists(__DIR__ . '/../includes/messages.php')) {
+    require_once __DIR__ . '/../includes/messages.php';
+}
+// Initialize unread count for corporate users
+$unread_count = 0;
+if (isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'corporate') {
+    if (!isset($pdo)) {
+        require_once __DIR__ . '/includes/config.php';
+    }
+    $unread_count = getUnreadMessageCount($pdo);
+}
+?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -308,6 +322,16 @@
                     <i class="fas fa-user-circle mr-1"></i>
                     <?php echo htmlspecialchars(mb_substr($_SESSION['user_name'] ?? 'Kurumsal Kullanıcı', 0, 20)); ?>
                 </span>
+            </li>
+            <li class="nav-item text-nowrap mr-2">
+                <a class="nav-link" href="../mailbox.php" title="Mesajlar" style="position: relative; background-color: rgba(40, 167, 69, 0.2); border: 1px solid rgba(40, 167, 69, 0.5); border-radius: 5px; padding: 0.5rem 1rem !important; font-weight: 600; transition: all 0.3s ease; color: #fff !important;" onmouseover="this.style.backgroundColor='rgba(40, 167, 69, 0.4)'; this.style.borderColor='rgba(40, 167, 69, 0.8)'; this.style.transform='scale(1.05)';" onmouseout="this.style.backgroundColor='rgba(40, 167, 69, 0.2)'; this.style.borderColor='rgba(40, 167, 69, 0.5)'; this.style.transform='scale(1)';">
+                    <i class="fas fa-envelope mr-1"></i>
+                    <span class="d-none d-md-inline">Mesajlar</span>
+                    <span class="d-md-none">Mesaj</span>
+                    <?php if ($unread_count > 0): ?>
+                        <span class="badge badge-danger" style="position: absolute; top: -5px; right: -5px; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px;"><?php echo $unread_count > 99 ? '99+' : $unread_count; ?></span>
+                    <?php endif; ?>
+                </a>
             </li>
             <li class="nav-item text-nowrap mr-2">
                 <a class="nav-link" href="../index.php" title="Ana Siteye Git" style="background-color: rgba(147, 112, 219, 0.2); border: 1px solid rgba(147, 112, 219, 0.5); border-radius: 5px; padding: 0.5rem 1rem !important; font-weight: 600; transition: all 0.3s ease; color: #fff !important;" onmouseover="this.style.backgroundColor='rgba(147, 112, 219, 0.4)'; this.style.borderColor='rgba(147, 112, 219, 0.8)'; this.style.transform='scale(1.05)';" onmouseout="this.style.backgroundColor='rgba(147, 112, 219, 0.2)'; this.style.borderColor='rgba(147, 112, 219, 0.5)'; this.style.transform='scale(1)';">

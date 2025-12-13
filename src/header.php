@@ -207,13 +207,15 @@ if (isset($_SESSION['user']) && isset($_SESSION['user_type']) && $_SESSION['user
                     <a href="corporate/dashboard.php" class="btn-login corporate-panel-btn" style="background: rgba(147, 112, 219, 0.2); border: 1px solid rgba(147, 112, 219, 0.5); border-radius: 5px; padding: 0.45rem 0.8rem; font-size: 0.85rem;">
                         <i class="fas fa-building"></i> <span class="corporate-panel-text">Kurumsal Panel</span>
                     </a>
+                <?php else: ?>
+                    <!-- Messages link only for individual users -->
+                    <a href="mailbox.php" class="btn-login mailbox-icon-btn" style="position: relative;">
+                        <i class="fas fa-envelope"></i>
+                        <?php if ($unread_count > 0): ?>
+                            <span class="mailbox-badge"><?php echo $unread_count > 99 ? '99+' : $unread_count; ?></span>
+                        <?php endif; ?>
+                    </a>
                 <?php endif; ?>
-				<a href="mailbox.php" class="btn-login mailbox-icon-btn" style="position: relative;">
-					<i class="fas fa-envelope"></i>
-					<?php if ($unread_count > 0): ?>
-						<span class="mailbox-badge"><?php echo $unread_count > 99 ? '99+' : $unread_count; ?></span>
-					<?php endif; ?>
-				</a>
 				<a href="profilim" class="btn-login"><i class="fas fa-user"></i> <?php echo __t('auth.profile'); ?></a>
 				<a href="logout" class="btn-register"><i class="fas fa-sign-out-alt"></i> <?php echo __t('auth.logout'); ?></a>
             </div>

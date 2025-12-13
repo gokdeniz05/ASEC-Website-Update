@@ -96,6 +96,7 @@ if (!defined('IN_ADMIN')) {
             'type_staj' => 'Staj',
             'type_burs' => 'Burs',
             'type_bireysel' => 'Bireysel',
+            'type_job' => 'İş İlanı',
             // Common buttons/labels
             'btn_view_details' => 'Detayları Gör',
             'btn_send_message' => 'Mesaj Gönder',
@@ -103,6 +104,7 @@ if (!defined('IN_ADMIN')) {
             'type_staj' => 'Staj',
             'type_burs' => 'Burs',
             'type_bireysel' => 'Bireysel',
+            'type_job' => 'İş İlanı',
             // About page
             'about.title' => 'Hakkımızda',
             'about.intro' => 'ASEC Kulübü, Ankara Yıldırım Beyazıt Üniversitesi Yazılım Mühendisliği öğrencileri tarafından kurulan, proje geliştirme, etkinlik organizasyonu, kariyer fırsatları ve uluslararası deneyimler sunarak üyelerinin mesleki gelişimini destekleyen bir topluluktur.',
@@ -376,6 +378,7 @@ if (!defined('IN_ADMIN')) {
             'type_staj' => 'Internship',
             'type_burs' => 'Scholarship',
             'type_bireysel' => 'Individual',
+            'type_job' => 'Job Listing',
             // Common buttons/labels
             'btn_view_details' => 'View Details',
             'btn_send_message' => 'Send Message',
@@ -383,6 +386,7 @@ if (!defined('IN_ADMIN')) {
             'type_staj' => 'Internship',
             'type_burs' => 'Scholarship',
             'type_bireysel' => 'Individual',
+            'type_job' => 'Job Listing',
             // About page
             'about.title' => 'About Us',
             'about.intro' => 'ASEC Club is a community established by Ankara Yıldırım Beyazıt University Software Engineering students, supporting members\' professional development through project development, event organization, career opportunities, and international experiences.',

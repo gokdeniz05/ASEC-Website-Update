@@ -1,5 +1,5 @@
 <?php
-// Corporate İlan Ekleme - Sadece Staj ve Burs İlanları
+// Corporate İlan Ekleme - Staj, Burs ve İş İlanları
 // Start output buffering to prevent any output issues with redirects
 if (!ob_get_level()) {
     ob_start();
@@ -35,7 +35,7 @@ $success = false;
 
 // Get default category from URL parameter
 $default_kategori = $_GET['kategori'] ?? '';
-if (!in_array($default_kategori, ['Staj İlanları', 'Burs İlanları'])) {
+if (!in_array($default_kategori, ['Staj İlanları', 'Burs İlanları', 'İş İlanı'])) {
     $default_kategori = '';
 }
 
@@ -57,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'İçerik alanı zorunludur!';
         } elseif (empty($kategori)) {
             $error = 'Kategori seçimi zorunludur!';
-        } elseif (!in_array($kategori, ['Staj İlanları', 'Burs İlanları'])) {
-            $error = 'Sadece Staj İlanları ve Burs İlanları oluşturabilirsiniz!';
+        } elseif (!in_array($kategori, ['Staj İlanları', 'Burs İlanları', 'İş İlanı'])) {
+            $error = 'Sadece Staj İlanları, Burs İlanları ve İş İlanı oluşturabilirsiniz!';
         } elseif (empty($tarih)) {
             $error = 'Tarih alanı zorunludur!';
         } else {
@@ -115,6 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <option value="">Seçiniz...</option>
                 <option value="Staj İlanları" <?= ((isset($_POST['kategori']) && $_POST['kategori'] == 'Staj İlanları') || $default_kategori == 'Staj İlanları') ? 'selected' : '' ?>>Staj İlanları</option>
                 <option value="Burs İlanları" <?= ((isset($_POST['kategori']) && $_POST['kategori'] == 'Burs İlanları') || $default_kategori == 'Burs İlanları') ? 'selected' : '' ?>>Burs İlanları</option>
+                <option value="İş İlanı" <?= ((isset($_POST['kategori']) && $_POST['kategori'] == 'İş İlanı') || $default_kategori == 'İş İlanı') ? 'selected' : '' ?>>İş İlanı</option>
               </select>
             </div>
           </div>

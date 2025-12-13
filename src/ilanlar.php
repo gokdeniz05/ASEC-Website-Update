@@ -17,6 +17,7 @@ if (!isset($_SESSION['user'])) {
 // Fetch all ilanlar from database
 $stajIlanlari = [];
 $bursIlanlari = [];
+$isIlanlari = [];
 $bireyselIlanlar = [];
 
 try {
@@ -45,6 +46,8 @@ try {
             $stajIlanlari[] = $ilan;
         } elseif ($ilan['kategori'] === 'Burs İlanları') {
             $bursIlanlari[] = $ilan;
+        } elseif ($ilan['kategori'] === 'İş İlanı') {
+            $isIlanlari[] = $ilan;
         } elseif ($ilan['kategori'] === 'Bireysel İlanlar') {
             $bireyselIlanlar[] = $ilan;
         }
@@ -53,6 +56,7 @@ try {
     // Table might not exist yet, that's okay
     $stajIlanlari = [];
     $bursIlanlari = [];
+    $isIlanlari = [];
     $bireyselIlanlar = [];
 }
 ?>
@@ -79,6 +83,10 @@ try {
                 <button class="tab-btn" data-tab="burs">
                     <i class="fas fa-money-bill-wave"></i>
                     <span><?php echo __t('jobs.tab.scholarship'); ?></span>
+                </button>
+                <button class="tab-btn" data-tab="is">
+                    <i class="fas fa-briefcase"></i>
+                    <span><?php echo __t('type_job'); ?></span>
                 </button>
                 <button class="tab-btn" data-tab="bireysel">
                     <i class="fas fa-user"></i>
@@ -170,6 +178,74 @@ try {
                                 <div class="announcement-card" data-category="burs">
                                     <div class="announcement-header">
                                         <span class="badge" data-category="burs"><?= htmlspecialchars($ilan['kategori']) ?></span>
+                                        <span class="date"><?= date('d M Y', strtotime($ilan['tarih'])) ?></span>
+                                    </div>
+                                    <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
+                                    <?php if(!empty($ilan['sirket'])): ?>
+                                        <div class="ilan-meta"><i class="fas fa-building"></i> <?= htmlspecialchars($ilan['sirket']) ?></div>
+                                    <?php endif; ?>
+                                    <?php if(!empty($ilan['lokasyon'])): ?>
+                                        <div class="ilan-meta"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($ilan['lokasyon']) ?></div>
+                                    <?php endif; ?>
+                                    <p><?= htmlspecialchars($ilan['icerik']) ?></p>
+                                    <?php if(!empty($ilan['son_basvuru'])): ?>
+                                        <div class="ilan-deadline"><i class="fas fa-calendar-alt"></i> Son Başvuru: <?= date('d M Y', strtotime($ilan['son_basvuru'])) ?></div>
+                                    <?php endif; ?>
+                                    <?php if(!empty($ilan['link'])): ?>
+                                        <a href="<?= htmlspecialchars($ilan['link']) ?>" class="read-more" target="_blank">Detayları Gör <i class="fas fa-arrow-right"></i></a>
+                                    <?php endif; ?>
+                                    <?php
+                                    // Determine receiver for message button
+                                    $receiver_id = null;
+                                    $receiver_type = null;
+                                    $show_message_button = false;
+                                    
+                                    if (!empty($ilan['corporate_user_id'])) {
+                                        $receiver_id = $ilan['corporate_user_id'];
+                                        $receiver_type = 'corporate';
+                                        // Don't show if current user is the corporate owner
+                                        if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $receiver_id || $_SESSION['user_type'] != 'corporate') {
+                                            $show_message_button = true;
+                                        }
+                                    } elseif (!empty($ilan['user_id'])) {
+                                        $receiver_id = $ilan['user_id'];
+                                        $receiver_type = 'individual';
+                                        // Don't show if current user is the individual owner
+                                        if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $receiver_id || $_SESSION['user_type'] != 'individual') {
+                                            $show_message_button = true;
+                                        }
+                                    }
+                                    
+                                    if ($show_message_button):
+                                        $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
+                                        if (!empty($ilan['baslik'])) {
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
+                                        }
+                                    ?>
+                                        <a href="<?= htmlspecialchars($message_url) ?>" class="read-more" style="margin-top: 0.5rem; display: inline-block;">
+                                            <i class="fas fa-envelope"></i> Mesaj Gönder
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- İş İlanı Tab -->
+                <div class="tab-content" id="is">
+                    <div class="announcements-grid">
+                        <?php if (empty($isIlanlari)): ?>
+                            <div class="no-announcements">
+                                <i class="fas fa-briefcase"></i>
+                                <h3><?php echo __t('type_job'); ?></h3>
+                                <p><?php echo $langCode === 'en' ? 'There are currently no job listings. New listings will be added soon.' : 'Şu anda iş ilanı bulunmamaktadır. Yakında yeni ilanlar eklenecektir.'; ?></p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach($isIlanlari as $ilan): ?>
+                                <div class="announcement-card" data-category="is">
+                                    <div class="announcement-header">
+                                        <span class="badge" data-category="is"><?= htmlspecialchars($ilan['kategori']) ?></span>
                                         <span class="date"><?= date('d M Y', strtotime($ilan['tarih'])) ?></span>
                                     </div>
                                     <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
