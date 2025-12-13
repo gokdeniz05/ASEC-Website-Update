@@ -1,6 +1,7 @@
 <?php
 // Veritabanı bağlantısını db.php'den al
 require_once 'db.php';
+require_once 'includes/validation.php';
 
 ob_start(); // Docker için tamponlama
 if (session_status() === PHP_SESSION_NONE) {
@@ -15,7 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = trim($_POST['message'] ?? '');
     $ip = $_SERVER['REMOTE_ADDR'] ?? '';
     
-    if ($name && $email && $subject && $message) {
+    // CAPTCHA doğrulama
+    $captcha_response = $_POST['g-recaptcha-response'] ?? '';
+    if (!validateCaptcha($captcha_response)) {
+        $error = 'Lütfen robot olmadığınızı doğrulayın.';
+    } elseif ($name && $email && $subject && $message) {
         $stmt = $pdo->prepare('INSERT INTO mesajlar (ad, email, konu, mesaj, ip, tarih) VALUES (?, ?, ?, ?, ?, NOW())');
         $stmt->execute([$name, $email, $subject, $message, $ip]);
         $success = true;
@@ -30,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include 'includes/head-meta.php'; ?>
     <title><?php echo __t('contact.title'); ?> - ASEC</title>
     <link rel="stylesheet" href="css/iletisim.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body class="iletisim-page">
     <?php include 'header.php'; ?>
@@ -88,6 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="message"><?php echo __t('contact.form.message'); ?></label>
                         <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <div class="g-recaptcha" data-sitekey="6LeLMC8rAAAAAChTj8rlQ_zyjedV3VdnejoNAZy1"></div>
                     </div>
                     <button type="submit" class="cta-button"><?php echo __t('contact.form.send'); ?></button>
                 </form>
