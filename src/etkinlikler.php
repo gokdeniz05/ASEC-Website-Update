@@ -56,9 +56,11 @@ if (session_status() === PHP_SESSION_NONE) {
                             $monthLong = isset($translations[$langCode]['months_long'][$monthNum]) 
                                 ? $translations[$langCode]['months_long'][$monthNum] 
                                 : date('F', $t);
+                            $year = date('Y', $t);
                             ?>
                             <span class="day"><?= date('d', $t) ?></span>
                             <span class="month"><?= $monthLong ?></span>
+                            <span class="year" style="font-size: 0.8em; display: block;"><?= $year ?></span>
                         </div>
                         <div class="event-details">
                             <h4><?= htmlspecialchars($display_baslik) ?></h4>
@@ -103,9 +105,11 @@ if (session_status() === PHP_SESSION_NONE) {
                             $monthLong = isset($translations[$langCode]['months_long'][$monthNum]) 
                                 ? $translations[$langCode]['months_long'][$monthNum] 
                                 : date('F', $t);
+                            $year = date('Y', $t);
                             ?>
                             <span class="day"><?= date('d', $t) ?></span>
                             <span class="month"><?= $monthLong ?></span>
+                            <span class="year" style="font-size: 0.8em; display: block;"><?= $year ?></span>
                         </div>
                         <div class="event-details">
                             <h4><?= htmlspecialchars($display_baslik) ?></h4>
