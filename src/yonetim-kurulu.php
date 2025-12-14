@@ -50,7 +50,7 @@ require_once 'includes/lang.php';
                 <?php if(!empty($boardMembers)): ?>
                 <div class="board-members-page-grid">
                     <?php foreach($boardMembers as $member): ?>
-                    <div class="board-member-page-card animate-slide-up">
+                    <div class="board-member-page-card h-100 animate-slide-up">
                         <div class="member-image-wrapper">
                             <?php if(!empty($member['profileImage'])): ?>
                                 <img src="<?= htmlspecialchars($member['profileImage']) ?>" alt="<?= htmlspecialchars($member['name']) ?>" class="member-image">
@@ -60,10 +60,17 @@ require_once 'includes/lang.php';
                                 </div>
                             <?php endif; ?>
                         </div>
-                        <div class="member-info">
-                            <h3 class="member-name"><?= htmlspecialchars($member['name']) ?></h3>
-                            <p class="member-position"><?= htmlspecialchars($member['position']) ?></p>
-                            <div class="member-social">
+                        <div class="member-info d-flex flex-column align-items-center">
+                            <!-- Zone 1: Name (İsim Alanı) -->
+                            <div class="member-name-zone d-flex align-items-center justify-content-center text-center w-100">
+                                <h3 class="member-name"><?= htmlspecialchars($member['name']) ?></h3>
+                            </div>
+                            <!-- Zone 2: Position (Unvan Alanı) -->
+                            <div class="member-position-zone d-flex align-items-start justify-content-center text-center w-100">
+                                <p class="member-position"><?= htmlspecialchars($member['position']) ?></p>
+                            </div>
+                            <!-- Zone 3: Social Links (Link Alanı) -->
+                            <div class="member-social mt-auto">
                                 <?php if(!empty($member['linkedinUrl'])): ?>
                                     <a href="<?= htmlspecialchars($member['linkedinUrl']) ?>" target="_blank" rel="noopener noreferrer" class="social-link linkedin" aria-label="LinkedIn">
                                         <i class="fab fa-linkedin-in"></i>

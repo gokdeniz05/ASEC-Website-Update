@@ -79,6 +79,12 @@
   border: 2px solid rgba(147, 112, 219, 0.15);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.board-member-page-card.h-100 {
+  height: 100%;
 }
 
 .board-member-page-card::before {
@@ -157,28 +163,61 @@
 .board-member-page-card .member-info {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.board-member-page-card .member-info.d-flex.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Zone 1: Name (İsim Alanı) - Fixed Height */
+.board-member-page-card .member-name-zone {
+  min-height: 80px;
+  margin-bottom: 0.5rem;
 }
 
 .board-member-page-card .member-name {
   font-size: 1.75rem;
   font-weight: 700;
   color: #1b1f3b;
-  margin-bottom: 0.75rem;
+  margin: 0;
   line-height: 1.3;
   transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  width: 100%;
 }
 
 .board-member-page-card:hover .member-name {
   color: #6a0dad;
 }
 
+/* Zone 2: Position (Unvan Alanı) - Fixed Height */
+.board-member-page-card .member-position-zone {
+  min-height: 50px;
+  margin-bottom: 1.5rem;
+}
+
 .board-member-page-card .member-position {
   font-size: 1.05rem;
   color: #666;
-  margin-bottom: 2rem;
+  margin: 0;
   font-weight: 500;
-  min-height: 1.6rem;
   transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  width: 100%;
 }
 
 .board-member-page-card:hover .member-position {
@@ -191,6 +230,10 @@
   align-items: center;
   gap: 1.25rem;
   flex-wrap: wrap;
+}
+
+.board-member-page-card .member-social.mt-auto {
+  margin-top: auto;
 }
 
 .board-member-page-card .social-link {
@@ -371,13 +414,20 @@
     margin-bottom: 1.5rem;
   }
 
+  .board-member-page-card .member-name-zone {
+    min-height: 70px;
+  }
+
   .board-member-page-card .member-name {
     font-size: 1.5rem;
   }
 
+  .board-member-page-card .member-position-zone {
+    min-height: 45px;
+  }
+
   .board-member-page-card .member-position {
     font-size: 1rem;
-    margin-bottom: 1.5rem;
   }
 
   .board-member-page-card .social-link {
@@ -414,8 +464,16 @@
     height: 120px;
   }
 
+  .board-member-page-card .member-name-zone {
+    min-height: 65px;
+  }
+
   .board-member-page-card .member-name {
     font-size: 1.3rem;
+  }
+
+  .board-member-page-card .member-position-zone {
+    min-height: 40px;
   }
 
   .board-member-page-card .member-position {

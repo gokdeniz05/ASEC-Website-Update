@@ -178,6 +178,7 @@ if (isset($_SESSION['user']) && isset($_SESSION['user_type']) && $_SESSION['user
                     </ul>
                 </li>
 				<li><a href="etkinlikler"><i class="fas fa-calendar-alt"></i> <?php echo __t('nav.events'); ?></a></li>
+				<li><a href="sponsorlar"><i class="fas fa-handshake"></i> <?php echo __t('nav.sponsors'); ?></a></li>
 				<li><a href="blog"><i class="fas fa-blog"></i> <?php echo __t('nav.blog'); ?></a></li>
 				<li><a href="iletisim"><i class="fas fa-envelope"></i> <?php echo __t('nav.contact'); ?></a></li>
             </ul>

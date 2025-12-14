@@ -49,6 +49,7 @@ if (!defined('IN_ADMIN')) {
             'jobs.empty.scholarship' => 'Şu anda burs ilanı bulunmamaktadır. Yakında yeni ilanlar eklenecektir.',
             'jobs.empty.individual' => 'Şu anda bireysel ilan bulunmamaktadır. Yakında yeni ilanlar eklenecektir.',
             'nav.events' => 'Etkinlikler',
+            'nav.sponsors' => 'Sponsorlar',
             'nav.blog' => 'Blog',
             'nav.contact' => 'İletişim',
             'auth.profile' => 'Profilim',
@@ -341,6 +342,11 @@ if (!defined('IN_ADMIN')) {
             'announcements.month.oct' => 'Eki',
             'announcements.month.nov' => 'Kas',
             'announcements.month.dec' => 'Ara',
+            // Sponsors
+            'sponsors.empty.title' => 'Henüz Sponsor Bulunmuyor',
+            'sponsors.empty.desc' => 'Yakında sponsorlarımız eklenecektir. Lütfen daha sonra tekrar ziyaret edin.',
+            'sponsors.visit_website' => 'Web Sitesine Git',
+            'sponsors.no_website' => 'Web Sitesi Yok',
         ],
         'en' => [
             'nav.home' => 'Home',
@@ -358,6 +364,7 @@ if (!defined('IN_ADMIN')) {
             'jobs.empty.scholarship' => 'There are currently no scholarship notices. New notices will be added soon.',
             'jobs.empty.individual' => 'There are currently no individual notices. New notices will be added soon.',
             'nav.events' => 'Events',
+            'nav.sponsors' => 'Sponsors',
             'nav.blog' => 'Blog',
             'nav.contact' => 'Contact',
             'auth.profile' => 'My Profile',
@@ -650,6 +657,11 @@ if (!defined('IN_ADMIN')) {
             'announcements.month.oct' => 'Oct',
             'announcements.month.nov' => 'Nov',
             'announcements.month.dec' => 'Dec',
+            // Sponsors
+            'sponsors.empty.title' => 'No Sponsors Yet',
+            'sponsors.empty.desc' => 'Our sponsors will be added soon. Please check back later.',
+            'sponsors.visit_website' => 'Visit Website',
+            'sponsors.no_website' => 'No Website',
         ],
     ];
 
