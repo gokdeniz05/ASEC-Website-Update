@@ -6,6 +6,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     exit;
 }
 require_once '../db.php';
+require_once '../includes/email_queue_helper.php';
 
 // Ensure English columns exist
 try {
@@ -36,6 +37,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ok = $stmt->execute([$baslik, $baslik_en, $aciklama, $aciklama_en, $tarih, $saat, $yer, $kayit_link]);
     if ($ok) {
         $etkinlik_id = $pdo->lastInsertId();
+        
+        // Queue notification for new event (only for new insertions, not updates)
+        $announcement_title = $baslik;
+        // Construct base URL
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $base_path = dirname(dirname($_SERVER['PHP_SELF']));
+        $announcement_url = $protocol . '://' . $host . $base_path . '/etkinlik-detay.php?id=' . $etkinlik_id;
+        queueAnnouncementNotification($pdo, $announcement_title, $announcement_url);
+        
         $msg = 'Etkinlik başarıyla eklendi!';
         // Fotoğraf yükleme işlemi
         $upload_dir = __DIR__ . '/../uploads/etkinlikler/' . $etkinlik_id . '/';

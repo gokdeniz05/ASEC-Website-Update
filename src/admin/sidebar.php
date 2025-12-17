@@ -23,7 +23,6 @@
                 'blog-yonetim.php', 'blog-ekle.php', 'blog-duzenle.php',
                 'etkinlikler-yonetim.php', 'etkinlik-ekle.php', 'etkinlik-duzenle.php',
                 'duyurular-yonetim.php', 'duyuru-ekle.php', 'duyuru-duzenle.php',
-                'onemli-bilgiler-yonetim.php', 'onemli-bilgi-ekle.php', 'onemli-bilgi-duzenle.php',
                 'ilanlar-yonetim.php', 'ilan-ekle.php', 'ilan-duzenle.php',
                 'galeri-yonetim.php', 'galeri-duzenle.php',
                 'sponsor-yonetim.php'
@@ -50,11 +49,6 @@
                     <li class="nav-item">
                         <a class="nav-link <?php echo (in_array($current_page, ['duyurular-yonetim.php', 'duyuru-ekle.php', 'duyuru-duzenle.php'])) ? 'active' : ''; ?>" href="duyurular-yonetim.php">
                             <i class="fas fa-bullhorn"></i> Duyurular
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo (in_array($current_page, ['onemli-bilgiler-yonetim.php', 'onemli-bilgi-ekle.php', 'onemli-bilgi-duzenle.php'])) ? 'active' : ''; ?>" href="onemli-bilgiler-yonetim.php">
-                            <i class="fas fa-info-circle"></i> Önemli Bilgiler
                         </a>
                     </li>
                     <li class="nav-item">

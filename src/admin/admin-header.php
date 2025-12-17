@@ -6,6 +6,8 @@
     <title>ASEC Admin Panel</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="../images/gallery/try.png" type="image/png">
+    <link rel="shortcut icon" href="../images/gallery/try.png" type="image/png">
     <style>
         body {
             background: #f5f6fa;

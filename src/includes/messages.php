@@ -4,6 +4,9 @@
  * Functions for handling mailbox/messaging system
  */
 
+// Include email queue helper for notifications
+require_once __DIR__ . '/email_queue_helper.php';
+
 /**
  * Get unread message count for the currently logged-in user
  * @param PDO $pdo Database connection
@@ -104,7 +107,47 @@ function sendMessage($pdo, $receiver_id, $receiver_type, $subject, $message_body
     
     try {
         $stmt = $pdo->prepare('INSERT INTO messages (sender_id, sender_type, receiver_id, receiver_type, subject, message_body) VALUES (?, ?, ?, ?, ?, ?)');
-        return $stmt->execute([$sender_id, $sender_type, $receiver_id, $receiver_type, $subject, $message_body]);
+        $success = $stmt->execute([$sender_id, $sender_type, $receiver_id, $receiver_type, $subject, $message_body]);
+        
+        if ($success) {
+            // Queue notification for direct message
+            $message_id = $pdo->lastInsertId();
+            
+            // Get recipient information
+            $recipient_name = getReceiverName($pdo, $receiver_id, $receiver_type);
+            $recipient_email = '';
+            try {
+                if ($receiver_type === 'corporate') {
+                    $stmt_email = $pdo->prepare('SELECT email FROM corporate_users WHERE id = ?');
+                    $stmt_email->execute([$receiver_id]);
+                    $recipient_result = $stmt_email->fetch();
+                    $recipient_email = $recipient_result ? $recipient_result['email'] : '';
+                } else {
+                    $stmt_email = $pdo->prepare('SELECT email FROM users WHERE id = ?');
+                    $stmt_email->execute([$receiver_id]);
+                    $recipient_result = $stmt_email->fetch();
+                    $recipient_email = $recipient_result ? $recipient_result['email'] : '';
+                }
+            } catch (PDOException $e) {
+                error_log("Error fetching recipient email: " . $e->getMessage());
+            }
+            
+            // Get sender name
+            $sender_name = getSenderName($pdo, $sender_id, $sender_type);
+            
+            // Construct message URL
+            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $base_path = dirname($_SERVER['PHP_SELF']);
+            $message_url = $protocol . '://' . $host . $base_path . '/message-detail.php?id=' . $message_id;
+            
+            // Queue the notification if we have recipient email
+            if (!empty($recipient_email)) {
+                queueDirectMessageNotification($pdo, $recipient_email, $recipient_name, $sender_name, $message_url);
+            }
+        }
+        
+        return $success;
     } catch (PDOException $e) {
         error_log("Error sending message: " . $e->getMessage());
         return false;

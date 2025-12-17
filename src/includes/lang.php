@@ -347,6 +347,8 @@ if (!defined('IN_ADMIN')) {
             'sponsors.empty.desc' => 'Yakında sponsorlarımız eklenecektir. Lütfen daha sonra tekrar ziyaret edin.',
             'sponsors.visit_website' => 'Web Sitesine Git',
             'sponsors.no_website' => 'Web Sitesi Yok',
+            'header_surekli_sponsor' => 'Sürekli Sponsorlarımız',
+            'header_etkinlik_sponsor' => 'Etkinlik Sponsorları',
         ],
         'en' => [
             'nav.home' => 'Home',
@@ -662,6 +664,8 @@ if (!defined('IN_ADMIN')) {
             'sponsors.empty.desc' => 'Our sponsors will be added soon. Please check back later.',
             'sponsors.visit_website' => 'Visit Website',
             'sponsors.no_website' => 'No Website',
+            'header_surekli_sponsor' => 'Continuous Sponsors',
+            'header_etkinlik_sponsor' => 'Event Sponsors',
         ],
     ];
 

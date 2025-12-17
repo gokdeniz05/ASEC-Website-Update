@@ -6,6 +6,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     exit;
 }
 require_once '../db.php';
+require_once '../includes/email_queue_helper.php';
 
 // Ensure English columns exist
 try {
@@ -32,7 +33,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $link = $_POST['link'] ?? '';
     $stmt = $pdo->prepare('INSERT INTO duyurular (baslik, baslik_en, icerik, icerik_en, kategori, tarih, link) VALUES (?, ?, ?, ?, ?, ?, ?)');
     $ok = $stmt->execute([$baslik, $baslik_en, $icerik, $icerik_en, $kategori, $tarih, $link]);
-    $msg = $ok ? 'Duyuru başarıyla eklendi!' : 'Hata oluştu!';
+    if ($ok) {
+        // Queue notification for new announcement (only for new insertions, not updates)
+        $announcement_id = $pdo->lastInsertId();
+        $announcement_title = $baslik;
+        // Construct base URL
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $base_path = dirname(dirname($_SERVER['PHP_SELF']));
+        $announcement_url = $protocol . '://' . $host . $base_path . '/duyurular.php';
+        queueAnnouncementNotification($pdo, $announcement_title, $announcement_url);
+        $msg = 'Duyuru başarıyla eklendi!';
+    } else {
+        $msg = 'Hata oluştu!';
+    }
 }
 ?>
 <?php include 'admin-header.php'; ?>

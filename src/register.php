@@ -130,8 +130,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $phone = trim($_POST['phone'] ?? '');
             $email = trim($_POST['email'] ?? '');
-            $university = trim($_POST['university'] ?? '');
-            $department = trim($_POST['department'] ?? '');
+            $university = trim($_POST['universite'] ?? '');
+            $department = trim($_POST['bolum'] ?? '');
             $class = trim($_POST['class'] ?? '');
             $password = $_POST['password'] ?? '';
             $password2 = $_POST['password2'] ?? '';
@@ -264,12 +264,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="email" id="email" name="email" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="university"><?php echo __t('register.university'); ?></label>
-                        <input type="text" id="university" name="university" required value="<?php echo htmlspecialchars($_POST['university'] ?? ''); ?>">
+                        <label for="universite"><?php echo __t('register.university'); ?></label>
+                        <select id="universite" name="universite" class="form-select" required style="width: 100%; padding: 12px 15px; border: 2px solid var(--primary); background-color: var(--secondary); font-size: 16px; outline: none; transition: all 0.3s; font-family: inherit; border-radius: 6px;">
+                            <?php 
+                            $selected_uni = $_POST['universite'] ?? 'Ankara Yıldırım Beyazıt Üniversitesi';
+                            ?>
+                            <option value="Ankara Yıldırım Beyazıt Üniversitesi" <?= $selected_uni === 'Ankara Yıldırım Beyazıt Üniversitesi' ? 'selected' : '' ?>>Ankara Yıldırım Beyazıt Üniversitesi</option>
+                            <option value="Diğer" <?= $selected_uni === 'Diğer' ? 'selected' : '' ?>>Diğer</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label for="department"><?php echo __t('register.department'); ?></label>
-                        <input type="text" id="department" name="department" required value="<?php echo htmlspecialchars($_POST['department'] ?? ''); ?>">
+                        <label for="bolum"><?php echo __t('register.department'); ?></label>
+                        <select id="bolum" name="bolum" class="form-select" required style="width: 100%; padding: 12px 15px; border: 2px solid var(--primary); background-color: var(--secondary); font-size: 16px; outline: none; transition: all 0.3s; font-family: inherit; border-radius: 6px;">
+                            <?php 
+                            $selected_dept = $_POST['bolum'] ?? 'Yazılım Mühendisliği';
+                            ?>
+                            <option value="Yazılım Mühendisliği" <?= $selected_dept === 'Yazılım Mühendisliği' ? 'selected' : '' ?>>Yazılım Mühendisliği</option>
+                            <option value="Diğer" <?= $selected_dept === 'Diğer' ? 'selected' : '' ?>>Diğer</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="class"><?php echo __t('register.class'); ?></label>

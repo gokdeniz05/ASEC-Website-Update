@@ -22,6 +22,16 @@ try {
     // Table might already exist, continue
 }
 
+// Database Migration: Add kategori column if it doesn't exist
+try {
+    $columns = $pdo->query("SHOW COLUMNS FROM sponsors LIKE 'kategori'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE sponsors ADD COLUMN kategori ENUM('surekli', 'etkinlik') DEFAULT 'etkinlik'");
+    }
+} catch (PDOException $e) {
+    // Column might already exist, continue
+}
+
 $msg = '';
 $error = '';
 $success = false;
@@ -33,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $aciklama_tr = trim($_POST['aciklama_tr'] ?? '');
         $aciklama_en = trim($_POST['aciklama_en'] ?? '');
         $web_site = trim($_POST['web_site'] ?? '');
+        $kategori = isset($_POST['kategori']) && in_array($_POST['kategori'], ['surekli', 'etkinlik']) ? $_POST['kategori'] : 'etkinlik';
         $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
         
         // Validation
@@ -98,8 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (empty($error)) {
                 if ($id > 0) {
                     // Update existing sponsor
-                    $stmt = $pdo->prepare('UPDATE sponsors SET firma_adi=?, logo_yolu=?, aciklama_tr=?, aciklama_en=?, web_site=? WHERE id=?');
-                    $ok = $stmt->execute([$firma_adi, $logo_yolu, $aciklama_tr ?: null, $aciklama_en ?: null, $web_site ?: null, $id]);
+                    $stmt = $pdo->prepare('UPDATE sponsors SET firma_adi=?, logo_yolu=?, aciklama_tr=?, aciklama_en=?, web_site=?, kategori=? WHERE id=?');
+                    $ok = $stmt->execute([$firma_adi, $logo_yolu, $aciklama_tr ?: null, $aciklama_en ?: null, $web_site ?: null, $kategori, $id]);
                     
                     if ($ok) {
                         $success = true;
@@ -110,8 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 } else {
                     // Insert new sponsor
-                    $stmt = $pdo->prepare('INSERT INTO sponsors (firma_adi, logo_yolu, aciklama_tr, aciklama_en, web_site) VALUES (?, ?, ?, ?, ?)');
-                    $ok = $stmt->execute([$firma_adi, $logo_yolu, $aciklama_tr ?: null, $aciklama_en ?: null, $web_site ?: null]);
+                    $stmt = $pdo->prepare('INSERT INTO sponsors (firma_adi, logo_yolu, aciklama_tr, aciklama_en, web_site, kategori) VALUES (?, ?, ?, ?, ?, ?)');
+                    $ok = $stmt->execute([$firma_adi, $logo_yolu, $aciklama_tr ?: null, $aciklama_en ?: null, $web_site ?: null, $kategori]);
                     
                     if ($ok) {
                         $success = true;
@@ -196,6 +207,14 @@ $sponsors = $pdo->query('SELECT * FROM sponsors ORDER BY created_at DESC')->fetc
             </div>
             
             <div class="form-group mb-3">
+              <label>Kategori <span class="text-danger">*</span></label>
+              <select name="kategori" class="form-control" required>
+                <option value="surekli" <?= (isset($edit_sponsor['kategori']) && $edit_sponsor['kategori'] == 'surekli') ? 'selected' : '' ?>>Sürekli Sponsor (Ana Sponsor)</option>
+                <option value="etkinlik" <?= (!isset($edit_sponsor['kategori']) || $edit_sponsor['kategori'] == 'etkinlik') ? 'selected' : '' ?>>Etkinlik Sponsoru</option>
+              </select>
+            </div>
+            
+            <div class="form-group mb-3">
               <label>Web Sitesi</label>
               <input type="url" name="web_site" class="form-control" placeholder="https://example.com" value="<?= htmlspecialchars($edit_sponsor['web_site'] ?? '') ?>">
             </div>
@@ -251,6 +270,7 @@ $sponsors = $pdo->query('SELECT * FROM sponsors ORDER BY created_at DESC')->fetc
                     <th>ID</th>
                     <th>Logo</th>
                     <th>Firma Adı</th>
+                    <th>Kategori</th>
                     <th>Web Sitesi</th>
                     <th>Oluşturulma Tarihi</th>
                     <th>İşlem</th>
@@ -268,6 +288,13 @@ $sponsors = $pdo->query('SELECT * FROM sponsors ORDER BY created_at DESC')->fetc
                         <?php endif; ?>
                       </td>
                       <td><?= htmlspecialchars($sponsor['firma_adi']) ?></td>
+                      <td>
+                        <?php 
+                        $kategori_label = (isset($sponsor['kategori']) && $sponsor['kategori'] == 'surekli') ? 'Sürekli' : 'Etkinlik';
+                        $kategori_badge = (isset($sponsor['kategori']) && $sponsor['kategori'] == 'surekli') ? 'badge-primary' : 'badge-info';
+                        ?>
+                        <span class="badge <?= $kategori_badge ?>"><?= htmlspecialchars($kategori_label) ?></span>
+                      </td>
                       <td>
                         <?php if(!empty($sponsor['web_site'])): ?>
                           <a href="<?= htmlspecialchars($sponsor['web_site']) ?>" target="_blank" rel="noopener noreferrer">

@@ -6,6 +6,7 @@ error_reporting(E_ALL);
 // Admin İlan Requests Management
 require_once 'includes/config.php';
 require_once '../db.php'; // Use PDO for corporate_ilan_requests table
+require_once '../includes/email_queue_helper.php';
 
 // Ensure corporate_ilan_requests table exists
 $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_ilan_requests (
@@ -113,6 +114,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $admin_user_id = $_SESSION['user_id'] ?? null;
                             $update_stmt = $pdo->prepare('UPDATE corporate_ilan_requests SET status = "approved", admin_notes = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?');
                             $update_stmt->execute([$admin_notes, $admin_user_id, $request_id]);
+                            
+                            // Queue notification for new listing approval
+                            $listing_id = $pdo->lastInsertId();
+                            $listing_title = $request['baslik'];
+                            // Construct base URL
+                            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+                            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                            $base_path = dirname(dirname($_SERVER['PHP_SELF']));
+                            $listing_url = $protocol . '://' . $host . $base_path . '/ilanlar.php';
+                            queueNewListingNotification($pdo, $listing_title, $listing_url);
+                            
                             $msg = 'İlan başarıyla onaylandı ve yayınlandı!';
                         } else {
                             $errorInfo = $insert_stmt->errorInfo();
@@ -161,6 +173,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $admin_user_id = $_SESSION['user_id'] ?? null;
                             $update_stmt = $pdo->prepare('UPDATE individual_ilan_requests SET status = "approved", admin_notes = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?');
                             $update_stmt->execute([$admin_notes, $admin_user_id, $request_id]);
+                            
+                            // Queue notification for new listing approval
+                            $listing_id = $pdo->lastInsertId();
+                            $listing_title = $request['baslik'];
+                            // Construct base URL
+                            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+                            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                            $base_path = dirname(dirname($_SERVER['PHP_SELF']));
+                            $listing_url = $protocol . '://' . $host . $base_path . '/ilanlar.php';
+                            queueNewListingNotification($pdo, $listing_title, $listing_url);
+                            
                             $msg = 'İlan başarıyla onaylandı ve yayınlandı!';
                         } else {
                             $errorInfo = $insert_stmt->errorInfo();

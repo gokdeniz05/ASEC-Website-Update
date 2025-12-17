@@ -18,12 +18,28 @@ try {
         web_site VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+    
+    // Add kategori column if it doesn't exist
+    $columns = $pdo->query("SHOW COLUMNS FROM sponsors LIKE 'kategori'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE sponsors ADD COLUMN kategori ENUM('surekli', 'etkinlik') DEFAULT 'etkinlik'");
+    }
 } catch (PDOException $e) {
     // Table might already exist, continue
 }
 
-// Fetch all sponsors
-$sponsors = $pdo->query('SELECT * FROM sponsors ORDER BY created_at DESC')->fetchAll();
+// Fetch all sponsors and separate by category
+$all_sponsors = $pdo->query('SELECT * FROM sponsors ORDER BY created_at DESC')->fetchAll();
+$surekli_sponsors = [];
+$etkinlik_sponsors = [];
+
+foreach ($all_sponsors as $sponsor) {
+    if (isset($sponsor['kategori']) && $sponsor['kategori'] == 'surekli') {
+        $surekli_sponsors[] = $sponsor;
+    } else {
+        $etkinlik_sponsors[] = $sponsor;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo isset($langCode) ? htmlspecialchars($langCode) : 'tr'; ?>">
@@ -31,24 +47,71 @@ $sponsors = $pdo->query('SELECT * FROM sponsors ORDER BY created_at DESC')->fetc
     <?php include 'includes/head-meta.php'; ?>
     <title><?php echo __t('nav.sponsors'); ?> - ASEC</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/etkinlikler.css">
     <style>
+        /* Override container to match events page */
         .sponsors-container {
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
+            margin: 3rem auto 5rem;
+            padding: 0 1.5rem;
         }
+        
+        /* Page title matches events page exactly */
         .page-title {
-            text-align: center;
-            margin-bottom: 40px;
             font-size: 2.5rem;
-            color: #2c3e50;
             font-weight: 700;
+            color: #1b1f3b;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        .page-title::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background-color: #9370db;
+            border-radius: 2px;
+        }
+        
+        /* Section titles match events page exactly */
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #1b1f3b;
+            margin: 2.5rem 0 3rem;
+            position: relative;
+            text-align: center;
+            padding-bottom: 0.8rem;
+        }
+        
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background-color: #9370db;
+            border-radius: 2px;
+        }
+        
+        /* Section wrapper to match events page */
+        .sponsors-section {
+            margin-bottom: 3rem;
         }
         .sponsors-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 2rem;
+            justify-content: center;
+            padding: 1rem;
         }
         .sponsor-card {
             background: #fff;
@@ -140,13 +203,19 @@ $sponsors = $pdo->query('SELECT * FROM sponsors ORDER BY created_at DESC')->fetc
             font-size: 1.5rem;
             margin-bottom: 10px;
         }
+        /* Responsive - matches events page */
+        @media (max-width: 992px) {
+            .sponsors-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
         @media (max-width: 768px) {
             .sponsors-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
             }
-            .page-title {
-                font-size: 2rem;
+            .section-title {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -155,54 +224,100 @@ $sponsors = $pdo->query('SELECT * FROM sponsors ORDER BY created_at DESC')->fetc
     <?php include 'header.php'; ?>
     
     <main>
-        <div class="container mt-5">
-            <div class="sponsors-container">
+        <div class="sponsors-container">
             <h2 class="page-title"><?php echo __t('nav.sponsors'); ?></h2>
             
-            <?php if(empty($sponsors)): ?>
+            <?php if(empty($surekli_sponsors) && empty($etkinlik_sponsors)): ?>
                 <div class="no-sponsors">
                     <i class="fas fa-handshake"></i>
                     <h3><?php echo __t('sponsors.empty.title'); ?></h3>
                     <p><?php echo __t('sponsors.empty.desc'); ?></p>
                 </div>
             <?php else: ?>
-                <div class="sponsors-grid">
-                    <?php foreach($sponsors as $sponsor): ?>
-                        <?php
-                        // Select description based on language
-                        if ($currentLang == 'en' && !empty($sponsor['aciklama_en'])) {
-                            $display_description = $sponsor['aciklama_en'];
-                        } else {
-                            // Default to Turkish
-                            $display_description = $sponsor['aciklama_tr'] ?? '';
-                        }
-                        ?>
-                        <div class="sponsor-card h-100">
-                            <div class="sponsor-logo-container">
-                                <?php if(!empty($sponsor['logo_yolu'])): ?>
-                                    <img src="<?= htmlspecialchars($sponsor['logo_yolu']) ?>" alt="<?= htmlspecialchars($sponsor['firma_adi']) ?>" class="sponsor-logo">
-                                <?php else: ?>
-                                    <i class="fas fa-building" style="font-size: 4rem; color: #bdc3c7;"></i>
-                                <?php endif; ?>
-                            </div>
-                            <div class="sponsor-body d-flex flex-column">
-                                <h3 class="sponsor-name"><?= htmlspecialchars($sponsor['firma_adi']) ?></h3>
-                                <?php if(!empty($display_description)): ?>
-                                    <p class="sponsor-description"><?= nl2br(htmlspecialchars($display_description)) ?></p>
-                                <?php endif; ?>
-                            </div>
-                            <?php if(!empty($sponsor['web_site'])): ?>
-                                <div class="sponsor-footer mt-auto">
-                                    <a href="<?= htmlspecialchars($sponsor['web_site']) ?>" target="_blank" rel="noopener noreferrer" class="btn-visit-website">
-                                        <i class="fas fa-external-link-alt"></i> <?php echo __t('sponsors.visit_website'); ?>
-                                    </a>
+                <!-- Section 1: Continuous Sponsors (Sürekli Sponsorlar) -->
+                <?php if(!empty($surekli_sponsors)): ?>
+                    <section class="sponsors-section">
+                        <h3 class="section-title"><?php echo __t('header_surekli_sponsor'); ?></h3>
+                        <div class="sponsors-grid">
+                            <?php foreach($surekli_sponsors as $sponsor): ?>
+                                <?php
+                                // Select description based on language
+                                if ($currentLang == 'en' && !empty($sponsor['aciklama_en'])) {
+                                    $display_description = $sponsor['aciklama_en'];
+                                } else {
+                                    // Default to Turkish
+                                    $display_description = $sponsor['aciklama_tr'] ?? '';
+                                }
+                                ?>
+                                <div class="sponsor-card h-100">
+                                    <div class="sponsor-logo-container">
+                                        <?php if(!empty($sponsor['logo_yolu'])): ?>
+                                            <img src="<?= htmlspecialchars($sponsor['logo_yolu']) ?>" alt="<?= htmlspecialchars($sponsor['firma_adi']) ?>" class="sponsor-logo">
+                                        <?php else: ?>
+                                            <i class="fas fa-building" style="font-size: 4rem; color: #bdc3c7;"></i>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="sponsor-body d-flex flex-column">
+                                        <h3 class="sponsor-name"><?= htmlspecialchars($sponsor['firma_adi']) ?></h3>
+                                        <?php if(!empty($display_description)): ?>
+                                            <p class="sponsor-description"><?= nl2br(htmlspecialchars($display_description)) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if(!empty($sponsor['web_site'])): ?>
+                                        <div class="sponsor-footer mt-auto">
+                                            <a href="<?= htmlspecialchars($sponsor['web_site']) ?>" target="_blank" rel="noopener noreferrer" class="btn-visit-website">
+                                                <i class="fas fa-external-link-alt"></i> <?php echo __t('sponsors.visit_website'); ?>
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
-                            <?php endif; ?>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
-                </div>
+                    </section>
+                <?php endif; ?>
+                
+                <!-- Section 2: Event Sponsors (Etkinlik Sponsorları) -->
+                <?php if(!empty($etkinlik_sponsors)): ?>
+                    <section class="sponsors-section">
+                        <h3 class="section-title"><?php echo __t('header_etkinlik_sponsor'); ?></h3>
+                        <div class="sponsors-grid">
+                            <?php foreach($etkinlik_sponsors as $sponsor): ?>
+                                <?php
+                                // Select description based on language
+                                if ($currentLang == 'en' && !empty($sponsor['aciklama_en'])) {
+                                    $display_description = $sponsor['aciklama_en'];
+                                } else {
+                                    // Default to Turkish
+                                    $display_description = $sponsor['aciklama_tr'] ?? '';
+                                }
+                                ?>
+                                <div class="sponsor-card h-100">
+                                    <div class="sponsor-logo-container">
+                                        <?php if(!empty($sponsor['logo_yolu'])): ?>
+                                            <img src="<?= htmlspecialchars($sponsor['logo_yolu']) ?>" alt="<?= htmlspecialchars($sponsor['firma_adi']) ?>" class="sponsor-logo">
+                                        <?php else: ?>
+                                            <i class="fas fa-building" style="font-size: 4rem; color: #bdc3c7;"></i>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="sponsor-body d-flex flex-column">
+                                        <h3 class="sponsor-name"><?= htmlspecialchars($sponsor['firma_adi']) ?></h3>
+                                        <?php if(!empty($display_description)): ?>
+                                            <p class="sponsor-description"><?= nl2br(htmlspecialchars($display_description)) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if(!empty($sponsor['web_site'])): ?>
+                                        <div class="sponsor-footer mt-auto">
+                                            <a href="<?= htmlspecialchars($sponsor['web_site']) ?>" target="_blank" rel="noopener noreferrer" class="btn-visit-website">
+                                                <i class="fas fa-external-link-alt"></i> <?php echo __t('sponsors.visit_website'); ?>
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
+                <?php endif; ?>
             <?php endif; ?>
-            </div>
         </div>
     </main>
     

@@ -6,6 +6,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     exit;
 }
 require_once '../db.php';
+require_once '../includes/email_queue_helper.php';
 
 // Create table if not exists
 $pdo->exec('CREATE TABLE IF NOT EXISTS onemli_bilgiler (
@@ -67,10 +68,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $stmt = $pdo->prepare('INSERT INTO onemli_bilgiler (baslik, baslik_en, aciklama, aciklama_en, icerik, icerik_en, resim, tarih) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
     $ok = $stmt->execute([$baslik, $baslik_en, $aciklama, $aciklama_en, $icerik, $icerik_en, $resim, $tarih]);
-    $msg = $ok ? 'Bilgi başarıyla eklendi!' : 'Hata oluştu!';
     if ($ok) {
+        // Queue notification for new important info (only for new insertions, not updates)
+        $announcement_id = $pdo->lastInsertId();
+        $announcement_title = $baslik;
+        // Construct base URL
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $base_path = dirname(dirname($_SERVER['PHP_SELF']));
+        $announcement_url = $protocol . '://' . $host . $base_path . '/onemli-bilgilendirmeler.php';
+        queueAnnouncementNotification($pdo, $announcement_title, $announcement_url);
+        
+        $msg = 'Bilgi başarıyla eklendi!';
         header('Location: onemli-bilgiler-yonetim.php');
         exit;
+    } else {
+        $msg = 'Hata oluştu!';
     }
 }
 ?>

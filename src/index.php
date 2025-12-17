@@ -56,10 +56,7 @@ session_start(); // Oturumu başlat
                             session_start();
                         }
                         // Check for both regular user session and admin session
-                        if (isset($_SESSION['user']) || (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true)) {
-                            // Show "Important Information" button when logged in (as user or admin)
-                            echo '<a href="onemli-bilgilendirmeler.php" class="btn-primary"><i class="fas fa-info-circle"></i> ' . __t('home.hero.cta.notifications') . '</a>';
-                        } else {
+                        if (!isset($_SESSION['user']) && (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true)) {
                             // Show "Join Now" button when not logged in
                             echo '<a href="register" class="btn-primary">' . __t('home.hero.cta.join') . '</a>';
                         }
