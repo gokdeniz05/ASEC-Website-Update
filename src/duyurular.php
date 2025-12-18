@@ -12,6 +12,83 @@ require_once 'includes/lang.php';
     <?php include 'includes/head-meta.php'; ?>
     <title><?php echo __t('announcements.page.title'); ?> - ASEC Kulübü</title>
     <link rel="stylesheet" href="css/duyurular.css">
+    <style>
+        /* STEP 3: Announcement Photo Styling */
+        .announcement-photo {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+        
+        .announcement-photo:hover {
+            opacity: 0.9;
+        }
+        
+        /* STEP 4: Lightbox Modal Styles */
+        #imageViewerModal {
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        #imageViewerModal.active {
+            display: flex;
+        }
+        
+        #imageViewerModal .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #imageViewerModal .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        #imageViewerModal .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10000;
+            line-height: 1;
+            transition: opacity 0.3s;
+            background: rgba(0, 0, 0, 0.5);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        #imageViewerModal .modal-close:hover {
+            opacity: 0.8;
+            background: rgba(0, 0, 0, 0.7);
+        }
+    </style>
 </head>
 <body>
     <?php include 'header.php'; ?>
@@ -81,6 +158,18 @@ require_once 'includes/lang.php';
                         </div>
                         <h3><?= htmlspecialchars($display_baslik) ?></h3>
                         <p><?= htmlspecialchars($display_icerik) ?></p>
+                        <?php if (!empty($duyuru['photo']) && file_exists('uploads/duyurular/' . $duyuru['photo'])): ?>
+                            <div class="photo-attachment-container" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
+                                <h6 style="font-size: 0.85rem; color: #6c757d; margin-bottom: 8px; font-weight: 600;">
+                                    <i class="fas fa-camera"></i> 
+                                    <?php echo $currentLang === 'en' ? 'Attached Photo' : 'Ekli Fotoğraf'; ?>
+                                </h6>
+                                <img src="uploads/duyurular/<?= htmlspecialchars($duyuru['photo']) ?>" 
+                                     alt="Duyuru Fotoğrafı" 
+                                     class="announcement-photo" 
+                                     style="width: 100%; height: 200px; object-fit: cover; border-radius: 6px; cursor: pointer;">
+                            </div>
+                        <?php endif; ?>
                         <?php if(!empty($duyuru['link'])): ?>
                             <a href="<?= htmlspecialchars($duyuru['link']) ?>" class="read-more" target="_blank"><?php echo __t('announcements.read_more'); ?> <i class="fas fa-arrow-right"></i></a>
                         <?php endif; ?>
@@ -90,6 +179,58 @@ require_once 'includes/lang.php';
         </div>
     </main>
     <?php include 'footer.php'; ?>
+    
+    <!-- STEP 4: Lightbox Modal -->
+    <div id="imageViewerModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img src="" alt="Full Screen Image">
+        </div>
+    </div>
+    
     <script src="javascript/script.js"></script>
+    <script>
+        // STEP 4: Lightbox functionality for announcement photos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all announcement photos
+            const announcementPhotos = document.querySelectorAll('.announcement-photo');
+            const modal = document.getElementById('imageViewerModal');
+            const modalImg = modal.querySelector('img');
+            const modalClose = modal.querySelector('.modal-close');
+            
+            // Add click event to each announcement photo
+            announcementPhotos.forEach(function(img) {
+                img.addEventListener('click', function() {
+                    // Get the source of the clicked image
+                    const imgSrc = this.getAttribute('src');
+                    // Set modal image source
+                    modalImg.setAttribute('src', imgSrc);
+                    modalImg.setAttribute('alt', this.getAttribute('alt') || 'Full Screen Image');
+                    // Show the modal
+                    modal.classList.add('active');
+                });
+            });
+            
+            // Close modal when clicking the X button
+            modalClose.addEventListener('click', function(e) {
+                e.stopPropagation();
+                modal.classList.remove('active');
+            });
+            
+            // Close modal when clicking outside the image
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

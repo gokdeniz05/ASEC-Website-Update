@@ -18,6 +18,11 @@ try {
     if (empty($columns)) {
         $pdo->exec("ALTER TABLE duyurular ADD COLUMN icerik_en LONGTEXT NULL AFTER icerik");
     }
+    // STEP 1: Ensure photo column exists
+    $columns = $pdo->query("SHOW COLUMNS FROM duyurular LIKE 'photo'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE duyurular ADD COLUMN photo VARCHAR(255) DEFAULT NULL AFTER baslik");
+    }
 } catch (Exception $e) {
     // Columns might already exist
 }
@@ -31,8 +36,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $kategori = $_POST['kategori'] ?? '';
     $tarih = $_POST['tarih'] ?? '';
     $link = $_POST['link'] ?? '';
-    $stmt = $pdo->prepare('INSERT INTO duyurular (baslik, baslik_en, icerik, icerik_en, kategori, tarih, link) VALUES (?, ?, ?, ?, ?, ?, ?)');
-    $ok = $stmt->execute([$baslik, $baslik_en, $icerik, $icerik_en, $kategori, $tarih, $link]);
+    $photo = null;
+    
+    // STEP 2: Handle photo upload
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = __DIR__ . '/../uploads/duyurular/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+        
+        $file = $_FILES['photo'];
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $fileType = mime_content_type($file['tmp_name']);
+        
+        if (in_array($fileType, $allowedTypes)) {
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = 'duyuru_' . time() . '_' . uniqid() . '.' . $ext;
+            $targetPath = $uploadDir . $filename;
+            
+            if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                $photo = $filename;
+            }
+        }
+    }
+    
+    $stmt = $pdo->prepare('INSERT INTO duyurular (baslik, baslik_en, icerik, icerik_en, kategori, tarih, link, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    $ok = $stmt->execute([$baslik, $baslik_en, $icerik, $icerik_en, $kategori, $tarih, $link, $photo]);
     if ($ok) {
         // Queue notification for new announcement (only for new insertions, not updates)
         $announcement_id = $pdo->lastInsertId();
@@ -56,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
       <h1>Duyuru Ekle</h1>
       <?php if($msg): ?><div class="alert alert-success"><?= $msg ?></div><?php endif; ?>
-      <form method="post" class="bg-white p-4 rounded shadow-sm">
+      <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
         <!-- Language Tabs -->
         <ul class="nav nav-tabs mb-4" id="langTabs" role="tablist">
             <li class="nav-item" role="presentation">
@@ -110,9 +139,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <label>Tarih</label>
           <input type="date" name="tarih" class="form-control" required>
         </div>
-        <div class="form-group mb-4">
+        <div class="form-group mb-3">
           <label>Link (isteğe bağlı)</label>
           <input type="text" name="link" class="form-control">
+        </div>
+        <div class="form-group mb-4">
+          <label>Fotoğraf (isteğe bağlı)</label>
+          <input type="file" name="photo" accept="image/*" class="form-control">
+          <small class="text-muted">Desteklenen formatlar: JPEG, PNG, GIF</small>
         </div>
         <button class="btn btn-primary px-5" type="submit">Kaydet</button>
       </form>

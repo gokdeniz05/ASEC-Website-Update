@@ -1,6 +1,11 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once 'db.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['user'])) {
     header('Location: login.php');
     exit;
@@ -49,7 +54,8 @@ if (isset($_POST['update_profile'])) {
         $university = trim($_POST['university'] ?? '');
         $department = trim($_POST['department'] ?? '');
         $class = trim($_POST['class'] ?? '');
-        $birthdate = $_POST['birthdate'] ?? null;
+        // Fix: Convert empty birthdate string to NULL for DATE column
+        $birthdate = !empty(trim($_POST['birthdate'] ?? '')) ? $_POST['birthdate'] : null;
         $address = trim($_POST['address'] ?? '');
         $bio = trim($_POST['bio'] ?? '');
         $instagram = trim($_POST['instagram'] ?? '');
@@ -68,8 +74,14 @@ if (isset($_POST['update_profile'])) {
             }
         }
 
+        // Update users table
         $stmt = $pdo->prepare('UPDATE users SET name=?, phone=?, university=?, department=?, class=?, birthdate=?, address=?, bio=?, instagram=?, linkedin=?, achievements=?, avatar=? WHERE id=?');
         $stmt->execute([$name, $phone, $university, $department, $class, $birthdate, $address, $bio, $instagram, $linkedin, $achievements, $avatarFile, $user['id']]);
+        
+        // SYNC: Update CV major column to match the new department
+        $stmtCv = $pdo->prepare('UPDATE user_cv_profiles SET major = ? WHERE user_id = ?');
+        $stmtCv->execute([$department, $user['id']]);
+        
         $_SESSION['user_name'] = $name; // Update session
     }
     header('Location: profilim.php');
@@ -174,13 +186,24 @@ if (!$user) {
                             </div>
                             <div class="profil-form-group">
                                 <label><?php echo __t('profile.labels.department'); ?></label>
-                                <input type="text" name="department" value="<?php echo htmlspecialchars($user['department'] ?? ''); ?>">
+                                <input type="text" name="department" value="<?php echo htmlspecialchars($user['department'] ?? ''); ?>" style="width: 100%; padding: 12px 15px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 1rem;">
                             </div>
                         </div>
                         <div class="profil-form-row">
                             <div class="profil-form-group">
                                 <label><?php echo __t('profile.labels.class'); ?></label>
-                                <input type="text" name="class" value="<?php echo htmlspecialchars($user['class'] ?? ''); ?>">
+                                <select name="class" style="width: 100%; padding: 12px 15px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 1rem; background-color: #fff;">
+                                    <?php 
+                                    $currentClass = $user['class'] ?? '';
+                                    $classOptions = ['Hazırlık', '1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'];
+                                    ?>
+                                    <option value="">Sınıf Seçiniz</option>
+                                    <?php foreach ($classOptions as $option): ?>
+                                        <option value="<?php echo htmlspecialchars($option); ?>" <?php echo ($currentClass === $option) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($option); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                             <div class="profil-form-group">
                                 <label><?php echo __t('profile.labels.birthdate'); ?></label>

@@ -58,7 +58,19 @@ if ($currentLang == 'en' && !empty($blog['title_en']) && !empty($blog['content_e
                 <h1 class="blog-detail-title"><?php echo htmlspecialchars($display_title); ?></h1>
                 
                 <div class="blog-detail-meta">
-                    <span><i class="far fa-calendar"></i> <?php echo date('d M Y', strtotime($blog['created_at'])); ?></span>
+                    <?php
+                    // Format date with full month name using translations
+                    require_once 'includes/lang.php';
+                    $blogDate = strtotime($blog['created_at']);
+                    $blogDay = date('d', $blogDate);
+                    $blogMonthNum = (int)date('n', $blogDate);
+                    $blogYear = date('Y', $blogDate);
+                    $blogMonthName = isset($translations[$currentLang]['months'][$blogMonthNum]) 
+                        ? $translations[$currentLang]['months'][$blogMonthNum] 
+                        : date('F', $blogDate);
+                    $blogFormattedDate = $blogDay . ' ' . $blogMonthName . ' ' . $blogYear;
+                    ?>
+                    <span><i class="far fa-calendar"></i> <?php echo $blogFormattedDate; ?></span>
                     <span><i class="far fa-user"></i> <?php echo htmlspecialchars($blog['author']); ?></span>
                 </div>
 

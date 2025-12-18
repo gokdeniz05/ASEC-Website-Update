@@ -17,6 +17,11 @@ try {
     if (empty($columns)) {
         $pdo->exec("ALTER TABLE duyurular ADD COLUMN icerik_en LONGTEXT NULL AFTER icerik");
     }
+    // STEP 1: Ensure photo column exists
+    $columns = $pdo->query("SHOW COLUMNS FROM duyurular LIKE 'photo'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE duyurular ADD COLUMN photo VARCHAR(255) DEFAULT NULL AFTER baslik");
+    }
 } catch (Exception $e) {
     // Columns might already exist
 }
@@ -36,8 +41,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $kategori = $_POST['kategori'] ?? '';
     $tarih = $_POST['tarih'] ?? '';
     $link = $_POST['link'] ?? '';
-    $stmt2 = $pdo->prepare('UPDATE duyurular SET baslik=?, baslik_en=?, icerik=?, icerik_en=?, kategori=?, tarih=?, link=? WHERE id=?');
-    $ok = $stmt2->execute([$baslik, $baslik_en, $icerik, $icerik_en, $kategori, $tarih, $link, $id]);
+    $photo = $duyuru['photo'] ?? null; // Keep existing photo by default
+    
+    // STEP 2: Handle photo upload
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = __DIR__ . '/../uploads/duyurular/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+        
+        // Delete old photo if exists
+        if (!empty($duyuru['photo'])) {
+            $oldPhotoPath = $uploadDir . $duyuru['photo'];
+            if (file_exists($oldPhotoPath)) {
+                unlink($oldPhotoPath);
+            }
+        }
+        
+        $file = $_FILES['photo'];
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $fileType = mime_content_type($file['tmp_name']);
+        
+        if (in_array($fileType, $allowedTypes)) {
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = 'duyuru_' . time() . '_' . uniqid() . '.' . $ext;
+            $targetPath = $uploadDir . $filename;
+            
+            if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                $photo = $filename;
+            }
+        }
+    }
+    
+    $stmt2 = $pdo->prepare('UPDATE duyurular SET baslik=?, baslik_en=?, icerik=?, icerik_en=?, kategori=?, tarih=?, link=?, photo=? WHERE id=?');
+    $ok = $stmt2->execute([$baslik, $baslik_en, $icerik, $icerik_en, $kategori, $tarih, $link, $photo, $id]);
     $msg = $ok ? 'Duyuru güncellendi!' : 'Hata oluştu!';
     $stmt->execute([$id]);
     $duyuru = $stmt->fetch();
@@ -50,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
       <h1>Duyuru Düzenle</h1>
       <?php if($msg): ?><div class="alert alert-success"><?= $msg ?></div><?php endif; ?>
-      <form method="post" class="bg-white p-4 rounded shadow-sm">
+      <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
         <!-- Language Tabs -->
         <ul class="nav nav-tabs mb-4" id="langTabs" role="tablist">
             <li class="nav-item" role="presentation">
@@ -104,9 +141,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <label>Tarih</label>
           <input type="date" name="tarih" class="form-control" value="<?= htmlspecialchars($duyuru['tarih']) ?>" required>
         </div>
-        <div class="form-group mb-4">
+        <div class="form-group mb-3">
           <label>Link (isteğe bağlı)</label>
           <input type="text" name="link" class="form-control" value="<?= htmlspecialchars($duyuru['link']) ?>">
+        </div>
+        <div class="form-group mb-4">
+          <label>Fotoğraf (isteğe bağlı)</label>
+          <?php if (!empty($duyuru['photo']) && file_exists(__DIR__ . '/../uploads/duyurular/' . $duyuru['photo'])): ?>
+            <div class="mb-2">
+              <img src="../uploads/duyurular/<?= htmlspecialchars($duyuru['photo']) ?>" alt="Mevcut Fotoğraf" style="max-width: 200px; height: auto; border-radius: 8px; border: 1px solid #ddd;">
+              <p class="text-muted small mt-1">Mevcut fotoğraf</p>
+            </div>
+          <?php endif; ?>
+          <input type="file" name="photo" accept="image/*" class="form-control">
+          <small class="text-muted">Desteklenen formatlar: JPEG, PNG, GIF. Yeni fotoğraf yüklerseniz mevcut fotoğraf silinir.</small>
         </div>
         <button class="btn btn-primary px-5" type="submit">Kaydet</button>
       </form>

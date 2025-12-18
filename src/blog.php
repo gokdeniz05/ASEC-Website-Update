@@ -60,7 +60,18 @@ $result = mysqli_query($conn, $sql);
                                 <h3><?php echo htmlspecialchars($display_title); ?></h3>
                                 <p class="blog-excerpt"><?php echo htmlspecialchars(substr(strip_tags($display_content), 0, 150)) . '...'; ?></p>
                                 <div class="blog-meta">
-                                    <span class="date"><i class="far fa-calendar"></i> <?php echo date('d M Y', strtotime($row['created_at'])); ?></span>
+                                    <?php
+                                    // Format date with full month name using translations
+                                    $blogDate = strtotime($row['created_at']);
+                                    $blogDay = date('d', $blogDate);
+                                    $blogMonthNum = (int)date('n', $blogDate);
+                                    $blogYear = date('Y', $blogDate);
+                                    $blogMonthName = isset($translations[$currentLang]['months'][$blogMonthNum]) 
+                                        ? $translations[$currentLang]['months'][$blogMonthNum] 
+                                        : date('F', $blogDate);
+                                    $blogFormattedDate = $blogDay . ' ' . $blogMonthName . ' ' . $blogYear;
+                                    ?>
+                                    <span class="date"><i class="far fa-calendar"></i> <?php echo $blogFormattedDate; ?></span>
                                     <span class="author"><i class="far fa-user"></i> <?php echo htmlspecialchars($row['author']); ?></span>
                                 </div>
                                 <a href="blog-detay.php?id=<?php echo $row['id']; ?>" class="read-more">

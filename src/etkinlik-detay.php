@@ -35,6 +35,68 @@ $fotolar->execute([$id]);
     <?php include 'includes/head-meta.php'; ?>
     <title><?= htmlspecialchars($display_baslik) ?> - ASEC</title>
     <link rel="stylesheet" href="css/etkinlik-detay.css">
+    <style>
+        /* Lightbox Modal Styles */
+        #imageViewerModal {
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        #imageViewerModal.active {
+            display: flex;
+        }
+        
+        #imageViewerModal .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #imageViewerModal .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        #imageViewerModal .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10000;
+            line-height: 1;
+            transition: opacity 0.3s;
+            background: rgba(0, 0, 0, 0.5);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        #imageViewerModal .modal-close:hover {
+            opacity: 0.8;
+            background: rgba(0, 0, 0, 0.7);
+        }
+    </style>
 </head>
 <body>
     <?php include 'header.php'; ?>
@@ -126,47 +188,55 @@ $fotolar->execute([$id]);
     </main>
     
     <?php include 'footer.php'; ?>
+    
+    <!-- Lightbox Modal -->
+    <div id="imageViewerModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img src="" alt="Full Screen Image">
+        </div>
+    </div>
+    
     <script src="javascript/script.js"></script>
     <script src="javascript/image-optimizer.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Galeri görsellerine tıklandığında büyük görüntüleme
-            const galleryItems = document.querySelectorAll('.gallery-item img');
+            // Get all gallery images
+            const galleryImages = document.querySelectorAll('.gallery-grid .gallery-item img');
+            const modal = document.getElementById('imageViewerModal');
+            const modalImg = modal.querySelector('img');
+            const modalClose = modal.querySelector('.modal-close');
             
-            // Lightbox oluştur
-            const lightbox = document.createElement('div');
-            lightbox.className = 'lightbox';
-            lightbox.innerHTML = `
-                <div class="lightbox-content">
-                    <img src="" alt="">
-                    <span class="lightbox-close"><i class="fas fa-times"></i></span>
-                </div>
-            `;
-            document.body.appendChild(lightbox);
-            
-            const lightboxImg = lightbox.querySelector('img');
-            const lightboxClose = lightbox.querySelector('.lightbox-close');
-            
-            // Görsellere tıklama olayı ekle
-            galleryItems.forEach(img => {
+            // Add click event to each gallery image
+            galleryImages.forEach(function(img) {
+                img.style.cursor = 'pointer';
                 img.addEventListener('click', function() {
-                    const fullImgSrc = this.getAttribute('data-full-img');
-                    lightbox.classList.add('active');
-                    
-                    // Optimize edilmiş görsel yükleme fonksiyonunu kullan
-                    loadLightboxImage(fullImgSrc, lightboxImg);
+                    // Get the source of the clicked image
+                    const imgSrc = this.getAttribute('src');
+                    // Set modal image source
+                    modalImg.setAttribute('src', imgSrc);
+                    // Show the modal
+                    modal.classList.add('active');
                 });
             });
             
-            // Lightbox kapatma
-            lightboxClose.addEventListener('click', function() {
-                lightbox.classList.remove('active');
+            // Close modal when clicking the X button
+            modalClose.addEventListener('click', function(e) {
+                e.stopPropagation();
+                modal.classList.remove('active');
             });
             
-            // Lightbox dışına tıklayarak kapatma
-            lightbox.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    lightbox.classList.remove('active');
+            // Close modal when clicking outside the image
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
                 }
             });
         });

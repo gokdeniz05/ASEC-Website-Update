@@ -757,11 +757,11 @@ try {
 
                                 $monthNum = (int)date('n', $tarihTimestamp);
 
-                                $monthShort = isset($translations[$langCode]['months_short'][$monthNum])
+                                $monthShort = isset($translations[$langCode]['months'][$monthNum])
 
-                                    ? $translations[$langCode]['months_short'][$monthNum]
+                                    ? $translations[$langCode]['months'][$monthNum]
 
-                                    : date('M', $tarihTimestamp);
+                                    : date('F', $tarihTimestamp);
 
                                 $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
 
@@ -801,11 +801,11 @@ try {
 
                                         $deadlineMonthNum = (int)date('n', $deadlineTimestamp);
 
-                                        $deadlineMonthShort = isset($translations[$langCode]['months_short'][$deadlineMonthNum])
+                                        $deadlineMonthShort = isset($translations[$langCode]['months'][$deadlineMonthNum])
 
-                                            ? $translations[$langCode]['months_short'][$deadlineMonthNum]
+                                            ? $translations[$langCode]['months'][$deadlineMonthNum]
 
-                                            : date('M', $deadlineTimestamp);
+                                            : date('F', $deadlineTimestamp);
 
                                         $formattedDeadline = date('d', $deadlineTimestamp) . ' ' . $deadlineMonthShort . ' ' . date('Y', $deadlineTimestamp);
 
@@ -957,11 +957,11 @@ try {
 
                                 $monthNum = (int)date('n', $tarihTimestamp);
 
-                                $monthShort = isset($translations[$langCode]['months_short'][$monthNum])
+                                $monthShort = isset($translations[$langCode]['months'][$monthNum])
 
-                                    ? $translations[$langCode]['months_short'][$monthNum]
+                                    ? $translations[$langCode]['months'][$monthNum]
 
-                                    : date('M', $tarihTimestamp);
+                                    : date('F', $tarihTimestamp);
 
                                 $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
 
@@ -1001,11 +1001,11 @@ try {
 
                                         $deadlineMonthNum = (int)date('n', $deadlineTimestamp);
 
-                                        $deadlineMonthShort = isset($translations[$langCode]['months_short'][$deadlineMonthNum])
+                                        $deadlineMonthShort = isset($translations[$langCode]['months'][$deadlineMonthNum])
 
-                                            ? $translations[$langCode]['months_short'][$deadlineMonthNum]
+                                            ? $translations[$langCode]['months'][$deadlineMonthNum]
 
-                                            : date('M', $deadlineTimestamp);
+                                            : date('F', $deadlineTimestamp);
 
                                         $formattedDeadline = date('d', $deadlineTimestamp) . ' ' . $deadlineMonthShort . ' ' . date('Y', $deadlineTimestamp);
 
@@ -1157,11 +1157,11 @@ try {
 
                                 $monthNum = (int)date('n', $tarihTimestamp);
 
-                                $monthShort = isset($translations[$langCode]['months_short'][$monthNum])
+                                $monthShort = isset($translations[$langCode]['months'][$monthNum])
 
-                                    ? $translations[$langCode]['months_short'][$monthNum]
+                                    ? $translations[$langCode]['months'][$monthNum]
 
-                                    : date('M', $tarihTimestamp);
+                                    : date('F', $tarihTimestamp);
 
                                 $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
 
@@ -1201,11 +1201,11 @@ try {
 
                                         $deadlineMonthNum = (int)date('n', $deadlineTimestamp);
 
-                                        $deadlineMonthShort = isset($translations[$langCode]['months_short'][$deadlineMonthNum])
+                                        $deadlineMonthShort = isset($translations[$langCode]['months'][$deadlineMonthNum])
 
-                                            ? $translations[$langCode]['months_short'][$deadlineMonthNum]
+                                            ? $translations[$langCode]['months'][$deadlineMonthNum]
 
-                                            : date('M', $deadlineTimestamp);
+                                            : date('F', $deadlineTimestamp);
 
                                         $formattedDeadline = date('d', $deadlineTimestamp) . ' ' . $deadlineMonthShort . ' ' . date('Y', $deadlineTimestamp);
 
@@ -1399,11 +1399,11 @@ try {
 
                                 $monthNum = (int)date('n', $tarihTimestamp);
 
-                                $monthShort = isset($translations[$langCode]['months_short'][$monthNum])
+                                $monthShort = isset($translations[$langCode]['months'][$monthNum])
 
-                                    ? $translations[$langCode]['months_short'][$monthNum]
+                                    ? $translations[$langCode]['months'][$monthNum]
 
-                                    : date('M', $tarihTimestamp);
+                                    : date('F', $tarihTimestamp);
 
                                 $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
 
@@ -1463,11 +1463,11 @@ try {
 
                                         $deadlineMonthNum = (int)date('n', $deadlineTimestamp);
 
-                                        $deadlineMonthShort = isset($translations[$langCode]['months_short'][$deadlineMonthNum])
+                                        $deadlineMonthShort = isset($translations[$langCode]['months'][$deadlineMonthNum])
 
-                                            ? $translations[$langCode]['months_short'][$deadlineMonthNum]
+                                            ? $translations[$langCode]['months'][$deadlineMonthNum]
 
-                                            : date('M', $deadlineTimestamp);
+                                            : date('F', $deadlineTimestamp);
 
                                         $formattedDeadline = date('d', $deadlineTimestamp) . ' ' . $deadlineMonthShort . ' ' . date('Y', $deadlineTimestamp);
 

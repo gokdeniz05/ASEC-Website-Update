@@ -139,9 +139,9 @@ session_start(); // Oturumu başlat
               $eMonthNum = (int)date('n', $eDate);
               
               // Translation logic
-              $eMonthName = isset($translations[$currentLang]['months_short'][$eMonthNum]) 
-                            ? $translations[$currentLang]['months_short'][$eMonthNum] 
-                            : date('M', $eDate);
+              $eMonthName = isset($translations[$currentLang]['months'][$eMonthNum]) 
+                            ? $translations[$currentLang]['months'][$eMonthNum] 
+                            : date('F', $eDate);
               ?>
               <div class="event-card">
                   <div class="event-date"><?= $eDay ?> <?= $eMonthName ?> <?= $eYear ?></div>

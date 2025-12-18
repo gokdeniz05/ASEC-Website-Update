@@ -164,29 +164,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group mb-2">
-                      <label class="small">Sütun 1 (TR)</label>
+                      <label class="small">Şirket Adı (TR)</label>
                       <input type="text" name="rows[<?= $rowIndex ?>][col1_tr]" class="form-control form-control-sm" value="<?= htmlspecialchars($row['col1_tr']) ?>">
                     </div>
                     <div class="form-group mb-2">
-                      <label class="small">Sütun 2 (TR)</label>
+                      <label class="small">Şartlar (TR)</label>
                       <input type="text" name="rows[<?= $rowIndex ?>][col2_tr]" class="form-control form-control-sm" value="<?= htmlspecialchars($row['col2_tr']) ?>">
                     </div>
                     <div class="form-group mb-2">
-                      <label class="small">Sütun 3 (TR)</label>
+                      <label class="small">Link (TR)</label>
                       <input type="text" name="rows[<?= $rowIndex ?>][col3_tr]" class="form-control form-control-sm" value="<?= htmlspecialchars($row['col3_tr']) ?>">
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group mb-2">
-                      <label class="small">Column 1 (EN)</label>
+                      <label class="small">Şirket Adı (EN)</label>
                       <input type="text" name="rows[<?= $rowIndex ?>][col1_en]" class="form-control form-control-sm" value="<?= htmlspecialchars($row['col1_en']) ?>">
                     </div>
                     <div class="form-group mb-2">
-                      <label class="small">Column 2 (EN)</label>
+                      <label class="small">Şartlar (EN)</label>
                       <input type="text" name="rows[<?= $rowIndex ?>][col2_en]" class="form-control form-control-sm" value="<?= htmlspecialchars($row['col2_en']) ?>">
                     </div>
                     <div class="form-group mb-2">
-                      <label class="small">Column 3 (EN)</label>
+                      <label class="small">Link (EN)</label>
                       <input type="text" name="rows[<?= $rowIndex ?>][col3_en]" class="form-control form-control-sm" value="<?= htmlspecialchars($row['col3_en']) ?>">
                     </div>
                   </div>
@@ -224,29 +224,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-2">
-                            <label class="small">Sütun 1 (TR)</label>
+                            <label class="small">Şirket Adı (TR)</label>
                             <input type="text" name="rows[${rowIndex}][col1_tr]" class="form-control form-control-sm">
                         </div>
                         <div class="form-group mb-2">
-                            <label class="small">Sütun 2 (TR)</label>
+                            <label class="small">Şartlar (TR)</label>
                             <input type="text" name="rows[${rowIndex}][col2_tr]" class="form-control form-control-sm">
                         </div>
                         <div class="form-group mb-2">
-                            <label class="small">Sütun 3 (TR)</label>
+                            <label class="small">Link (TR)</label>
                             <input type="text" name="rows[${rowIndex}][col3_tr]" class="form-control form-control-sm">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-2">
-                            <label class="small">Column 1 (EN)</label>
+                            <label class="small">Şirket Adı (EN)</label>
                             <input type="text" name="rows[${rowIndex}][col1_en]" class="form-control form-control-sm">
                         </div>
                         <div class="form-group mb-2">
-                            <label class="small">Column 2 (EN)</label>
+                            <label class="small">Şartlar (EN)</label>
                             <input type="text" name="rows[${rowIndex}][col2_en]" class="form-control form-control-sm">
                         </div>
                         <div class="form-group mb-2">
-                            <label class="small">Column 3 (EN)</label>
+                            <label class="small">Link (EN)</label>
                             <input type="text" name="rows[${rowIndex}][col3_en]" class="form-control form-control-sm">
                         </div>
                     </div>

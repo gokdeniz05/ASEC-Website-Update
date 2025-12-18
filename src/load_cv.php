@@ -59,7 +59,16 @@ $success = '';
 
 // Form gönderimi
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $major = trim($_POST['major'] ?? '');
+    // SECURITY: Fetch registered department from database - ignore any form input
+    // Re-fetch user data to ensure we have the latest department value
+    $stmtDept = $pdo->prepare('SELECT department FROM users WHERE id = ?');
+    $stmtDept->execute([$user['id']]);
+    $userDept = $stmtDept->fetch();
+    $registered_major = $userDept['department'] ?? '';
+    
+    // HARD OVERRIDE: Always use registered department, completely ignore POST input
+    $major = $registered_major;
+    
     $languages = $_POST['languages'] ?? [];
     $softwareFields = $_POST['software_fields'] ?? [];
     $companies = $_POST['companies'] ?? [];
@@ -376,9 +385,16 @@ $existingCompanies = $cvProfile && $cvProfile['companies'] ? json_decode($cvProf
         <?php endif; ?>
         <form method="post" enctype="multipart/form-data">
             <div class="cv-group cv-col">
+                <label><?php echo __t('register.department'); ?></label>
+                <div style="padding: 12px 15px; background-color: #e9ecef; border: 1px solid rgba(106, 13, 173, 0.2); border-radius: 8px; color: #6c757d; font-size: 1rem;">
+                    <?php echo htmlspecialchars($user['department'] ?? __t('profile.value.not_set')); ?>
+                </div>
+                <input type="hidden" name="department" value="<?php echo htmlspecialchars($user['department'] ?? ''); ?>">
+            </div>
+            <!-- <div class="cv-group cv-col">
                 <label for="major"><?php echo __t('cv.form.major.label'); ?></label>
                 <input type="text" id="major" name="major" value="<?php echo htmlspecialchars($cvProfile['major'] ?? ''); ?>" placeholder="<?php echo __t('cv.form.major.placeholder'); ?>">
-            </div>
+            </div> -->
 
             <div class="cv-group">
                 <label><?php echo __t('cv.form.languages.label'); ?></label>
