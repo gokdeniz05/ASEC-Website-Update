@@ -130,8 +130,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $phone = trim($_POST['phone'] ?? '');
             $email = trim($_POST['email'] ?? '');
-            $university = trim($_POST['universite'] ?? '');
-            $department = trim($_POST['bolum'] ?? '');
+            
+            // Handle university field - check if "other" is selected
+            $university_raw = trim($_POST['universite'] ?? '');
+            if ($university_raw === 'other') {
+                $university = trim($_POST['university_custom'] ?? '');
+            } else {
+                $university = $university_raw;
+            }
+            
+            // Handle department field - check if "other" is selected
+            $department_raw = trim($_POST['bolum'] ?? '');
+            if ($department_raw === 'other') {
+                $department = trim($_POST['department_custom'] ?? '');
+            } else {
+                $department = $department_raw;
+            }
+            
             $class = trim($_POST['class'] ?? '');
             $password = $_POST['password'] ?? '';
             $password2 = $_POST['password2'] ?? '';
@@ -148,6 +163,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = $password_check['message'];
                 } else if (!$name || !$phone || !$email || !$university || !$department || !$class || !$password) {
                     $error = 'Lütfen tüm alanları doldurun!';
+                } else if ($university_raw === 'other' && empty($university)) {
+                    $error = 'Lütfen üniversite adını giriniz!';
+                } else if ($department_raw === 'other' && empty($department)) {
+                    $error = 'Lütfen bölüm adını giriniz!';
                 } else {
                     $captcha_response = $_POST['g-recaptcha-response'] ?? '';
                     if (!validateCaptcha($captcha_response)) {
@@ -270,8 +289,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $selected_uni = $_POST['universite'] ?? 'Ankara Yıldırım Beyazıt Üniversitesi';
                             ?>
                             <option value="Ankara Yıldırım Beyazıt Üniversitesi" <?= $selected_uni === 'Ankara Yıldırım Beyazıt Üniversitesi' ? 'selected' : '' ?>>Ankara Yıldırım Beyazıt Üniversitesi</option>
-                            <option value="Diğer" <?= $selected_uni === 'Diğer' ? 'selected' : '' ?>>Diğer</option>
+                            <option value="other" <?= $selected_uni === 'other' ? 'selected' : '' ?>>Diğer</option>
                         </select>
+                        <input type="text" id="university_custom" name="university_custom" class="form-input" style="width: 100%; padding: 12px 15px; border: 2px solid var(--primary); background-color: var(--secondary); font-size: 16px; outline: none; transition: all 0.3s; font-family: inherit; border-radius: 6px; margin-top: 10px; display: none;" placeholder="Üniversite adını giriniz" value="<?php echo htmlspecialchars($_POST['university_custom'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
                         <label for="bolum"><?php echo __t('register.department'); ?></label>
@@ -280,12 +300,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $selected_dept = $_POST['bolum'] ?? 'Yazılım Mühendisliği';
                             ?>
                             <option value="Yazılım Mühendisliği" <?= $selected_dept === 'Yazılım Mühendisliği' ? 'selected' : '' ?>>Yazılım Mühendisliği</option>
-                            <option value="Diğer" <?= $selected_dept === 'Diğer' ? 'selected' : '' ?>>Diğer</option>
+                            <option value="other" <?= $selected_dept === 'other' ? 'selected' : '' ?>>Diğer</option>
                         </select>
+                        <input type="text" id="department_custom" name="department_custom" class="form-input" style="width: 100%; padding: 12px 15px; border: 2px solid var(--primary); background-color: var(--secondary); font-size: 16px; outline: none; transition: all 0.3s; font-family: inherit; border-radius: 6px; margin-top: 10px; display: none;" placeholder="Bölüm adını giriniz" value="<?php echo htmlspecialchars($_POST['department_custom'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
                         <label for="class"><?php echo __t('register.class'); ?></label>
-                        <input type="text" id="class" name="class" required value="<?php echo htmlspecialchars($_POST['class'] ?? ''); ?>">
+                        <select id="class" name="class" class="form-select" required style="width: 100%; padding: 12px 15px; border: 2px solid var(--primary); background-color: var(--secondary); font-size: 16px; outline: none; transition: all 0.3s; font-family: inherit; border-radius: 6px;">
+                            <?php 
+                            $selected_class = $_POST['class'] ?? '';
+                            ?>
+                            <option value="" <?= $selected_class === '' ? 'selected' : '' ?>>Sınıf Seçiniz</option>
+                            <option value="Hazırlık" <?= $selected_class === 'Hazırlık' ? 'selected' : '' ?>>Hazırlık</option>
+                            <option value="1" <?= $selected_class === '1' ? 'selected' : '' ?>>1</option>
+                            <option value="2" <?= $selected_class === '2' ? 'selected' : '' ?>>2</option>
+                            <option value="3" <?= $selected_class === '3' ? 'selected' : '' ?>>3</option>
+                            <option value="4" <?= $selected_class === '4' ? 'selected' : '' ?>>4</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="password"><?php echo __t('register.password'); ?></label>
@@ -431,6 +462,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (numberCheck) numberCheck.classList.toggle('valid', /[0-9]/.test(password));
             if (specialCheck) specialCheck.classList.toggle('valid', /[^A-Za-z0-9]/.test(password));
         }
+        
+        // Handle "Other" option for University and Department fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const universitySelect = document.getElementById('universite');
+            const universityCustom = document.getElementById('university_custom');
+            const departmentSelect = document.getElementById('bolum');
+            const departmentCustom = document.getElementById('department_custom');
+            
+            // University field handler
+            if (universitySelect && universityCustom) {
+                function toggleUniversityCustom() {
+                    if (universitySelect.value === 'other') {
+                        universityCustom.style.display = 'block';
+                        universityCustom.setAttribute('required', 'required');
+                        universitySelect.removeAttribute('required');
+                    } else {
+                        universityCustom.style.display = 'none';
+                        universityCustom.removeAttribute('required');
+                        universitySelect.setAttribute('required', 'required');
+                    }
+                }
+                
+                universitySelect.addEventListener('change', toggleUniversityCustom);
+                // Check initial state
+                toggleUniversityCustom();
+            }
+            
+            // Department field handler
+            if (departmentSelect && departmentCustom) {
+                function toggleDepartmentCustom() {
+                    if (departmentSelect.value === 'other') {
+                        departmentCustom.style.display = 'block';
+                        departmentCustom.setAttribute('required', 'required');
+                        departmentSelect.removeAttribute('required');
+                    } else {
+                        departmentCustom.style.display = 'none';
+                        departmentCustom.removeAttribute('required');
+                        departmentSelect.setAttribute('required', 'required');
+                    }
+                }
+                
+                departmentSelect.addEventListener('change', toggleDepartmentCustom);
+                // Check initial state
+                toggleDepartmentCustom();
+            }
+        });
     </script>
 </body>
 </html>

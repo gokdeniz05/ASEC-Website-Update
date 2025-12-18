@@ -25,7 +25,8 @@
                 'duyurular-yonetim.php', 'duyuru-ekle.php', 'duyuru-duzenle.php',
                 'ilanlar-yonetim.php', 'ilan-ekle.php', 'ilan-duzenle.php',
                 'galeri-yonetim.php', 'galeri-duzenle.php',
-                'sponsor-yonetim.php'
+                'sponsor-yonetim.php',
+                'bilgi-yonetim.php', 'bilgi-ekle.php'
             ];
             $is_yonetim_active = in_array($current_page, $yonetim_pages);
             $is_yonetim_expanded = $is_yonetim_active ? 'show' : '';
@@ -64,6 +65,11 @@
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($current_page == 'sponsor-yonetim.php') ? 'active' : ''; ?>" href="sponsor-yonetim.php">
                             <i class="fas fa-handshake"></i> Sponsorlar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo (in_array($current_page, ['bilgi-yonetim.php', 'bilgi-ekle.php'])) ? 'active' : ''; ?>" href="bilgi-yonetim.php">
+                            <i class="fas fa-info-circle"></i> Bilgilendirme
                         </a>
                     </li>
                 </ul>

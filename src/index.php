@@ -128,12 +128,23 @@ session_start(); // Oturumu başlat
       $yaklasan_etkinlikler = $stmt->fetchAll();
       
       if (count($yaklasan_etkinlikler) > 0) {
+          // Ensure langCode is set
+          $currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
+          
           foreach ($yaklasan_etkinlikler as $etkinlik) {
-              $tarih = new DateTime($etkinlik['tarih']);
-              $tarih_formati = $tarih->format('d') . ' ' . strftime('%B', $tarih->getTimestamp());
+              // Parse and format date with translation support
+              $eDate = strtotime($etkinlik['tarih']);
+              $eDay = date('d', $eDate);
+              $eYear = date('Y', $eDate);
+              $eMonthNum = (int)date('n', $eDate);
+              
+              // Translation logic
+              $eMonthName = isset($translations[$currentLang]['months_short'][$eMonthNum]) 
+                            ? $translations[$currentLang]['months_short'][$eMonthNum] 
+                            : date('M', $eDate);
               ?>
               <div class="event-card">
-                  <div class="event-date"><?= $tarih_formati ?></div>
+                  <div class="event-date"><?= $eDay ?> <?= $eMonthName ?> <?= $eYear ?></div>
                   <h3><?= htmlspecialchars($etkinlik['baslik']) ?></h3>
                   <p><?= htmlspecialchars(substr($etkinlik['aciklama'], 0, 150)) . (strlen($etkinlik['aciklama']) > 150 ? '...' : '') ?></p>
                   <a href="etkinlik-detay.php?id=<?= $etkinlik['id'] ?>" class="event-button"><?php echo __t('home.upcoming.details'); ?></a>

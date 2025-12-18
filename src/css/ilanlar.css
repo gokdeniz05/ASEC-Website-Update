@@ -166,6 +166,10 @@
   background: linear-gradient(135deg, #9b59b6, #bb8fce);
 }
 
+.badge[data-category="bilgilendirme"] {
+  background: linear-gradient(135deg, #16a085, #1abc9c);
+}
+
 .announcement-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
