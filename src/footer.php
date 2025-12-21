@@ -1,3 +1,4 @@
+<!-- DEBUG: footer.php LOADED -->
 <footer>
     <div class="footer-container">
         <div class="footer-section">
@@ -64,3 +65,13 @@
     <script src="js/scroll-top.js"></script>
     
 </footer>
+
+<!-- DEBUG: About to include cookie-banner.php -->
+<?php
+// Cookie Banner - Include before closing body tag
+if (file_exists(__DIR__ . '/includes/cookie-banner.php')) {
+    include_once __DIR__ . '/includes/cookie-banner.php';
+} else {
+    echo '<!-- DEBUG: cookie-banner.php NOT FOUND at: ' . __DIR__ . '/includes/cookie-banner.php -->';
+}
+?>

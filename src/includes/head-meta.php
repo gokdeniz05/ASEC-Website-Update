@@ -4,17 +4,33 @@
  * Bu dosya, tüm sayfalarda kullanılacak ortak head meta etiketlerini içerir.
  */
 
-// Google Analytics - Only load on Production (aybuasec.org)
-// Skips localhost and test IP (49.13.142.134)
+// Google Analytics - Loads ONLY on Production AND if Consent is given
 if (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'aybuasec.org') !== false) {
 ?>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XV1CTB5E2K"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  // 1. Define the loader function (does not run immediately)
+  window.loadGoogleAnalytics = function() {
+      // Prevent double loading
+      if (document.getElementById('ga4-script')) return;
 
-  gtag('config', 'G-XV1CTB5E2K');
+      console.log("✅ GA4 Consent Given. Loading Analytics...");
+      
+      var script = document.createElement('script');
+      script.id = 'ga4-script';
+      script.async = true;
+      script.src = "https://www.googletagmanager.com/gtag/js?id=G-XV1CTB5E2K";
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XV1CTB5E2K');
+  };
+
+  // 2. Check if user ALREADY accepted in a previous session
+  if (localStorage.getItem('cookieConsent') === 'true') {
+      window.loadGoogleAnalytics();
+  }
 </script>
 <?php } ?>
 

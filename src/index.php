@@ -1,8 +1,11 @@
 <?php
 require_once 'db.php';
 ob_start(); // Çıktı tamponlamayı başlat (Docker için hayati önem taşır!)
-session_start(); // Oturumu başlat
- // Veritabanını çağır
+if (session_status() === PHP_SESSION_NONE) {
+    session_start(); // Oturumu başlat
+}
+require_once 'includes/lang.php';
+// Veritabanını çağır
 // ... kodların devamı ...
 ?>
 <!DOCTYPE html>
@@ -52,9 +55,6 @@ session_start(); // Oturumu başlat
                     <p><?php echo __t('home.hero.desc'); ?></p>
                     <div class="cta-buttons">
                         <?php
-                        if (session_status() === PHP_SESSION_NONE) {
-                            session_start();
-                        }
                         // Check for both regular user session and admin session
                         if (!isset($_SESSION['user']) && (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true)) {
                             // Show "Join Now" button when not logged in
