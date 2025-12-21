@@ -28,26 +28,61 @@ if (session_status() === PHP_SESSION_NONE) {
             $currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKIE['lang'] : 'tr');
             
             $today = date('Y-m-d');
-            $stmt = $pdo->prepare("SELECT * FROM etkinlikler ORDER BY tarih DESC");
+            
+            // Fetch all events
+            $stmt = $pdo->prepare("SELECT * FROM etkinlikler");
             $stmt->execute();
-            $etkinlikler = $stmt->fetchAll();
+            $all_etkinlikler = $stmt->fetchAll();
+            
+            // Split events into upcoming and past
+            $upcoming_events = [];
+            $past_events = [];
+            
+            foreach ($all_etkinlikler as $etkinlik) {
+                if ($etkinlik['tarih'] >= $today) {
+                    $upcoming_events[] = $etkinlik;
+                } else {
+                    $past_events[] = $etkinlik;
+                }
+            }
+            
+            // Sort upcoming events: ASCENDING (nearest date first)
+            usort($upcoming_events, function($a, $b) {
+                // First compare by date
+                $dateCompare = strcmp($a['tarih'], $b['tarih']);
+                if ($dateCompare !== 0) {
+                    return $dateCompare; // ASC: $a < $b means return -1 (a comes first)
+                }
+                // If dates are equal, compare by time
+                return strcmp($a['saat'] ?? '', $b['saat'] ?? '');
+            });
+            
+            // Sort past events: DESCENDING (most recent past first)
+            usort($past_events, function($a, $b) {
+                // First compare by date (reversed for DESC)
+                $dateCompare = strcmp($b['tarih'], $a['tarih']);
+                if ($dateCompare !== 0) {
+                    return $dateCompare; // DESC: $b < $a means return -1 (b comes first)
+                }
+                // If dates are equal, compare by time (reversed for DESC)
+                return strcmp($b['saat'] ?? '', $a['saat'] ?? '');
+            });
             ?>
             <!-- Yaklaşan Etkinlikler -->
             <section class="events-section">
                 <h3 class="section-title"><?php echo __t('events.upcoming.title'); ?></h3>
                 <div class="events-grid">
-                <?php foreach ($etkinlikler as $etkinlik):
-                    if ($etkinlik['tarih'] >= $today): 
-                        // Select title and description based on language
-                        if ($currentLang == 'en' && !empty($etkinlik['baslik_en']) && !empty($etkinlik['aciklama_en'])) {
-                            $display_baslik = $etkinlik['baslik_en'];
-                            $display_aciklama = $etkinlik['aciklama_en'];
-                        } else {
-                            // Default to Turkish
-                            $display_baslik = $etkinlik['baslik'];
-                            $display_aciklama = $etkinlik['aciklama'];
-                        }
-                    ?>
+                <?php foreach ($upcoming_events as $etkinlik):
+                    // Select title and description based on language
+                    if ($currentLang == 'en' && !empty($etkinlik['baslik_en']) && !empty($etkinlik['aciklama_en'])) {
+                        $display_baslik = $etkinlik['baslik_en'];
+                        $display_aciklama = $etkinlik['aciklama_en'];
+                    } else {
+                        // Default to Turkish
+                        $display_baslik = $etkinlik['baslik'];
+                        $display_aciklama = $etkinlik['aciklama'];
+                    }
+                ?>
                     <div class="event-card upcoming">
                         <div class="event-date">
                             <?php 
@@ -78,25 +113,24 @@ if (session_status() === PHP_SESSION_NONE) {
                             </div>
                         </div>
                     </div>
-                <?php endif; endforeach; ?>
+                <?php endforeach; ?>
                 </div>
             </section>
             <!-- Geçmiş Etkinlikler -->
             <section class="events-section past-events">
                 <h3 class="section-title"><?php echo __t('events.past.title'); ?></h3>
                 <div class="events-grid">
-                <?php foreach ($etkinlikler as $etkinlik):
-                    if ($etkinlik['tarih'] < $today): 
-                        // Select title and description based on language
-                        if ($currentLang == 'en' && !empty($etkinlik['baslik_en']) && !empty($etkinlik['aciklama_en'])) {
-                            $display_baslik = $etkinlik['baslik_en'];
-                            $display_aciklama = $etkinlik['aciklama_en'];
-                        } else {
-                            // Default to Turkish
-                            $display_baslik = $etkinlik['baslik'];
-                            $display_aciklama = $etkinlik['aciklama'];
-                        }
-                    ?>
+                <?php foreach ($past_events as $etkinlik):
+                    // Select title and description based on language
+                    if ($currentLang == 'en' && !empty($etkinlik['baslik_en']) && !empty($etkinlik['aciklama_en'])) {
+                        $display_baslik = $etkinlik['baslik_en'];
+                        $display_aciklama = $etkinlik['aciklama_en'];
+                    } else {
+                        // Default to Turkish
+                        $display_baslik = $etkinlik['baslik'];
+                        $display_aciklama = $etkinlik['aciklama'];
+                    }
+                ?>
                     <div class="event-card past">
                         <div class="event-date">
                             <?php 
@@ -124,9 +158,8 @@ if (session_status() === PHP_SESSION_NONE) {
                             </div>
                         </div>
                     </div>
-                <?php endif; endforeach; ?>
+                <?php endforeach; ?>
                 </div>
-            </section>
             </section>
         </div>
     </main>

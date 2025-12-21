@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 
                 if (!$user) {
-                    $error = 'Bu e-posta adresi ile kayıtlı bir hesap bulunamadı.';
+                    $error = __t('auth.user_not_found');
                 } else {
                     // Şifre sıfırlama token'ı oluştur
                     $token = bin2hex(random_bytes(32));
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="tr">
 <head>
     <?php include 'includes/head-meta.php'; ?>
-    <title>Şifremi Unuttum - ASEC Kulübü</title>
+    <title><?php echo __t('auth.forgot_title'); ?> - ASEC Kulübü</title>
     <link rel="stylesheet" href="css/auth.css">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
@@ -153,27 +153,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include 'header.php'; ?>
     <main class="auth-page">
         <div class="auth-container">
-            <h2>Şifremi Unuttum</h2>
+            <h2><?php echo __t('auth.forgot_title'); ?></h2>
             <?php if (!empty($success)): ?>
                 <div class="alert-success">
-                    <p>Şifre sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen e-postanızı kontrol edin.</p>
+                    <p><?php echo __t('auth.link_sent'); ?></p>
+                    <p><?php echo __t('auth.check_inbox'); ?></p>
+                    <p style="margin-top: 10px; font-weight: 600; color: #856404; background-color: #fff3cd; padding: 10px; border-radius: 5px; border-left: 4px solid #ffc107;">
+                        <strong>ℹ️ <?php echo __t('auth.link_sent_note'); ?></strong>
+                    </p>
                 </div>
             <?php else: ?>
-                <p class="auth-intro">E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.</p>
+                <p class="auth-intro"><?php echo (isset($langCode) && $langCode === 'en') ? 'Enter your email address and we will send you a password reset link.' : 'E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.'; ?></p>
                 <form method="post">
                     <?php if (!empty($error)) { echo '<div class="alert-error">'.$error.'</div>'; } ?>
                     <div class="form-group">
-                        <label for="email">E-posta:</label>
+                        <label for="email"><?php echo __t('auth.email_label'); ?>:</label>
                         <input type="email" id="email" name="email" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
                         <div class="g-recaptcha" data-sitekey="6LeLMC8rAAAAAChTj8rlQ_zyjedV3VdnejoNAZy1"></div>
                     </div>
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                    <button type="submit" class="cta-button">Şifre Sıfırlama Bağlantısı Gönder</button>
+                    <button type="submit" class="cta-button"><?php echo __t('auth.send_btn'); ?></button>
                 </form>
             <?php endif; ?>
-            <p>Şifrenizi hatırladınız mı? <a href="login.php">Giriş Yap</a></p>
+            <p><?php echo __t('auth.remembered'); ?> <a href="login.php"><?php echo __t('auth.back_login'); ?></a></p>
         </div>
     </main>
     <?php include 'footer.php'; ?>

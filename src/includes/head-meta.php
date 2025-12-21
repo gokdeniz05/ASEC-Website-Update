@@ -3,6 +3,22 @@
  * ASEC Kulübü - Head Meta Etiketleri
  * Bu dosya, tüm sayfalarda kullanılacak ortak head meta etiketlerini içerir.
  */
+
+// Google Analytics - Only load on Production (aybuasec.org)
+// Skips localhost and test IP (49.13.142.134)
+if (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'aybuasec.org') !== false) {
+?>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XV1CTB5E2K"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-XV1CTB5E2K');
+</script>
+<?php } ?>
+
+<?php
 require_once __DIR__ . '/lang.php';
 ?>
 <!-- Meta Etiketleri -->

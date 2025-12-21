@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $reset = $stmt->fetch();
         
         if (!$reset || $reset['expires'] <= time()) {
-            $error = 'Geçersiz veya süresi dolmuş şifre sıfırlama bağlantısı!';
+            $error = __t('auth.invalid_token');
         } else {
             // Şifre güçlülük kontrolü
             $password_check = validatePassword($password);
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } 
             // Şifre eşleşme kontrolü
             else if ($password !== $password2) {
-                $error = 'Şifreler eşleşmiyor!';
+                $error = __t('auth.pass_mismatch');
             } else {
                 // Identify user type: Check which table contains this email
                 $target_table = null;
@@ -94,35 +94,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="tr">
 <head>
     <?php include 'includes/head-meta.php'; ?>
-    <title>Şifre Sıfırla - ASEC Kulübü</title>
+    <title><?php echo __t('auth.reset_title'); ?> - ASEC Kulübü</title>
     <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
     <?php include 'header.php'; ?>
     <main class="auth-page">
         <div class="auth-container">
-            <h2>Şifre Sıfırla</h2>
+            <h2><?php echo __t('auth.reset_title'); ?></h2>
             
             <?php if (!empty($success)): ?>
                 <div class="alert-success">
-                    <p>Şifreniz başarıyla güncellendi!</p>
-                    <p>Artık yeni şifrenizle <a href="login.php">giriş yapabilirsiniz</a>.</p>
+                    <p><?php echo __t('auth.pass_updated'); ?></p>
+                    <p>Artık yeni şifrenizle <a href="login.php"><?php echo __t('auth.back_login'); ?></a> yapabilirsiniz.</p>
                 </div>
             <?php elseif (!$valid_token && empty($_POST)): ?>
                 <div class="alert-error">
-                    <p>Geçersiz veya süresi dolmuş şifre sıfırlama bağlantısı!</p>
-                    <p>Lütfen <a href="sifremi-unuttum.php">şifremi unuttum</a> sayfasından yeni bir sıfırlama bağlantısı talep edin.</p>
+                    <p><?php echo __t('auth.invalid_token'); ?></p>
+                    <p>Lütfen <a href="sifremi-unuttum.php"><?php echo __t('auth.forgot_title'); ?></a> sayfasından yeni bir sıfırlama bağlantısı talep edin.</p>
                 </div>
             <?php else: ?>
                 <p class="auth-intro">Lütfen yeni şifrenizi belirleyin.</p>
                 <form method="post">
                     <?php if (!empty($error)) { echo '<div class="alert-error">'.$error.'</div>'; } ?>
                     <div class="form-group">
-                        <label for="password">Yeni Şifre:</label>
+                        <label for="password"><?php echo __t('auth.new_pass'); ?>:</label>
                         <input type="password" id="password" name="password" required>
                     </div>
                     <div class="form-group">
-                        <label for="password2">Yeni Şifre (Tekrar):</label>
+                        <label for="password2"><?php echo __t('auth.new_pass_confirm'); ?>:</label>
                         <input type="password" id="password2" name="password2" required>
                     </div>
                     <div class="form-group">
@@ -139,11 +139,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                    <button type="submit" class="cta-button">Şifremi Güncelle</button>
+                    <button type="submit" class="cta-button"><?php echo __t('auth.update_btn'); ?></button>
                 </form>
             <?php endif; ?>
             
-            <p>Şifrenizi hatırladınız mı? <a href="login.php">Giriş Yap</a></p>
+            <p><?php echo __t('auth.remembered'); ?> <a href="login.php"><?php echo __t('auth.back_login'); ?></a></p>
         </div>
     </main>
     <?php include 'footer.php'; ?>
