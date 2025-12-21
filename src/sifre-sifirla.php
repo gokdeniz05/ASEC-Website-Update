@@ -49,19 +49,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             else if ($password !== $password2) {
                 $error = 'Şifreler eşleşmiyor!';
             } else {
-                // Şifreyi hashle ve güncelle
-                $hashed = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare('UPDATE users SET password = ? WHERE email = ?');
-                $ok = $stmt->execute([$hashed, $reset['email']]);
+                // Identify user type: Check which table contains this email
+                $target_table = null;
                 
-                if ($ok) {
-                    // Kullanılan token'ı sil
-                    $stmt = $pdo->prepare('DELETE FROM password_resets WHERE token = ?');
-                    $stmt->execute([$token]);
-                    
-                    $success = true;
+                // First check users table (individual users)
+                $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+                $stmt->execute([$reset['email']]);
+                if ($stmt->fetch()) {
+                    $target_table = 'users';
                 } else {
-                    $error = 'Şifre güncelleme sırasında bir hata oluştu!';
+                    // If not found in users, check corporate_users table
+                    $stmt = $pdo->prepare('SELECT id FROM corporate_users WHERE email = ?');
+                    $stmt->execute([$reset['email']]);
+                    if ($stmt->fetch()) {
+                        $target_table = 'corporate_users';
+                    }
+                }
+                
+                if (!$target_table) {
+                    // Email not found in either table (shouldn't happen with valid token, but safety check)
+                    $error = 'Kullanıcı bulunamadı. Lütfen yeni bir şifre sıfırlama bağlantısı talep edin.';
+                } else {
+                    // Şifreyi hashle ve güncelle
+                    $hashed = password_hash($password, PASSWORD_DEFAULT);
+                    $stmt = $pdo->prepare("UPDATE {$target_table} SET password = ? WHERE email = ?");
+                    $ok = $stmt->execute([$hashed, $reset['email']]);
+                    
+                    if ($ok) {
+                        // Kullanılan token'ı sil
+                        $stmt = $pdo->prepare('DELETE FROM password_resets WHERE token = ?');
+                        $stmt->execute([$token]);
+                        
+                        $success = true;
+                    } else {
+                        $error = 'Şifre güncelleme sırasında bir hata oluştu!';
+                    }
                 }
             }
         }

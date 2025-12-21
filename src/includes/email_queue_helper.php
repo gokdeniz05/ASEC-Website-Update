@@ -217,6 +217,110 @@ function queueAnnouncementNotification($pdo, $announcement_title, $announcement_
 }
 
 /**
+ * Queue an event notification (Scenario C - Events)
+ * Sends to both individual AND corporate users
+ * * @param PDO $pdo Database connection
+ * @param string $event_title Title of the event
+ * @param string $event_url URL to view the event
+ * @return int Number of emails queued
+ */
+function queueEventNotification($pdo, $event_title, $event_url) {
+    // Ensure table exists (Tablonun var olduğundan emin oluyoruz)
+    // Eğer bu fonksiyon sizde global değilse, include etmeniz gerekebilir.
+    // Ancak aynı dosyadaysa sorun yok.
+    if (function_exists('ensureMailQueueTableExists')) {
+        ensureMailQueueTableExists($pdo);
+    }
+    
+    $all_users = [];
+    
+    // 1. Bireysel Kullanıcıları Çek
+    try {
+        $stmt_individual = $pdo->query("SELECT email, name FROM users");
+        $individual_users = $stmt_individual->fetchAll();
+        $all_users = array_merge($all_users, $individual_users);
+    } catch (PDOException $e) {
+        error_log("Failed to fetch individual users: " . $e->getMessage());
+    }
+    
+    // 2. Kurumsal Kullanıcıları Çek
+    try {
+        $stmt_corporate = $pdo->query("SELECT email, contact_person as name FROM corporate_users");
+        $corporate_users = $stmt_corporate->fetchAll();
+        $all_users = array_merge($all_users, $corporate_users);
+    } catch (PDOException $e) {
+        error_log("Failed to fetch corporate users: " . $e->getMessage());
+    }
+    
+    if (empty($all_users)) {
+        return 0;
+    }
+    
+    $inserted = 0;
+    
+    // --- DEĞİŞİKLİK 1: Konu Başlığı ---
+    $subject = "Yeni Etkinlik: " . $event_title;
+    
+    // Base notification body
+    $base_body = "
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+    </head>
+    <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+        <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
+            
+            <h2 style='color: #2ecc71;'>Yeni Etkinlik</h2>
+            
+            <p>Merhaba,</p>
+            
+            <p>Yeni bir etkinlik yayınlandı: <strong>" . htmlspecialchars($event_title) . "</strong></p>
+            <p>Katılım detaylarını ve etkinliği incelemek için aşağıdaki bağlantıya tıklayın:</p>
+            
+            <p style='text-align: center; margin: 30px 0;'>
+                <a href='" . htmlspecialchars($event_url) . "' 
+                   style='background-color: #2ecc71; color: white; padding: 12px 30px; 
+                          text-decoration: none; border-radius: 5px; display: inline-block;'>
+                    Etkinliği Görüntüle
+                </a>
+            </p>
+            
+            <p style='color: #666; font-size: 0.9em;'>
+                Bu e-posta ASEC Kulübü tarafından gönderilmiştir.
+            </p>
+        </div>
+    </body>
+    </html>
+    ";
+    
+    // Insert into queue
+    $insert_stmt = $pdo->prepare("
+        INSERT INTO mail_queue (recipient_email, recipient_name, subject, body, status) 
+        VALUES (?, ?, ?, ?, 0)
+    ");
+    
+    foreach ($all_users as $user) {
+        $recipient_name = $user['name'] ?? 'Üye';
+        // Kişiselleştirme kısmı aynı kalır
+        $personalized_body = str_replace('Merhaba,', "Merhaba {$recipient_name},", $base_body);
+        
+        try {
+            $insert_stmt->execute([
+                $user['email'],
+                $recipient_name,
+                $subject,
+                $personalized_body
+            ]);
+            $inserted++;
+        } catch (PDOException $e) {
+            error_log("Failed to queue event email for user {$user['email']}: " . $e->getMessage());
+        }
+    }
+    
+    return $inserted;
+}
+
+/**
  * Queue a direct message notification (Scenario C)
  * Sends to a specific recipient
  * 
@@ -286,22 +390,24 @@ function queueDirectMessageNotification($pdo, $recipient_email, $recipient_name,
  * @param string $recipient_name Recipient name
  * @param string $subject Email subject
  * @param string $body Email body (HTML)
+ * @param int $priority Email priority (1=Normal, 10=High, default: 1)
  * @return int|false Queue ID on success, false on failure
  */
-function queueEmail($pdo, $recipient_email, $recipient_name, $subject, $body) {
+function queueEmail($pdo, $recipient_email, $recipient_name, $subject, $body, $priority = 1) {
     // Ensure table exists
     ensureMailQueueTableExists($pdo);
     
     try {
         $stmt = $pdo->prepare("
-            INSERT INTO mail_queue (recipient_email, recipient_name, subject, body, status) 
-            VALUES (?, ?, ?, ?, 0)
+            INSERT INTO mail_queue (recipient_email, recipient_name, subject, body, status, priority) 
+            VALUES (?, ?, ?, ?, 0, ?)
         ");
         $stmt->execute([
             $recipient_email,
             $recipient_name,
             $subject,
-            $body
+            $body,
+            $priority
         ]);
         return $pdo->lastInsertId();
     } catch (PDOException $e) {

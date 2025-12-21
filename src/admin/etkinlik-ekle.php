@@ -1,5 +1,8 @@
 <?php
 // Etkinlik Ekleme
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
@@ -39,13 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $etkinlik_id = $pdo->lastInsertId();
         
         // Queue notification for new event (only for new insertions, not updates)
-        $announcement_title = $baslik;
+        $events_title = $baslik;
         // Construct base URL
         $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
         $base_path = dirname(dirname($_SERVER['PHP_SELF']));
-        $announcement_url = $protocol . '://' . $host . $base_path . '/etkinlik-detay.php?id=' . $etkinlik_id;
-        queueAnnouncementNotification($pdo, $announcement_title, $announcement_url);
+        $events_url = $protocol . '://' . $host . $base_path . '/etkinlik-detay.php?id=' . $etkinlik_id;
+        queueEventNotification($pdo, $events_title, $events_url);
         
         $msg = 'Etkinlik başarıyla eklendi!';
         // Fotoğraf yükleme işlemi

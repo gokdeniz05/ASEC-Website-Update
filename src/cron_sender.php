@@ -76,16 +76,23 @@ loadEnvFile($envPath);
 // ============================================================================
 // 1. SECURITY CHECK
 // ============================================================================
-$cron_key = $_ENV['CRON_KEY'] ?? getenv('CRON_KEY'); 
+// Check if running from Command Line Interface (CLI)
+$is_cli = (php_sapi_name() === 'cli' || defined('STDIN'));
 
-if (empty($cron_key)) {
-    die('HATA: CRON_KEY değeri .env dosyasında bulunamadı.');
-}
+if (!$is_cli) {
+    // We are in a Web Browser -> Enforce Security Key
+    $cron_key = $_ENV['CRON_KEY'] ?? getenv('CRON_KEY'); 
 
-if (!isset($_GET['key']) || $_GET['key'] !== $cron_key) {
-    http_response_code(403);
-    die('Erişim Reddedildi: Yanlış güvenlik anahtarı (Key mismatch).');
+    if (empty($cron_key)) {
+        die('HATA: CRON_KEY değeri .env dosyasında bulunamadı.');
+    }
+
+    if (!isset($_GET['key']) || $_GET['key'] !== $cron_key) {
+        http_response_code(403);
+        die('Erişim Reddedildi: Yanlış güvenlik anahtarı (Key mismatch).');
+    }
 }
+// If $is_cli is true, we skip the check and proceed (Trusted Execution).
 
 // ============================================================================
 // 2. PHPMailer Setup
@@ -133,11 +140,84 @@ try {
 }
 
 // ============================================================================
+// STEP 1: AUTO-UPDATE DATABASE SCHEMA (Self-Healing)
+// ============================================================================
+try {
+    // First check if table exists
+    $stmt = $pdo->query("SHOW TABLES LIKE 'mail_queue'");
+    if ($stmt->rowCount() > 0) {
+        // Table exists, check for missing columns
+        // Check if priority column exists
+        $stmt = $pdo->query("SHOW COLUMNS FROM mail_queue LIKE 'priority'");
+        if ($stmt->rowCount() === 0) {
+            $pdo->exec("ALTER TABLE mail_queue ADD COLUMN priority INT DEFAULT 1 COMMENT '1=Normal, 10=High'");
+            echo "✅ priority sütunu eklendi.<br>";
+        }
+        
+        // Check if error_message column exists (note: table creation uses error_msg, but we'll check for both)
+        $stmt = $pdo->query("SHOW COLUMNS FROM mail_queue LIKE 'error_message'");
+        if ($stmt->rowCount() === 0) {
+            // Check if error_msg exists (the original column name)
+            $stmt = $pdo->query("SHOW COLUMNS FROM mail_queue LIKE 'error_msg'");
+            if ($stmt->rowCount() === 0) {
+                $pdo->exec("ALTER TABLE mail_queue ADD COLUMN error_message TEXT DEFAULT NULL");
+                echo "✅ error_message sütunu eklendi.<br>";
+            }
+        }
+    }
+    // If table doesn't exist, it will be created later with all columns
+} catch (PDOException $e) {
+    // Continue execution even if schema check fails
+    // Table will be created later with all required columns
+}
+
+// ============================================================================
+// STEP 2: PREVENT RACE CONDITIONS (File Locking - Self-Healing)
+// ============================================================================
+$lock_file = __DIR__ . '/cron_sender.lock';
+$lock_timeout = 300; // 5 minutes in seconds
+
+// Self-Healing Lock: Check if lock file exists and handle stale locks
+if (file_exists($lock_file)) {
+    $lock_age = time() - filemtime($lock_file);
+    
+    if ($lock_age < $lock_timeout) {
+        // Another instance is running (lock is fresh)
+        die("⚠️ Başka bir cron_sender.php örneği çalışıyor. Bu işlem durduruldu. (Lock file: {$lock_age} saniye önce oluşturuldu)");
+    } else {
+        // Lock file is stale (older than 5 minutes) - Self-healing: DELETE it
+        if (@unlink($lock_file)) {
+            echo "🔓 Eski kilit dosyası silindi (Stale lock removed: {$lock_age} saniye eski).<br>";
+        } else {
+            echo "⚠️ Uyarı: Eski kilit dosyası silinemedi, devam ediliyor...<br>";
+        }
+    }
+}
+
+// Create lock file
+if (@touch($lock_file)) {
+    echo "🔒 Kilit dosyası oluşturuldu.<br>";
+} else {
+    echo "⚠️ Uyarı: Kilit dosyası oluşturulamadı, devam ediliyor...<br>";
+}
+
+// Register shutdown function to ensure lock file is deleted even if script crashes
+register_shutdown_function(function() use ($lock_file) {
+    if (file_exists($lock_file)) {
+        @unlink($lock_file);
+    }
+});
+
+// ============================================================================
 // 4.5. LOAD SMTP CREDENTIALS
 // ============================================================================
 $smtp_password = $_ENV['SMTP_PASSWORD'] ?? getenv('SMTP_PASSWORD');
 
 if (empty($smtp_password)) {
+    // Clean up lock file before exiting
+    if (file_exists($lock_file)) {
+        @unlink($lock_file);
+    }
     die('HATA: SMTP_PASSWORD değeri .env dosyasında bulunamadı.');
 }
 
@@ -152,10 +232,13 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS mail_queue (
     subject VARCHAR(500) NOT NULL,
     body TEXT NOT NULL,
     status TINYINT DEFAULT 0,
+    priority INT DEFAULT 1 COMMENT '1=Normal, 10=High',
     error_msg TEXT DEFAULT NULL,
+    error_message TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     sent_at TIMESTAMP NULL DEFAULT NULL,
-    INDEX idx_status (status)
+    INDEX idx_status (status),
+    INDEX idx_priority (priority)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
 function sendEmail($queueItem, $pdo) {
@@ -190,17 +273,25 @@ function sendEmail($queueItem, $pdo) {
         return true;
     } catch (Exception $e) {
         $error_msg = $mail->ErrorInfo;
-        $stmt = $pdo->prepare("UPDATE mail_queue SET status = 2, error_msg = ? WHERE id = ?");
-        $stmt->execute([$error_msg, $queueItem['id']]);
+        // Try error_message first, fallback to error_msg for backward compatibility
+        try {
+            $stmt = $pdo->prepare("UPDATE mail_queue SET status = 2, error_message = ? WHERE id = ?");
+            $stmt->execute([$error_msg, $queueItem['id']]);
+        } catch (PDOException $e) {
+            // Fallback to error_msg if error_message column doesn't exist
+            $stmt = $pdo->prepare("UPDATE mail_queue SET status = 2, error_msg = ? WHERE id = ?");
+            $stmt->execute([$error_msg, $queueItem['id']]);
+        }
         echo "<br><strong>Mailer Error:</strong> " . $error_msg . "<br>";
         return false;
     }
 }
 
 // ============================================================================
-// 7. MAIN PROCESS
+// STEP 3: PRIORITY-BASED SENDING LOGIC
 // ============================================================================
-$stmt = $pdo->prepare("SELECT * FROM mail_queue WHERE status = 0 ORDER BY created_at ASC LIMIT ?");
+// Main process with priority ordering: High priority (10) first, then by creation time
+$stmt = $pdo->prepare("SELECT * FROM mail_queue WHERE status = 0 ORDER BY priority DESC, created_at ASC LIMIT ?");
 $stmt->bindValue(1, $batch_size, PDO::PARAM_INT);
 $stmt->execute();
 $pending_emails = $stmt->fetchAll();
@@ -213,7 +304,12 @@ if (empty($pending_emails)) {
 echo "İşlenen e-posta sayısı: " . count($pending_emails) . "<br><hr>";
 
 foreach ($pending_emails as $email) {
-    echo "Gönderiliyor: {$email['recipient_email']} ... ";
+    // Debug output: Show email ID being processed
+    echo "Processing email ID: " . $email['id'] . " | ";
+    
+    $priority_label = isset($email['priority']) && $email['priority'] == 10 ? ' [YÜKSEK ÖNCELİK]' : '';
+    $priority_info = isset($email['priority']) ? " (Priority: {$email['priority']})" : " (Priority: not set)";
+    echo "Gönderiliyor: {$email['recipient_email']}{$priority_label}{$priority_info} ... ";
     if (sendEmail($email, $pdo)) {
         echo "<span style='color:green'>BAŞARILI</span><br>";
     } else {
@@ -223,4 +319,9 @@ foreach ($pending_emails as $email) {
     sleep(1); 
 }
 echo "<hr>İşlem tamamlandı.";
+
+// Clean up lock file at the end
+if (file_exists($lock_file)) {
+    @unlink($lock_file);
+}
 ?>

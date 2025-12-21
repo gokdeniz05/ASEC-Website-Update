@@ -1,8 +1,13 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 require_once 'db.php';
 require_once 'includes/validation.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Corporate users tablosunu oluştur (yoksa)
 $pdo->exec('CREATE TABLE IF NOT EXISTS corporate_users (
