@@ -9,6 +9,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     exit;
 }
 require_once '../db.php';
+require_once '../includes/email_queue_helper.php';
 
 // Ensure ilanlar table exists with all required columns
 try {
@@ -204,6 +205,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($ok) {
                     $success = true;
+                    
+                    // Queue Email Notification
+                    if (function_exists('queueNewListingNotification')) {
+                        $public_url = 'https://aybuasec.org/ilanlar';
+                        queueNewListingNotification($pdo, $baslik, $public_url);
+                    }
+                    
                     // Redirect back to add page with success message
                     header('Location: ilan-ekle.php?success=1');
                     exit;
