@@ -765,6 +765,10 @@ try {
 
                                 $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
 
+                                // Dynamic language switching for title and content
+                                $display_title = ($currentLang == 'en' && !empty($ilan['baslik_en'])) ? $ilan['baslik_en'] : $ilan['baslik'];
+                                $display_content = ($currentLang == 'en' && !empty($ilan['icerik_en'])) ? $ilan['icerik_en'] : $ilan['icerik'];
+
                             ?>
 
                                 <div class="announcement-card" data-category="staj">
@@ -777,7 +781,7 @@ try {
 
                                     </div>
 
-                                    <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
+                                    <h3><?= htmlspecialchars($display_title) ?></h3>
 
                                     <?php if(!empty($ilan['sirket'])): ?>
 
@@ -791,7 +795,7 @@ try {
 
                                     <?php endif; ?>
 
-                                    <p><?= htmlspecialchars($ilan['icerik']) ?></p>
+                                    <p><?= htmlspecialchars($display_content) ?></p>
 
                                     <?php if(!empty($ilan['son_basvuru'])):
 
@@ -875,9 +879,9 @@ try {
 
                                         $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
 
-                                        if (!empty($ilan['baslik'])) {
+                                        if (!empty($display_title)) {
 
-                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $display_title);
 
                                         }
 
@@ -971,6 +975,10 @@ try {
 
                                 $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
 
+                                // Dynamic language switching for title and content
+                                $display_title = ($currentLang == 'en' && !empty($ilan['baslik_en'])) ? $ilan['baslik_en'] : $ilan['baslik'];
+                                $display_content = ($currentLang == 'en' && !empty($ilan['icerik_en'])) ? $ilan['icerik_en'] : $ilan['icerik'];
+
                             ?>
 
                                 <div class="announcement-card" data-category="burs">
@@ -983,7 +991,7 @@ try {
 
                                     </div>
 
-                                    <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
+                                    <h3><?= htmlspecialchars($display_title) ?></h3>
 
                                     <?php if(!empty($ilan['sirket'])): ?>
 
@@ -997,7 +1005,7 @@ try {
 
                                     <?php endif; ?>
 
-                                    <p><?= htmlspecialchars($ilan['icerik']) ?></p>
+                                    <p><?= htmlspecialchars($display_content) ?></p>
 
                                     <?php if(!empty($ilan['son_basvuru'])):
 
@@ -1081,9 +1089,9 @@ try {
 
                                         $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
 
-                                        if (!empty($ilan['baslik'])) {
+                                        if (!empty($display_title)) {
 
-                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $display_title);
 
                                         }
 
@@ -1177,6 +1185,10 @@ try {
 
                                 $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
 
+                                // Dynamic language switching for title and content
+                                $display_title = ($currentLang == 'en' && !empty($ilan['baslik_en'])) ? $ilan['baslik_en'] : $ilan['baslik'];
+                                $display_content = ($currentLang == 'en' && !empty($ilan['icerik_en'])) ? $ilan['icerik_en'] : $ilan['icerik'];
+
                             ?>
 
                                 <div class="announcement-card" data-category="is">
@@ -1189,7 +1201,7 @@ try {
 
                                     </div>
 
-                                    <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
+                                    <h3><?= htmlspecialchars($display_title) ?></h3>
 
                                     <?php if(!empty($ilan['sirket'])): ?>
 
@@ -1203,7 +1215,7 @@ try {
 
                                     <?php endif; ?>
 
-                                    <p><?= htmlspecialchars($ilan['icerik']) ?></p>
+                                    <p><?= htmlspecialchars($display_content) ?></p>
 
                                     <?php if(!empty($ilan['son_basvuru'])):
 
@@ -1287,9 +1299,9 @@ try {
 
                                         $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
 
-                                        if (!empty($ilan['baslik'])) {
+                                        if (!empty($display_title)) {
 
-                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $display_title);
 
                                         }
 
@@ -1425,6 +1437,10 @@ try {
 
                                 $formattedDate = date('d', $tarihTimestamp) . ' ' . $monthShort . ' ' . date('Y', $tarihTimestamp);
 
+                                // Dynamic language switching for title and content
+                                $display_title = ($currentLang == 'en' && !empty($ilan['baslik_en'])) ? $ilan['baslik_en'] : $ilan['baslik'];
+                                $display_content = ($currentLang == 'en' && !empty($ilan['icerik_en'])) ? $ilan['icerik_en'] : $ilan['icerik'];
+
                             ?>
 
                                 <div class="announcement-card" data-category="bireysel">
@@ -1457,7 +1473,7 @@ try {
 
                                     </div>
 
-                                    <h3><?= htmlspecialchars($ilan['baslik']) ?></h3>
+                                    <h3><?= htmlspecialchars($display_title) ?></h3>
 
                                     <?php if(!empty($ilan['sirket'])): ?>
 
@@ -1471,7 +1487,7 @@ try {
 
                                     <?php endif; ?>
 
-                                    <p><?= htmlspecialchars($ilan['icerik']) ?></p>
+                                    <p><?= htmlspecialchars($display_content) ?></p>
 
                                     <?php if(!empty($ilan['son_basvuru'])):
 
@@ -1555,9 +1571,9 @@ try {
 
                                         $message_url = 'message-compose.php?receiver_id=' . $receiver_id . '&receiver_type=' . $receiver_type;
 
-                                        if (!empty($ilan['baslik'])) {
+                                        if (!empty($display_title)) {
 
-                                            $message_url .= '&subject=' . urlencode('Referans: ' . $ilan['baslik']);
+                                            $message_url .= '&subject=' . urlencode('Referans: ' . $display_title);
 
                                         }
 
