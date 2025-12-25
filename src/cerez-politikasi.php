@@ -134,3 +134,4 @@ $currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKI
     <script src="javascript/script.js"></script>
 </body>
 </html>
+

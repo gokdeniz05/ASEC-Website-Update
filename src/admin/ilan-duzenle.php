@@ -219,6 +219,7 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                 <option value="">Seçiniz...</option>
                 <option value="Staj İlanları"<?= (isset($ilan['kategori']) && $ilan['kategori']=='Staj İlanları')?' selected':'' ?>>Staj İlanları</option>
                 <option value="Burs İlanları"<?= (isset($ilan['kategori']) && $ilan['kategori']=='Burs İlanları')?' selected':'' ?>>Burs İlanları</option>
+                <option value="İş İlanı"<?= (isset($ilan['kategori']) && $ilan['kategori']=='İş İlanı')?' selected':'' ?>>İş İlanı</option>
                 <option value="Bireysel İlanlar"<?= (isset($ilan['kategori']) && $ilan['kategori']=='Bireysel İlanlar')?' selected':'' ?>>Bireysel İlanlar</option>
               </select>
             </div>

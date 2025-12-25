@@ -833,7 +833,13 @@ try {
 
                                    
 
-                                    if (!empty($ilan['corporate_user_id'])) {
+                                    // Hide message button if post was created by Admin
+
+                                    if (isset($ilan['tip']) && $ilan['tip'] === 'admin') {
+
+                                        $show_message_button = false;
+
+                                    } elseif (!empty($ilan['corporate_user_id'])) {
 
                                         $receiver_id = $ilan['corporate_user_id'];
 
@@ -1033,7 +1039,13 @@ try {
 
                                    
 
-                                    if (!empty($ilan['corporate_user_id'])) {
+                                    // Hide message button if post was created by Admin
+
+                                    if (isset($ilan['tip']) && $ilan['tip'] === 'admin') {
+
+                                        $show_message_button = false;
+
+                                    } elseif (!empty($ilan['corporate_user_id'])) {
 
                                         $receiver_id = $ilan['corporate_user_id'];
 
@@ -1233,7 +1245,13 @@ try {
 
                                    
 
-                                    if (!empty($ilan['corporate_user_id'])) {
+                                    // Hide message button if post was created by Admin
+
+                                    if (isset($ilan['tip']) && $ilan['tip'] === 'admin') {
+
+                                        $show_message_button = false;
+
+                                    } elseif (!empty($ilan['corporate_user_id'])) {
 
                                         $receiver_id = $ilan['corporate_user_id'];
 
@@ -1495,7 +1513,13 @@ try {
 
                                    
 
-                                    if (!empty($ilan['corporate_user_id'])) {
+                                    // Hide message button if post was created by Admin
+
+                                    if (isset($ilan['tip']) && $ilan['tip'] === 'admin') {
+
+                                        $show_message_button = false;
+
+                                    } elseif (!empty($ilan['corporate_user_id'])) {
 
                                         $receiver_id = $ilan['corporate_user_id'];
 

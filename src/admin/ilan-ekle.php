@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 // İlan Ekleme
 session_start();
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
@@ -24,6 +27,7 @@ try {
             sirket VARCHAR(255),
             lokasyon VARCHAR(255),
             son_basvuru DATE,
+            tip VARCHAR(50),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
@@ -44,6 +48,7 @@ try {
             'sirket' => ['type' => 'VARCHAR(255)', 'nullable' => true],
             'lokasyon' => ['type' => 'VARCHAR(255)', 'nullable' => true],
             'son_basvuru' => ['type' => 'DATE', 'nullable' => true],
+            'tip' => ['type' => 'VARCHAR(50)', 'nullable' => true],
             'created_at' => ['type' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP', 'nullable' => true],
             'updated_at' => ['type' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'nullable' => true]
         ];
@@ -104,6 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sirket = trim($_POST['sirket'] ?? '');
         $lokasyon = trim($_POST['lokasyon'] ?? '');
         $son_basvuru = $_POST['son_basvuru'] ?? null;
+        // HARDCODE tip to 'admin' for admin-created posts
+        $tip = 'admin';
         
         // Validation
         if (empty($baslik)) {
@@ -179,6 +186,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $insertValues[] = $son_basvuru ?: null;
                 $placeholders[] = '?';
             }
+            // Always include tip column (hardcoded to 'admin')
+            if (in_array('tip', $columns)) {
+                $insertColumns[] = 'tip';
+                $insertValues[] = $tip;
+                $placeholders[] = '?';
+            }
+            // Ensure sirket is included (already handled above, but ensure it's there)
+            // sirket is already added above if column exists
             
             if (empty($insertColumns)) {
                 $error = 'Tablo yapısı hatası! Lütfen yöneticiye bildirin.';
@@ -284,6 +299,7 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                 <option value="">Seçiniz...</option>
                 <option value="Staj İlanları" <?= (isset($_POST['kategori']) && $_POST['kategori'] == 'Staj İlanları') ? 'selected' : '' ?>>Staj İlanları</option>
                 <option value="Burs İlanları" <?= (isset($_POST['kategori']) && $_POST['kategori'] == 'Burs İlanları') ? 'selected' : '' ?>>Burs İlanları</option>
+                <option value="İş İlanı" <?= (isset($_POST['kategori']) && $_POST['kategori'] == 'İş İlanı') ? 'selected' : '' ?>>İş İlanı</option>
                 <option value="Bireysel İlanlar" <?= (isset($_POST['kategori']) && $_POST['kategori'] == 'Bireysel İlanlar') ? 'selected' : '' ?>>Bireysel İlanlar</option>
               </select>
             </div>

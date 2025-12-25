@@ -159,10 +159,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                                 </small>
                             </div>
                             <hr>
-                            <div class="mb-3">
+                            <!-- <div class="mb-3">
                                 <strong>Şifre Değiştirme:</strong><br>
                                 <small class="text-muted">Şifrenizi değiştirmek için lütfen yönetici ile iletişime geçin.</small>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
