@@ -133,14 +133,12 @@ if (!$user) {
             </div>
         </div>
 
-        <!-- Profil Düzenle Modalı -->
         <div id="profil-modal" class="profil-modal" style="display:none;">
             <div class="profil-modal-content">
                 <span class="profil-modal-close" id="profil-modal-close">&times;</span>
                 <h3><?php echo __t('profile.edit'); ?></h3>
                 <form id="profil-update-form" method="post" enctype="multipart/form-data">
                     <?php if ($user_type === 'corporate'): ?>
-                        <!-- Corporate User Form -->
                         <div class="profil-form-row">
                             <div class="profil-form-group">
                                 <label>Şirket Adı</label>
@@ -168,7 +166,6 @@ if (!$user) {
                             </div>
                         </div>
                     <?php else: ?>
-                        <!-- Individual User Form -->
                         <div class="profil-form-row">
                             <div class="profil-form-group">
                                 <label><?php echo __t('register.name'); ?></label>
@@ -210,6 +207,13 @@ if (!$user) {
                                 <input type="date" name="birthdate" value="<?php echo htmlspecialchars($user['birthdate'] ?? ''); ?>">
                             </div>
                         </div>
+                        
+                        <div class="profil-form-row">
+                            <div class="profil-form-group" style="width: 100%;">
+                                <label><?php echo __t('profile.labels.address'); ?></label>
+                                <textarea name="address" rows="3" style="width: 100%; padding: 12px 15px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 1rem;"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                            </div>
+                        </div>
                         <div class="profil-form-row">
                             <div class="profil-form-group">
                                 <label><?php echo __t('profile.labels.bio'); ?></label>
@@ -244,13 +248,11 @@ if (!$user) {
 
         <div class="profil-info-list">
             <?php if ($user_type === 'corporate'): ?>
-                <!-- Corporate User Fields -->
                 <div class="profil-info-item"><span class="profil-label">İletişim Kişisi</span><span class="profil-value"><?php echo htmlspecialchars($user['contact_person'] ?? __t('profile.value.not_set')); ?></span></div>
                 <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.phone'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['phone'] ?? __t('profile.value.not_set')); ?></span></div>
                 <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.address'); ?></span><span class="profil-value"><?php echo isset($user['address']) && trim($user['address']) !== '' ? htmlspecialchars($user['address']) : __t('profile.value.not_set'); ?></span></div>
                 <div class="profil-info-item"><span class="profil-label">Vergi Numarası</span><span class="profil-value"><?php echo htmlspecialchars($user['tax_number'] ?? __t('profile.value.not_set')); ?></span></div>
             <?php else: ?>
-                <!-- Individual User Fields -->
                 <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.phone'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['phone']); ?></span></div>
                 <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.university'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['university']); ?></span></div>
                 <div class="profil-info-item"><span class="profil-label"><?php echo __t('profile.labels.department'); ?></span><span class="profil-value"><?php echo htmlspecialchars($user['department']); ?></span></div>

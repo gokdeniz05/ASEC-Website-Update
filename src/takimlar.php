@@ -31,7 +31,7 @@ $currentLang = isset($langCode) ? $langCode : (isset($_COOKIE['lang']) ? $_COOKI
                             <span class="stat-label"><?php echo __t('teams.stat.active'); ?></span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">50+</span>
+                            <span class="stat-number">180+</span>
                             <span class="stat-label"><?php echo __t('teams.stat.members'); ?></span>
                         </div>
                         <div class="stat-item">
