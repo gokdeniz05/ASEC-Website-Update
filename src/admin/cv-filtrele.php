@@ -105,7 +105,7 @@ if (!empty($selectedCompany)) {
     $params[] = "%$selectedCompany%";
 }
 
-// Filter by programming languages
+// Filter by programming languages (DÜZELTİLDİ: OR yerine AND kullanıldı)
 if (!empty($selectedLanguages) && is_array($selectedLanguages)) {
     $langConditions = [];
     foreach ($selectedLanguages as $lang) {
@@ -113,11 +113,12 @@ if (!empty($selectedLanguages) && is_array($selectedLanguages)) {
         $params[] = "%\"$lang\"%";
     }
     if (!empty($langConditions)) {
-        $whereConditions[] = "(" . implode(" OR ", $langConditions) . ")";
+        // BURASI DEĞİŞTİ
+        $whereConditions[] = "(" . implode(" AND ", $langConditions) . ")";
     }
 }
 
-// Filter by software fields
+// Filter by software fields (DÜZELTİLDİ: OR yerine AND kullanıldı)
 if (!empty($selectedSoftwareFields) && is_array($selectedSoftwareFields)) {
     $fieldConditions = [];
     foreach ($selectedSoftwareFields as $field) {
@@ -125,7 +126,8 @@ if (!empty($selectedSoftwareFields) && is_array($selectedSoftwareFields)) {
         $params[] = "%\"$field\"%";
     }
     if (!empty($fieldConditions)) {
-        $whereConditions[] = "(" . implode(" OR ", $fieldConditions) . ")";
+        // BURASI DEĞİŞTİ
+        $whereConditions[] = "(" . implode(" AND ", $fieldConditions) . ")";
     }
 }
 
@@ -160,7 +162,6 @@ unset($candidate);
                 <h1 class="h2">CV Filtreleme</h1>
             </div>
 
-            <!-- Filter Form -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0"><i class="fas fa-filter"></i> Filtreler</h5>
@@ -213,7 +214,7 @@ unset($candidate);
 
                         <div class="row">
                             <div class="col-12 col-md-6 mb-3">
-                                <label>Programlama Dilleri</label>
+                                <label>Programlama Dilleri <small class="text-muted">(Seçilenlerin HEPSİNE sahip olanlar listelenir)</small></label>
                                 <div class="filter-chips">
                                     <?php foreach($languageOptions as $lang): ?>
                                         <label class="filter-chip">
@@ -225,7 +226,7 @@ unset($candidate);
                                 </div>
                             </div>
                             <div class="col-12 col-md-6 mb-3">
-                                <label>Yazılım Alanları</label>
+                                <label>Yazılım Alanları <small class="text-muted">(Seçilenlerin HEPSİNE sahip olanlar listelenir)</small></label>
                                 <div class="filter-chips">
                                     <?php foreach($softwareFieldOptions as $field): ?>
                                         <label class="filter-chip">
@@ -261,7 +262,6 @@ unset($candidate);
                 </div>
             </div>
 
-            <!-- Results -->
             <div class="card shadow-sm">
                 <div class="card-header bg-info text-white">
                     <h5 class="mb-0"><i class="fas fa-users"></i> Bulunan Adaylar</h5>
@@ -437,4 +437,3 @@ unset($candidate);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
